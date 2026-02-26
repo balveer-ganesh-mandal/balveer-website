@@ -1,26 +1,93 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* 
+  Global variable configuration for a traditional, religious, temple-inspired theme
+*/
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #fdfbf7;
+    /* Clean off-white surface */
+    --foreground: #1e1b4b;
+    /* Deep Indigo text (indigo-950) */
+
+    --primary: #ea580c;
+    /* Saffron / Deep Orange (orange-600) */
+    --primary-foreground: #ffffff;
+    /* White text on primary */
+
+    --secondary: #1e1b4b;
+    /* Deep Indigo / Royal Slate */
+    --secondary-foreground: #fceabb;
+    /* Pale gold on dark */
+
+    --muted: #fff7ed;
+    /* Very light orange tint for cards */
+    --muted-foreground: #9a3412;
+    /* Dark orange text */
+
+    --border: #f97316;
+    /* Bright Saffron border (orange-500) */
+
+    --temple-red: #c2410c;
+    /* Warmer traditional temple tone */
+  }
+
+  .dark {
+    --background: #1e1b4b;
+    /* Deep Indigo background */
+    --foreground: #fdfbf7;
+    /* Light cream text */
+
+    --primary: #f97316;
+    /* Bright Saffron (orange-500) */
+    --primary-foreground: #1e1b4b;
+
+    --secondary: #e0e7ff;
+    /* Light Indigo */
+    --secondary-foreground: #1e1b4b;
+
+    --muted: #312e81;
+    /* Indigo-800 for cards */
+    --muted-foreground: #fed7aa;
+    /* Light orange text for muted */
+
+    --border: #ea580c;
+    /* Saffron border */
+
+    --temple-red: #f97316;
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-mukta), sans-serif;
+}
+
+@theme {
+  --font-sans: var(--font-mukta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-yatra), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+/* Custom Utilities for Temple Aesthetics */
+@layer utilities {
+  .text-gold-gradient {
+    background-image: linear-gradient(to bottom, #fceabb, #f8b500);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .border-gold {
+    border-color: #d4af37;
+  }
+
+  .shadow-gold {
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+  }
 }
