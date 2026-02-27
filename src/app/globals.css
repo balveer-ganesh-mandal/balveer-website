@@ -6,56 +6,55 @@
 
 @layer base {
   :root {
-    --background: #fdfbf7;
-    /* Clean off-white surface */
-    --foreground: #1e1b4b;
-    /* Deep Indigo text (indigo-950) */
+    --background: #fff8f0;
+    /* Warm beige/cream like sandstone */
+    --foreground: #4a1515;
+    /* Deep maroon/brown text */
 
-    --primary: #ea580c;
-    /* Saffron / Deep Orange (orange-600) */
+    --primary: #c93b16;
+    /* Saffron Orange / Bhagwa */
     --primary-foreground: #ffffff;
-    /* White text on primary */
 
-    --secondary: #1e1b4b;
-    /* Deep Indigo / Royal Slate */
-    --secondary-foreground: #fceabb;
-    /* Pale gold on dark */
+    --secondary: #d4af37;
+    /* Authentic Gold */
+    --secondary-foreground: #4a1515;
+    /* Dark brown for contrast */
 
-    --muted: #fff7ed;
-    /* Very light orange tint for cards */
-    --muted-foreground: #9a3412;
-    /* Dark orange text */
+    --muted: #fef1e3;
+    /* Softer beige for cards/sections */
+    --muted-foreground: #993311;
+    /* Dark Saffron for muted text */
 
-    --border: #f97316;
-    /* Bright Saffron border (orange-500) */
+    --border: #e6c8a6;
+    /* Sandstone border */
 
-    --temple-red: #c2410c;
-    /* Warmer traditional temple tone */
+    --temple-red: #8b0000;
+    /* Deep temple red */
   }
 
   .dark {
-    --background: #1e1b4b;
-    /* Deep Indigo background */
-    --foreground: #fdfbf7;
+    --background: #1a0805;
+    /* Very dark brownish red */
+    --foreground: #ffecd1;
     /* Light cream text */
 
     --primary: #f97316;
-    /* Bright Saffron (orange-500) */
-    --primary-foreground: #1e1b4b;
+    /* Bright Saffron */
+    --primary-foreground: #2a0b05;
 
-    --secondary: #e0e7ff;
-    /* Light Indigo */
-    --secondary-foreground: #1e1b4b;
+    --secondary: #ffd700;
+    /* Bright Gold */
+    --secondary-foreground: #1a0805;
 
-    --muted: #312e81;
-    /* Indigo-800 for cards */
-    --muted-foreground: #fed7aa;
-    /* Light orange text for muted */
+    --muted: #2d1109;
+    /* Dark muted red/brown */
+    --muted-foreground: #dfbc90;
+    /* Sandy text for muted */
 
-    --border: #ea580c;
-    /* Saffron border */
+    --border: #502015;
+    /* Dark brown border */
 
-    --temple-red: #f97316;
+    --temple-red: #cc0000;
   }
 }
 

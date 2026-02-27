@@ -60,30 +60,30 @@ export default function DonatePage() {
     };
 
     return (
-        <div className="min-h-screen bg-background font-sans pb-24">
+        <div className="min-h-screen bg-[#fffdfc] font-sans pb-24">
             {/* Header Section */}
-            <section className="bg-secondary py-16 relative overflow-hidden shadow-2xl">
+            <section className="bg-[#4a0808] py-16 relative overflow-hidden shadow-2xl">
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arches.png')]" />
 
                 <div className="max-w-6xl mx-auto px-6 relative z-10">
-                    <Link href="/" className="inline-flex items-center gap-2 text-primary hover:text-white transition-colors mb-8 text-sm font-semibold tracking-wide uppercase">
+                    <Link href="/" className="inline-flex items-center gap-2 text-[#fceabb] hover:text-white transition-colors mb-8 text-sm font-semibold tracking-wide uppercase">
                         <ArrowLeft size={16} /> {t.back}
                     </Link>
 
                     <div className="text-center space-y-4">
                         <motion.h1
                             initial="hidden" animate="visible" variants={fadeInUp}
-                            className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-primary tracking-wider drop-shadow-md"
+                            className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-[#fceabb] tracking-wider drop-shadow-md"
                         >
                             {t.title}
                         </motion.h1>
                         <motion.div
                             initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.8, delay: 0.2 }}
-                            className="h-1 w-32 bg-primary mx-auto rounded-full"
+                            className="h-1 w-32 bg-[#be1111] mx-auto rounded-full"
                         />
                         <motion.p
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-                            className="text-secondary-foreground/80 text-lg md:text-xl font-medium tracking-wide max-w-2xl mx-auto"
+                            className="text-[#fceabb]/80 text-lg md:text-xl font-medium tracking-wide max-w-2xl mx-auto"
                         >
                             {t.subtitle}
                         </motion.p>
@@ -95,11 +95,11 @@ export default function DonatePage() {
                 {/* Appeal Section */}
                 <motion.div
                     initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
-                    className="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-border/20 text-center max-w-4xl mx-auto relative overflow-hidden group"
+                    className="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-[#e6ddd5] text-center max-w-4xl mx-auto relative overflow-hidden group"
                 >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-primary opacity-50 group-hover:opacity-100 transition-opacity" />
-                    <HeartHandshake className="text-primary w-16 h-16 mx-auto mb-6 opacity-80" />
-                    <h2 className="text-2xl md:text-3xl font-bold text-secondary mb-6 font-serif">{t.appealTitle}</h2>
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#d4af37] to-[#be1111] opacity-50 group-hover:opacity-100 transition-opacity" />
+                    <HeartHandshake className="text-[#be1111] w-16 h-16 mx-auto mb-6 opacity-80" />
+                    <h2 className="text-2xl md:text-3xl font-bold text-[#4a0808] mb-6 font-serif">{t.appealTitle}</h2>
                     <p className={`text-gray-700 leading-relaxed max-w-3xl mx-auto ${lang === 'mr' ? 'text-lg md:text-xl' : 'text-base md:text-lg'}`}>
                         {t.appealText}
                     </p>
@@ -113,27 +113,27 @@ export default function DonatePage() {
                         initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.2 }}
                         className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 h-full flex flex-col relative"
                     >
-                        <div className="absolute -top-6 left-8 bg-secondary p-4 rounded-xl shadow-lg">
-                            <Building2 className="text-primary w-8 h-8" />
+                        <div className="absolute -top-6 left-8 bg-[#4a0808] p-4 rounded-xl shadow-lg">
+                            <Building2 className="text-[#fceabb] w-8 h-8" />
                         </div>
-                        <h3 className="text-2xl font-bold text-secondary mb-8 mt-4 pl-2 font-serif border-b border-gray-100 pb-4">
+                        <h3 className="text-2xl font-bold text-[#4a0808] mb-8 mt-4 pl-2 font-serif border-b border-gray-100 pb-4">
                             {t.bankDetailsTitle}
                         </h3>
 
                         <div className="space-y-6 flex-1 text-gray-800">
-                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-muted/30 rounded-lg hover:bg-muted transition-colors">
+                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-gray-50 rounded-lg hover:bg-red-50/50 transition-colors">
                                 <span className="font-semibold text-gray-500 w-40 mb-1 sm:mb-0">{t.bankNameLabel}</span>
                                 <span className="font-bold text-lg">{t.bankName}</span>
                             </div>
-                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-muted/30 rounded-lg hover:bg-muted transition-colors">
+                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-gray-50 rounded-lg hover:bg-red-50/50 transition-colors">
                                 <span className="font-semibold text-gray-500 w-40 mb-1 sm:mb-0">{t.accNameLabel}</span>
                                 <span className="font-bold text-lg">{t.accName}</span>
                             </div>
-                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-muted/30 rounded-lg hover:bg-muted transition-colors">
+                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-gray-50 rounded-lg hover:bg-red-50/50 transition-colors">
                                 <span className="font-semibold text-gray-500 w-40 mb-1 sm:mb-0">{t.accNumLabel}</span>
-                                <span className="font-bold text-lg font-mono tracking-wider text-temple-red">{t.accNum}</span>
+                                <span className="font-bold text-lg font-mono tracking-wider text-[#be1111]">{t.accNum}</span>
                             </div>
-                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-muted/30 rounded-lg hover:bg-muted transition-colors">
+                            <div className="flex flex-col sm:flex-row sm:items-center p-4 bg-gray-50 rounded-lg hover:bg-red-50/50 transition-colors">
                                 <span className="font-semibold text-gray-500 w-40 mb-1 sm:mb-0">{t.ifscLabel}</span>
                                 <span className="font-bold text-lg font-mono tracking-wider">{t.ifsc}</span>
                             </div>
@@ -143,21 +143,21 @@ export default function DonatePage() {
                     {/* QR Code Section */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.4 }}
-                        className="bg-gradient-to-br from-secondary to-temple-red p-8 rounded-2xl shadow-xl border border-secondary h-full flex flex-col items-center justify-center text-center relative overflow-hidden"
+                        className="bg-gradient-to-br from-[#4a0808] to-[#be1111] p-8 rounded-2xl shadow-xl border border-red-900 h-full flex flex-col items-center justify-center text-center relative overflow-hidden"
                     >
                         {/* Decorative Background Elements */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl" />
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary opacity-5 rounded-full blur-2xl" />
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#fceabb] opacity-5 rounded-full blur-2xl" />
 
                         <div className="relative z-10 w-full flex flex-col items-center">
                             <div className="bg-white/10 p-4 rounded-full mb-6 backdrop-blur-sm shadow-inner border border-white/20">
-                                <QrCode className="text-primary-foreground w-10 h-10" />
+                                <QrCode className="text-[#fceabb] w-10 h-10" />
                             </div>
 
                             <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 font-serif drop-shadow-md">
                                 {t.qrTitle}
                             </h3>
-                            <p className="text-secondary-foreground/90 mb-8 max-w-sm">
+                            <p className="text-[#fceabb]/90 mb-8 max-w-sm">
                                 {t.qrSubtitle}
                             </p>
 
@@ -173,8 +173,8 @@ export default function DonatePage() {
                                 </div>
                             </div>
 
-                            <div className="mt-8 flex items-center gap-3 text-secondary-foreground/80 bg-black/20 px-6 py-2 rounded-full border border-white/10">
-                                <CreditCard size={18} className="text-primary" />
+                            <div className="mt-8 flex items-center gap-3 text-white/80 bg-black/20 px-6 py-2 rounded-full border border-white/10">
+                                <CreditCard size={18} className="text-[#fceabb]" />
                                 <span className="text-sm font-medium tracking-wide">Accepted Everywhere</span>
                             </div>
                         </div>
@@ -185,13 +185,13 @@ export default function DonatePage() {
                 {/* Contact Banner */}
                 <motion.div
                     initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.6 }}
-                    className="bg-muted/50 border-l-4 border-primary p-6 md:p-8 rounded-r-xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-6"
+                    className="bg-[#fff8f0] border-l-4 border-[#d4af37] p-6 md:p-8 rounded-r-xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-6"
                 >
                     <div className="flex-1 text-center md:text-left">
                         <p className="text-gray-700 font-medium text-lg">{t.contactText}</p>
                     </div>
-                    <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-full shadow border border-border/20 shrink-0 hover:border-primary hover:text-primary transition-colors cursor-default">
-                        <Phone size={20} className="text-primary" />
+                    <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-full shadow border border-[#e6ddd5] shrink-0 text-gray-800 hover:border-[#be1111] hover:text-[#8b0000] transition-colors cursor-default">
+                        <Phone size={20} className="text-[#be1111]" />
                         <span className="font-bold">{t.contactName} - +91 XXXXXXXXXX</span>
                     </div>
                 </motion.div>

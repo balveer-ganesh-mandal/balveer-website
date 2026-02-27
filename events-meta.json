@@ -1,0 +1,28 @@
+[
+  {
+    "id": "blood2026",
+    "title": {
+      "en": "Maha Raktadan Shibir",
+      "mr": "महारक्तदान शिबिर"
+    },
+    "date": {
+      "en": "September 15, 2026",
+      "mr": "१५ सप्टेंबर, २०२६"
+    },
+    "time": {
+      "en": "09:00 AM",
+      "mr": "०९:०० AM"
+    },
+    "loc": {
+      "en": "Santaji Bhavan",
+      "mr": "संताजी भवन"
+    },
+    "desc": {
+      "en": "A mega blood donation drive held annually. Let's contribute for a noble cause and save lives.",
+      "mr": "दरवर्षीप्रमाणे आयोजित महारक्तदान शिबिर. एका उदात्त कार्यासाठी योगदान देऊया आणि जीवन वाचवूया."
+    },
+    "type": "social",
+    "dateRaw": "2026-09-15",
+    "timeRaw": "09:00"
+  }
+]

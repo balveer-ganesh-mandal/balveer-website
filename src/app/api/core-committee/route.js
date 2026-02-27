@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 // Store metadata locally
 const getMetadataFilePath = () => path.join(process.cwd(), 'core-committee-meta.json');
 
@@ -66,26 +68,23 @@ export async function GET() {
         // Data Migration for Array-Based Top Leadership
         let needsMigration = false;
 
-        if (data.president && !Array.isArray(data.president)) {
-            data.president = [data.president];
-            needsMigration = true;
-        } else if (!data.president) {
-            data.president = [];
-            needsMigration = true;
-        }
+        ['president', 'vicePresident', 'coVicePresident'].forEach(role => {
+            if (data[role] && !Array.isArray(data[role])) {
+                data[role] = [data[role]];
+                needsMigration = true;
+            } else if (!data[role]) {
+                data[role] = [];
+                needsMigration = true;
+            }
 
-        if (data.vicePresident && !Array.isArray(data.vicePresident)) {
-            data.vicePresident = [data.vicePresident];
-            needsMigration = true;
-        } else if (!data.vicePresident) {
-            data.vicePresident = [];
-            needsMigration = true;
-        }
-
-        if (!data.coVicePresident || !Array.isArray(data.coVicePresident)) {
-            data.coVicePresident = [];
-            needsMigration = true;
-        }
+            data[role] = data[role].map((member, index) => {
+                if (!member.id) {
+                    needsMigration = true;
+                    return { ...member, id: `${role}-legacy-${index}` };
+                }
+                return member;
+            });
+        });
 
         if (needsMigration) {
             fs.writeFileSync(metaPath, JSON.stringify(data));
@@ -133,7 +132,29 @@ export async function POST(request) {
                 }
             }
 
-            currentData[group].push(newEntry);
+            // Logic to insert new coreLeaders next to existing members with the same role
+            let inserted = false;
+            if (group === "coreLeaders" && newEntry.role && newEntry.role.en) {
+                // Find the index of the *last* person who has this exact same English role
+                let lastMatchingRoleIndex = -1;
+                for (let i = 0; i < currentData[group].length; i++) {
+                    const existingMember = currentData[group][i];
+                    if (existingMember.role && existingMember.role.en.toLowerCase().trim() === newEntry.role.en.toLowerCase().trim()) {
+                        lastMatchingRoleIndex = i;
+                    }
+                }
+
+                // If we found someone with this role, insert the new member right after them
+                if (lastMatchingRoleIndex !== -1) {
+                    currentData[group].splice(lastMatchingRoleIndex + 1, 0, newEntry);
+                    inserted = true;
+                }
+            }
+
+            // If it's not a core leader, or no matching role was found, just push it to the end
+            if (!inserted) {
+                currentData[group].push(newEntry);
+            }
         } else if (action === "edit-member") {
             // Valid for all list groups
             if (!Array.isArray(currentData[group])) {
@@ -179,24 +200,31 @@ export async function DELETE(request) {
         const group = searchParams.get('group');
         const id = searchParams.get('id');
 
+        console.log(`[DELETE API] Request received for group: ${group}, id: ${id}`);
+
         if (!group || !id) {
+            console.log(`[DELETE API] Missing parameters`);
             return NextResponse.json({ success: false, error: 'Missing required parameters' }, { status: 400 });
         }
 
         const metaPath = getMetadataFilePath();
         if (!fs.existsSync(metaPath)) {
+            console.log(`[DELETE API] File not found`);
             return NextResponse.json({ success: false, error: 'No data found' }, { status: 404 });
         }
 
         const currentData = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
 
         if (!Array.isArray(currentData[group])) {
+            console.log(`[DELETE API] Group ${group} is not an array`);
             return NextResponse.json({ success: false, error: 'Invalid group for deletion' }, { status: 400 });
         }
 
-        const index = currentData[group].findIndex(m => m.id === id);
+        const index = currentData[group].findIndex(m => String(m.id) === String(id));
+        console.log(`[DELETE API] findIndex returned: ${index}`);
 
         if (index === -1) {
+            console.log(`[DELETE API] Member not found. currentData[group]:`, currentData[group]);
             return NextResponse.json({ success: false, error: 'Member not found' }, { status: 404 });
         }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X } from "lucide-react";
+import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin } from "lucide-react";
 
 export default function AdminPage() {
     const [isLive, setIsLive] = useState(false);
@@ -63,6 +63,22 @@ export default function AdminPage() {
     const [editImg, setEditImg] = useState("");
     const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
+    // Events Management States
+    const [events, setEvents] = useState([]);
+    const [editingEventId, setEditingEventId] = useState(null);
+    const [eventTitleEn, setEventTitleEn] = useState("");
+    const [eventTitleMr, setEventTitleMr] = useState("");
+    const [eventDate, setEventDate] = useState("");
+    const [eventTime, setEventTime] = useState("");
+    const [eventLocEn, setEventLocEn] = useState("");
+    const [eventLocMr, setEventLocMr] = useState("");
+    const [eventDescEn, setEventDescEn] = useState("");
+    const [eventDescMr, setEventDescMr] = useState("");
+    const [eventType, setEventType] = useState("general");
+    const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
+    const [eventStatusMsg, setEventStatusMsg] = useState("");
+    const [isDeletingEvent, setIsDeletingEvent] = useState(false);
+
     // Fetch initial status
     useEffect(() => {
         if (!isAuthenticated) return;
@@ -78,11 +94,12 @@ export default function AdminPage() {
         fetchGallery();
         fetchSubCommittees();
         fetchCoreCommittee();
+        fetchEvents();
     }, [isAuthenticated]);
 
     const fetchGallery = async () => {
         try {
-            const res = await fetch("/api/gallery");
+            const res = await fetch("/api/gallery", { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
                 setGalleryItems(data);
@@ -94,7 +111,7 @@ export default function AdminPage() {
 
     const fetchSubCommittees = async () => {
         try {
-            const res = await fetch("/api/sub-committee");
+            const res = await fetch("/api/sub-committee", { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
                 setSubCommittees(data);
@@ -111,13 +128,25 @@ export default function AdminPage() {
 
     const fetchCoreCommittee = async () => {
         try {
-            const res = await fetch("/api/core-committee");
+            const res = await fetch("/api/core-committee", { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (data && data.president) {
                 setCoreCommittee(data);
             }
         } catch (err) {
             console.error("Failed to fetch core committee", err);
+        }
+    };
+
+    const fetchEvents = async () => {
+        try {
+            const res = await fetch("/api/events", { cache: "no-store", next: { revalidate: 0 } });
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setEvents(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch events", err);
         }
     };
 
@@ -400,12 +429,113 @@ export default function AdminPage() {
         setIsSubmittingEdit(false);
     };
 
+    const handleAddEvent = async (e) => {
+        e.preventDefault();
+        if (!eventTitleEn || !eventTitleMr || !eventDate) return;
+        setIsSubmittingEvent(true);
+        setEventStatusMsg("");
+
+        try {
+            let formattedDateEn = "";
+            let formattedDateMr = "";
+            if (eventDate) {
+                const dateObj = new Date(eventDate);
+                formattedDateEn = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                formattedDateMr = dateObj.toLocaleDateString('mr-IN', { month: 'long', day: 'numeric', year: 'numeric' });
+            }
+
+            let formattedTimeEn = "";
+            let formattedTimeMr = "";
+            if (eventTime) {
+                const [hh, mm] = eventTime.split(':');
+                const dateObj = new Date();
+                dateObj.setHours(parseInt(hh), parseInt(mm));
+                formattedTimeEn = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                formattedTimeMr = dateObj.toLocaleTimeString('mr-IN', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            const eventData = {
+                ...(editingEventId ? { id: editingEventId } : {}),
+                title: { en: eventTitleEn, mr: eventTitleMr },
+                date: { en: formattedDateEn, mr: formattedDateMr },
+                time: { en: formattedTimeEn, mr: formattedTimeMr },
+                dateRaw: eventDate,
+                timeRaw: eventTime,
+                loc: { en: eventLocEn, mr: eventLocMr },
+                desc: { en: eventDescEn, mr: eventDescMr },
+                type: eventType
+            };
+
+            const action = editingEventId ? "edit-event" : "add-event";
+
+            const res = await fetch("/api/events", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action, eventData })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setEventStatusMsg(editingEventId ? "Event updated successfully!" : "Event added successfully!");
+                resetEventForm();
+                fetchEvents();
+            } else {
+                setEventStatusMsg("Error: " + (data.error || "Failed to save event"));
+            }
+            setTimeout(() => setEventStatusMsg(""), 3000);
+        } catch (err) {
+            setEventStatusMsg("Failed to submit event");
+        } finally {
+            setIsSubmittingEvent(false);
+        }
+    };
+
+    const resetEventForm = () => {
+        setEditingEventId(null);
+        setEventTitleEn(""); setEventTitleMr("");
+        setEventDate(""); setEventTime("");
+        setEventLocEn(""); setEventLocMr("");
+        setEventDescEn(""); setEventDescMr("");
+        setEventType("general");
+    };
+
+    const handleEditEventClick = (ev) => {
+        setEditingEventId(ev.id);
+        setEventTitleEn(ev.title.en);
+        setEventTitleMr(ev.title.mr);
+        setEventDate(ev.dateRaw || "");
+        setEventTime(ev.timeRaw || "");
+        setEventLocEn(ev.loc?.en || "");
+        setEventLocMr(ev.loc?.mr || "");
+        setEventDescEn(ev.desc?.en || "");
+        setEventDescMr(ev.desc?.mr || "");
+        setEventType(ev.type || "general");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteEvent = async (id) => {
+        if (!confirm("Are you sure you want to delete this event?")) return;
+        setIsDeletingEvent(true);
+        try {
+            const res = await fetch(`/api/events?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchEvents();
+            } else {
+                alert("Failed to delete event: " + data.error);
+            }
+        } catch (error) {
+            alert("Delete failed due to an error.");
+        }
+        setIsDeletingEvent(false);
+    };
+
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center p-6">
-                <form onSubmit={handleLogin} className="bg-white p-8 rounded-xl shadow-2xl border border-border/20 max-w-md w-full text-center space-y-6">
-                    <ShieldCheck size={48} className="mx-auto text-primary" />
-                    <h1 className="text-2xl font-bold font-serif text-secondary">Admin Access</h1>
+            <div className="min-h-screen bg-[#fffdfc] flex items-center justify-center p-6">
+                <form onSubmit={handleLogin} className="bg-white p-8 rounded-xl shadow-2xl border border-gray-100 max-w-md w-full text-center space-y-6">
+                    <ShieldCheck size={48} className="mx-auto text-[#8b0000]" />
+                    <h1 className="text-2xl font-bold font-serif text-[#4a0808]">Admin Access</h1>
                     <p className="text-gray-500 text-sm">Please enter the admin password to continue.</p>
 
                     <div>
@@ -413,13 +543,13 @@ export default function AdminPage() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-2 bg-muted/30 border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-colors"
+                            className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
                             placeholder="Enter Admin Password"
                         />
                         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                     </div>
 
-                    <button type="submit" className="w-full bg-primary text-primary-foreground py-2 rounded font-bold hover:bg-orange-600 transition-colors">
+                    <button type="submit" className="w-full bg-[#8b0000] text-white py-2 rounded font-bold hover:bg-[#a50d0d] transition-colors">
                         Login
                     </button>
                     <p className="text-xs text-gray-400 mt-4">(Default hint: admin123)</p>
@@ -429,12 +559,12 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background font-sans">
+        <div className="min-h-screen bg-[#fef5f5] font-sans">
             {/* Header */}
-            <header className="bg-secondary text-primary py-6 px-6 shadow-md border-b-4 border-primary flex justify-between items-center">
+            <header className="bg-[#4a0808] text-[#fceabb] py-6 px-6 shadow-md border-b-4 border-[#be1111] flex justify-between items-center">
                 <div>
                     <h1 className="text-xl md:text-2xl font-bold font-serif">Mandal Admin Control</h1>
-                    <p className="text-sm opacity-80 text-secondary-foreground">Manage website features</p>
+                    <p className="text-sm opacity-80">Manage website features</p>
                 </div>
                 <Link href="/" className="flex items-center gap-2 hover:text-white transition-colors text-sm font-semibold">
                     <ArrowLeft size={16} /> Back to Site
@@ -444,9 +574,9 @@ export default function AdminPage() {
             {/* Dashboard Content */}
             <main className="max-w-4xl mx-auto p-6 mt-8 space-y-8">
 
-                <div className="bg-white rounded-xl shadow-lg border border-border/20 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-start gap-4">
-                        <div className={`p-4 rounded-full ${isLive ? 'bg-orange-100 text-primary' : 'bg-gray-100 text-gray-500'}`}>
+                        <div className={`p-4 rounded-full ${isLive ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
                             <Radio size={32} className={isLive ? "animate-pulse" : ""} />
                         </div>
                         <div>
@@ -479,34 +609,42 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <button
                         onClick={() => setActiveTab("core-committee")}
-                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "core-committee" ? 'bg-primary border-primary text-primary-foreground shadow-md' : 'bg-white border-border/20 text-secondary hover:border-primary/50 hover:shadow-sm'
+                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "core-committee" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
                             }`}
                     >
-                        <Crown size={24} className={activeTab === "core-committee" ? 'text-primary-foreground' : 'text-primary'} />
+                        <Crown size={24} className={activeTab === "core-committee" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
                         <span className="font-bold">Core Committee</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("sub-committee")}
-                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "sub-committee" ? 'bg-primary border-primary text-primary-foreground shadow-md' : 'bg-white border-border/20 text-secondary hover:border-primary/50 hover:shadow-sm'
+                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "sub-committee" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
                             }`}
                     >
-                        <Users size={24} className={activeTab === "sub-committee" ? 'text-primary-foreground' : 'text-primary'} />
+                        <Users size={24} className={activeTab === "sub-committee" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
                         <span className="font-bold">Sub-Committees</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("gallery")}
-                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "gallery" ? 'bg-primary border-primary text-primary-foreground shadow-md' : 'bg-white border-border/20 text-secondary hover:border-primary/50 hover:shadow-sm'
+                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "gallery" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
                             }`}
                     >
-                        <ImageIcon size={24} className={activeTab === "gallery" ? 'text-primary-foreground' : 'text-primary'} />
+                        <ImageIcon size={24} className={activeTab === "gallery" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
                         <span className="font-bold">Photo Gallery</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("events")}
+                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "events" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
+                            }`}
+                    >
+                        <Calendar size={24} className={activeTab === "events" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
+                        <span className="font-bold">Upcoming Events</span>
                     </button>
                 </div>
 
                 {/* Photo Gallery Upload */}
                 {activeTab === "gallery" && (
                     <>
-                        <div className="bg-white rounded-xl shadow-lg border border-border/20 p-6 md:p-8 mt-8">
+                        <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
                             <div className="flex items-start gap-4 mb-6">
                                 <div className="p-4 rounded-full bg-blue-100 text-blue-600">
                                     <ImageIcon size={32} />
@@ -520,24 +658,24 @@ export default function AdminPage() {
                             </div>
                             <form onSubmit={handleUpload} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-secondary mb-1">Image File</label>
-                                    <input ref={fileInputRef} type="file" required accept="image/*" onChange={e => setUploadFile(e.target.files[0])} className="w-full px-4 py-2 bg-muted/30 border border-border/50 text-secondary rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-orange-600" />
+                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Image File</label>
+                                    <input ref={fileInputRef} type="file" required accept="image/*" onChange={e => setUploadFile(e.target.files[0])} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#8b0000] file:text-white hover:file:bg-[#6b0808]" />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Year</label>
-                                        <input type="number" required value={uploadYear} onChange={e => setUploadYear(e.target.value)} className="w-full px-4 py-2 bg-muted/30 border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors" placeholder="e.g. 2024" />
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Year</label>
+                                        <input type="number" required value={uploadYear} onChange={e => setUploadYear(e.target.value)} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. 2024" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Caption (English)</label>
-                                        <input type="text" required value={uploadAltEn} onChange={e => setUploadAltEn(e.target.value)} className="w-full px-4 py-2 bg-muted/30 border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors" placeholder="e.g. Ganpati 2024" />
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Caption (English)</label>
+                                        <input type="text" required value={uploadAltEn} onChange={e => setUploadAltEn(e.target.value)} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Ganpati 2024" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Caption (Marathi)</label>
-                                        <input type="text" required value={uploadAltMr} onChange={e => setUploadAltMr(e.target.value)} className="w-full px-4 py-2 bg-muted/30 border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors" placeholder="e.g. गणपती २०२४" />
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Caption (Marathi)</label>
+                                        <input type="text" required value={uploadAltMr} onChange={e => setUploadAltMr(e.target.value)} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. गणपती २०२४" />
                                     </div>
                                 </div>
-                                <button type="submit" disabled={isUploading} className="bg-primary text-primary-foreground px-6 py-2 rounded font-bold hover:bg-orange-600 transition-colors disabled:opacity-50">
+                                <button type="submit" disabled={isUploading} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
                                     {isUploading ? "Uploading..." : "Upload Photo"}
                                 </button>
                                 {uploadStatus && <p className={`text-sm font-medium mt-2 ${uploadStatus.includes("Error") || uploadStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{uploadStatus}</p>}
@@ -545,12 +683,12 @@ export default function AdminPage() {
                         </div>
 
                         {/* Gallery History List */}
-                        <div className="bg-white rounded-xl shadow-lg border border-border/20 p-6 md:p-8 mt-8">
+                        <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">Uploaded Photos ({galleryItems.length})</h2>
                                 <button
                                     onClick={() => setShowHistory(!showHistory)}
-                                    className="text-sm font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-4 py-1.5 rounded-full transition-colors"
+                                    className="text-sm font-semibold border-2 border-[#8b0000] text-[#8b0000] hover:bg-[#8b0000] hover:text-white px-4 py-1.5 rounded-full transition-colors"
                                 >
                                     {showHistory ? "Hide History" : "Show History"}
                                 </button>
@@ -561,7 +699,7 @@ export default function AdminPage() {
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left border-collapse">
                                             <thead>
-                                                <tr className="border-b-2 border-border/20 text-secondary text-sm">
+                                                <tr className="border-b-2 border-red-100 text-[#8b0000] text-sm">
                                                     <th className="pb-3 px-2">Image</th>
                                                     <th className="pb-3 px-2">Year</th>
                                                     <th className="pb-3 px-2">Caption (English / Marathi)</th>
@@ -570,7 +708,7 @@ export default function AdminPage() {
                                             </thead>
                                             <tbody>
                                                 {galleryItems.slice(0, visibleCount).map((item) => (
-                                                    <tr key={item.id} className="border-b border-gray-100 hover:bg-muted/30 transition-colors">
+                                                    <tr key={item.id} className="border-b border-gray-100 hover:bg-red-50/50 transition-colors">
                                                         <td className="py-3 px-2">
                                                             <div className="w-16 h-16 rounded overflow-hidden shadow-sm border border-gray-200 bg-gray-50">
                                                                 <img src={item.src} alt={item.alt?.en || "Image"} className="w-full h-full object-cover" />
@@ -607,7 +745,7 @@ export default function AdminPage() {
                                         {visibleCount < galleryItems.length && (
                                             <button
                                                 onClick={() => setVisibleCount(prev => prev + 5)}
-                                                className="text-sm font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-6 py-2 rounded-full transition-colors"
+                                                className="text-sm font-semibold border-2 border-[#8b0000] text-[#8b0000] hover:bg-[#8b0000] hover:text-white px-6 py-2 rounded-full transition-colors"
                                             >
                                                 Show More Photos
                                             </button>
@@ -627,11 +765,146 @@ export default function AdminPage() {
                     </>
                 )}
 
+                {/* Upcoming Events Management */}
+                {activeTab === "events" && (
+                    <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
+                        <div className="flex items-start gap-4 mb-6">
+                            <div className="p-4 rounded-full bg-teal-100 text-teal-600">
+                                <Calendar size={32} />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-gray-800">Manage Upcoming Events</h2>
+                                <p className="text-gray-500 text-sm mt-1 max-w-md">
+                                    Add, edit, or remove the events displayed on the homepage.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Add/Edit Event Form */}
+                        <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-semibold text-[#8b0000]">{editingEventId ? "Edit Event" : "Add New Event"}</h3>
+                                {editingEventId && (
+                                    <button onClick={resetEventForm} className="text-sm font-medium text-gray-500 hover:text-gray-800 flex items-center gap-1">
+                                        <X size={16} /> Cancel Edit
+                                    </button>
+                                )}
+                            </div>
+                            <form onSubmit={handleAddEvent} className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Title (English)</label>
+                                        <input type="text" required value={eventTitleEn} onChange={e => setEventTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Ganeshotsav 2026 Preparations" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Title (Marathi)</label>
+                                        <input type="text" required value={eventTitleMr} onChange={e => setEventTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. गणेशोत्सव २०२६ पूर्वतयारी" />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Pick Date</label>
+                                        <input type="date" required value={eventDate} onChange={e => setEventDate(e.target.value)} onClick={(e) => e.target.showPicker()} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors cursor-pointer" />
+                                        <p className="text-xs text-gray-500 mt-1">Date displays will be automatically localized.</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Pick Time (Optional)</label>
+                                        <input type="time" value={eventTime} onChange={e => setEventTime(e.target.value)} onClick={(e) => e.target.showPicker()} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors cursor-pointer" />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Location (English)</label>
+                                        <input type="text" value={eventLocEn} onChange={e => setEventLocEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Mandal Karyalay" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Location (Marathi)</label>
+                                        <input type="text" value={eventLocMr} onChange={e => setEventLocMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. मंडळ कार्यालय" />
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Type/Category</label>
+                                        <select
+                                            value={eventType}
+                                            onChange={e => setEventType(e.target.value)}
+                                            className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
+                                        >
+                                            <option value="general">General (सामान्य)</option>
+                                            <option value="meeting">Meeting (बैठक)</option>
+                                            <option value="social">Social Work (सामाजिक उपक्रम)</option>
+                                            <option value="celebration">Celebration (उत्सव)</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Description (English)</label>
+                                        <textarea rows={2} value={eventDescEn} onChange={e => setEventDescEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="Short details about the event..."></textarea>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Description (Marathi)</label>
+                                        <textarea rows={2} value={eventDescMr} onChange={e => setEventDescMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="कार्यक्रमाची थोडक्यात माहिती..."></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" disabled={isSubmittingEvent} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                    {isSubmittingEvent ? (editingEventId ? "Saving..." : "Adding...") : (editingEventId ? "Update Event" : "Add Event")}
+                                </button>
+                                {eventStatusMsg && <p className={`text-sm font-medium mt-2 ${eventStatusMsg.includes("Error") || eventStatusMsg.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{eventStatusMsg}</p>}
+                            </form>
+                        </div>
+
+                        {/* Events List */}
+                        <div>
+                            <h3 className="font-semibold text-[#8b0000] mb-4">Current Registered Events</h3>
+                            {events && events.length > 0 ? (
+                                <div className="space-y-4">
+                                    {events.map((ev) => (
+                                        <div key={ev.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:flex-row justify-between md:items-center p-4">
+                                            <div className="flex-1 mb-4 md:mb-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="bg-red-50 text-[#8b0000] text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded border border-red-100">{ev.type}</span>
+                                                    <h4 className="font-bold text-[#4a0808]">{ev.title.en}</h4>
+                                                </div>
+                                                <p className="text-sm font-medium text-gray-600">{ev.title.mr}</p>
+                                                <div className="mt-2 text-xs text-gray-500 flex flex-wrap gap-4">
+                                                    <span className="flex items-center gap-1"><Calendar size={14} /> {ev.date.en}</span>
+                                                    {ev.time?.en && <span className="flex items-center gap-1"><Clock size={14} /> {ev.time.en}</span>}
+                                                    {ev.loc?.en && <span className="flex items-center gap-1"><MapPin size={14} /> {ev.loc.en}</span>}
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 self-start md:self-auto min-w-[120px]">
+                                                <button
+                                                    onClick={() => handleEditEventClick(ev)}
+                                                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded transition-colors border border-blue-100 flex items-center justify-center w-full"
+                                                    title="Edit Event"
+                                                >
+                                                    <Edit size={16} className="mr-2" />
+                                                    <span className="text-sm font-semibold">Edit</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteEvent(ev.id)}
+                                                    disabled={isDeletingEvent}
+                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors disabled:opacity-50 border border-red-100 flex items-center justify-center w-full"
+                                                    title="Delete Event"
+                                                >
+                                                    <Trash2 size={16} className="mr-2" />
+                                                    <span className="text-sm font-semibold">Delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 border border-gray-200">
+                                    No upcoming events active. Add some events using the form above.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Sub-Committee Management */}
                 {activeTab === "sub-committee" && (
-                    <div className="bg-white rounded-xl shadow-lg border border-border/20 p-6 md:p-8 mt-8">
+                    <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
                         <div className="flex items-start gap-4 mb-6">
-                            <div className="p-4 rounded-full bg-orange-100 text-primary">
+                            <div className="p-4 rounded-full bg-purple-100 text-purple-600">
                                 <Users size={32} />
                             </div>
                             <div>
@@ -643,20 +916,20 @@ export default function AdminPage() {
                         </div>
 
                         {/* Create New Sub-Committee Form */}
-                        <div className="bg-muted/10 p-6 rounded-lg mb-8 border border-border/20">
-                            <h3 className="font-semibold text-secondary mb-4">Create New Sub-Committee</h3>
+                        <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                            <h3 className="font-semibold text-[#8b0000] mb-4">Create New Sub-Committee</h3>
                             <form onSubmit={handleAddSubCommittee} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Committee Name (English)</label>
-                                        <input type="text" required value={newSubTitleEn} onChange={e => setNewSubTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors" placeholder="e.g. Decoration Committee" />
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Committee Name (English)</label>
+                                        <input type="text" required value={newSubTitleEn} onChange={e => setNewSubTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Decoration Committee" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Committee Name (Marathi)</label>
-                                        <input type="text" required value={newSubTitleMr} onChange={e => setNewSubTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors" placeholder="e.g. सजावट समिती" />
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Committee Name (Marathi)</label>
+                                        <input type="text" required value={newSubTitleMr} onChange={e => setNewSubTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सजावट समिती" />
                                     </div>
                                 </div>
-                                <button type="submit" disabled={isAddingSub} className="bg-primary text-primary-foreground px-6 py-2 rounded font-bold hover:bg-orange-600 transition-colors disabled:opacity-50">
+                                <button type="submit" disabled={isAddingSub} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
                                     {isAddingSub ? "Creating..." : "Create Committee"}
                                 </button>
                                 {addSubStatus && <p className={`text-sm font-medium mt-2 ${addSubStatus.includes("Error") || addSubStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addSubStatus}</p>}
@@ -664,16 +937,16 @@ export default function AdminPage() {
                         </div>
 
                         {/* Add Member Form */}
-                        <div className="bg-muted/10 p-6 rounded-lg mb-8 border border-border/20">
-                            <h3 className="font-semibold text-secondary mb-4">Add New Member</h3>
+                        <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                            <h3 className="font-semibold text-[#8b0000] mb-4">Add New Member</h3>
                             <form onSubmit={handleAddMember} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Select Sub-Committee</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Select Sub-Committee</label>
                                         <select
                                             value={selectedSubCommittee}
                                             onChange={e => setSelectedSubCommittee(e.target.value)}
-                                            className="w-full px-4 py-2 bg-white border border-border/50 text-secondary rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors"
+                                            className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
                                         >
                                             {subCommittees && subCommittees.map(sub => (
                                                 <option key={sub.id} value={sub.id}>{sub.title.en} ({sub.title.mr})</option>
@@ -681,15 +954,15 @@ export default function AdminPage() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Member Name (English)</label>
-                                        <input type="text" required value={memberNameEn} onChange={e => setMemberNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors" placeholder="e.g. John Doe" />
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Member Name (English)</label>
+                                        <input type="text" required value={memberNameEn} onChange={e => setMemberNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-secondary mb-1">Member Name (Marathi)</label>
-                                        <input type="text" required value={memberNameMr} onChange={e => setMemberNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-border/50 text-secondary placeholder-secondary-foreground/50 rounded focus:ring-2 focus:ring-primary focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Member Name (Marathi)</label>
+                                        <input type="text" required value={memberNameMr} onChange={e => setMemberNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
                                     </div>
                                 </div>
-                                <button type="submit" disabled={isAddingMember} className="bg-primary text-primary-foreground px-6 py-2 rounded font-bold hover:bg-orange-600 transition-colors disabled:opacity-50">
+                                <button type="submit" disabled={isAddingMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
                                     {isAddingMember ? "Adding..." : "Add Member"}
                                 </button>
                                 {addMemberStatus && <p className={`text-sm font-medium mt-2 ${addMemberStatus.includes("Error") || addMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addMemberStatus}</p>}
@@ -698,19 +971,19 @@ export default function AdminPage() {
 
                         {/* Manage Members List */}
                         <div>
-                            <h3 className="font-semibold text-secondary mb-4">Current Members</h3>
+                            <h3 className="font-semibold text-[#8b0000] mb-4">Current Members</h3>
                             {subCommittees && subCommittees.length > 0 ? (
                                 <div className="space-y-6">
                                     {subCommittees.map((sub) => (
-                                        <div key={sub.id} className="border border-border/20 rounded-lg overflow-hidden">
-                                            <div className="bg-muted/10 px-4 py-3 font-semibold text-gray-800 border-b border-border/20 flex justify-between items-center">
+                                        <div key={sub.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                                            <div className="bg-gray-100 px-4 py-3 font-semibold text-gray-800 border-b border-gray-200 flex justify-between items-center">
                                                 <span>{sub.title.en} <span className="text-gray-500 font-normal text-sm">({sub.title.mr})</span></span>
-                                                <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-border/30 text-gray-600">{sub.members ? sub.members.length : 0} Members</span>
+                                                <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-gray-300 text-gray-600">{sub.members ? sub.members.length : 0} Members</span>
                                             </div>
-                                            <ul className="divide-y divide-border/10">
+                                            <ul className="divide-y divide-gray-100">
                                                 {sub.members && sub.members.length > 0 ? (
                                                     sub.members.map((member) => (
-                                                        <li key={member.id} className="p-4 flex justify-between items-center hover:bg-muted/30 transition-colors">
+                                                        <li key={member.id} className="p-4 flex justify-between items-center hover:bg-red-50/50 transition-colors">
                                                             <div>
                                                                 <p className="font-medium text-gray-800">{member.name.en}</p>
                                                                 <p className="text-sm text-gray-500">{member.name.mr}</p>
@@ -795,11 +1068,25 @@ export default function AdminPage() {
                                             <>
                                                 <div>
                                                     <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (English)</label>
-                                                    <input type="text" required value={coreListRoleEn} onChange={e => setCoreListRoleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Secretary" />
+                                                    <input type="text" list="rolesEn" required value={coreListRoleEn} onChange={e => setCoreListRoleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Secretary" />
+                                                    <datalist id="rolesEn">
+                                                        <option value="Secretary" />
+                                                        <option value="Joint Secretary" />
+                                                        <option value="Treasurer" />
+                                                        <option value="Advisor" />
+                                                        <option value="Coordinator" />
+                                                    </datalist>
                                                 </div>
                                                 <div>
                                                     <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (Marathi)</label>
-                                                    <input type="text" required value={coreListRoleMr} onChange={e => setCoreListRoleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सचिव" />
+                                                    <input type="text" list="rolesMr" required value={coreListRoleMr} onChange={e => setCoreListRoleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सचिव" />
+                                                    <datalist id="rolesMr">
+                                                        <option value="सचिव" />
+                                                        <option value="सह-सचिव" />
+                                                        <option value="खजिनदार" />
+                                                        <option value="सल्लागार" />
+                                                        <option value="समन्वयक" />
+                                                    </datalist>
                                                 </div>
                                             </>
                                         )}
