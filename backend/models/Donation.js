@@ -35,6 +35,10 @@ const donationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    receiptName: {
+        type: String,
+        trim: true
+    },
     notes: {
         type: String,
         trim: true

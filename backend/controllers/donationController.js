@@ -8,7 +8,7 @@ const path = require('path');
 // @access  Private
 exports.createDonation = async (req, res) => {
     try {
-        const { amount, currency, paymentMethod, notes } = req.body;
+        const { amount, currency, paymentMethod, notes, receiptName } = req.body;
 
         if (!amount || !paymentMethod) {
             return res.status(400).json({ success: false, message: 'Amount and payment method are required' });
@@ -23,6 +23,7 @@ exports.createDonation = async (req, res) => {
             currency: currency || 'INR',
             paymentMethod,
             transactionId,
+            receiptName: receiptName || '',
             notes,
             status: 'completed' // Assuming immediate success for mock
         });
@@ -92,8 +93,11 @@ exports.downloadReceipt = async (req, res) => {
         doc.text(`Date: ${new Date(donation.date).toLocaleDateString()}`);
         doc.moveDown();
 
-        doc.text(`Received with thanks from: ${donation.devotee.firstName} ${donation.devotee.lastName}`);
-        doc.text(`Email: ${donation.devotee.email}`);
+        const displayName = donation.receiptName || `${donation.devotee.firstName} ${donation.devotee.lastName}`;
+        doc.text(`Received with thanks from: ${displayName}`);
+        if (donation.devotee.email) {
+            doc.text(`Email: ${donation.devotee.email}`);
+        }
         doc.moveDown();
 
         doc.font('Helvetica-Bold').fontSize(14).text(`Donation Amount: ${donation.currency} ${donation.amount}`, {

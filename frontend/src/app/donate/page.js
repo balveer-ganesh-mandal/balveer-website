@@ -12,6 +12,7 @@ export default function Donate() {
         amount: '',
         currency: 'INR',
         paymentMethod: 'Credit Card',
+        receiptName: '',
         notes: ''
     });
     const [submitting, setSubmitting] = useState(false);
@@ -20,11 +21,14 @@ export default function Donate() {
 
     useEffect(() => {
         // Redirect to login if not authenticated when trying to access the donation form directly
-        // Some orgs allow guest checkout, but per requirements we need history tracking, so auth is required.
         if (!loading && !isAuthenticated) {
             router.push('/login?redirect=donate');
         }
-    }, [isAuthenticated, loading, router]);
+        // Pre-fill receipt name with user's name
+        if (user && !formData.receiptName) {
+            setFormData(prev => ({ ...prev, receiptName: `${user.firstName || ''} ${user.lastName || ''}`.trim() }));
+        }
+    }, [isAuthenticated, loading, router, user]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -57,6 +61,7 @@ export default function Donate() {
                     amount: Number(formData.amount),
                     currency: formData.currency,
                     paymentMethod: formData.paymentMethod,
+                    receiptName: formData.receiptName,
                     notes: formData.notes
                 })
             });
@@ -193,9 +198,24 @@ export default function Donate() {
                             ></textarea>
                         </div>
 
+                        {/* Name for Receipt */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Name for Receipt</label>
+                            <input
+                                type="text"
+                                name="receiptName"
+                                required
+                                value={formData.receiptName}
+                                onChange={handleChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                placeholder="Enter name to print on receipt"
+                            />
+                            <p className="mt-1 text-xs text-gray-500">This name will appear on the donation receipt PDF.</p>
+                        </div>
+
                         {/* Devotee Info Display */}
                         <div className="bg-gray-50 p-4 rounded-md text-sm text-gray-600 border border-gray-200">
-                            Receipts will be generated under the name: <strong>{user?.firstName} {user?.lastName}</strong>
+                            Logged in as: <strong>{user?.firstName} {user?.lastName}</strong>
                         </div>
 
                         {/* Submit */}
