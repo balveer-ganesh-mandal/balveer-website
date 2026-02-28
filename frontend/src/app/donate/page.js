@@ -18,6 +18,7 @@ export default function Donate() {
         addressLine1: '',
         addressLine2: '',
         city: '',
+        district: '',
         state: '',
         notes: ''
     });
@@ -31,6 +32,16 @@ export default function Donate() {
         'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
         'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
         'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+    ];
+
+    const maharashtraDistricts = [
+        'Ahmednagar', 'Akola', 'Amravati', 'Aurangabad (Chhatrapati Sambhajinagar)',
+        'Beed', 'Bhandara', 'Buldhana', 'Chandrapur', 'Dhule', 'Gadchiroli',
+        'Gondia', 'Hingoli', 'Jalgaon', 'Jalna', 'Kolhapur', 'Latur',
+        'Mumbai City', 'Mumbai Suburban', 'Nagpur', 'Nanded', 'Nandurbar',
+        'Nashik', 'Osmanabad (Dharashiv)', 'Palghar', 'Parbhani', 'Pune',
+        'Raigad', 'Ratnagiri', 'Sangli', 'Satara', 'Sindhudurg', 'Solapur',
+        'Thane', 'Wardha', 'Washim', 'Yavatmal'
     ];
 
     const content = {
@@ -57,6 +68,9 @@ export default function Donate() {
             addressLine2: 'Address Line 2 (Area, Landmark)',
             cityLabel: 'City / Town / Village',
             cityPlaceholder: 'e.g. Malkapur',
+            districtLabel: 'District',
+            selectDistrict: 'Select District',
+            districtPlaceholder: 'Enter district',
             stateLabel: 'State',
             selectState: 'Select State',
             addressHint: 'Required. This address will appear on the donation receipt PDF.',
@@ -66,7 +80,7 @@ export default function Donate() {
             thankYou: 'Thank you for your generous donation of',
             redirecting: 'Redirecting to your dashboard to view the receipt...',
             nameRequired: 'Please enter a name for the receipt.',
-            addressRequired: 'Please fill in Address Line 1, City, and State.',
+            addressRequired: 'Please fill in Address Line 1, City, District, and State.',
             paymentRequired: 'Please select a payment method.',
             invalidAmount: 'Please enter a valid donation amount.',
             errorProcessing: 'Error processing donation.',
@@ -96,6 +110,9 @@ export default function Donate() {
             addressLine2: 'पत्ता ओळ २ (परिसर, जवळचे ठिकाण)',
             cityLabel: 'शहर / गाव',
             cityPlaceholder: 'उदा. मलकापूर',
+            districtLabel: 'जिल्हा',
+            selectDistrict: 'जिल्हा निवडा',
+            districtPlaceholder: 'जिल्हा टाका',
             stateLabel: 'राज्य',
             selectState: 'राज्य निवडा',
             addressHint: 'आवश्यक. हा पत्ता दान पावती PDF वर दिसेल.',
@@ -104,7 +121,7 @@ export default function Donate() {
             donate: 'दान करा',
             thankYou: 'तुमच्या उदार दानाबद्दल धन्यवाद! रक्कम:',
             nameRequired: 'कृपया पावतीसाठी नाव टाका.',
-            addressRequired: 'कृपया पत्ता ओळ १, शहर आणि राज्य भरा.',
+            addressRequired: 'कृपया पत्ता ओळ १, शहर, जिल्हा आणि राज्य भरा.',
             paymentRequired: 'कृपया पेमेंट पद्धत निवडा.',
             redirecting: 'पावती पाहण्यासाठी तुमच्या डॅशबोर्डवर पुनर्निर्देशित करत आहे...',
             invalidAmount: 'कृपया वैध दान रक्कम टाका.',
@@ -130,7 +147,11 @@ export default function Donate() {
     }, [isAuthenticated, loading, router, user]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (e.target.name === 'state') {
+            setFormData({ ...formData, state: e.target.value, district: '' });
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        }
     };
 
     const handleQuickAmount = (amount) => {
@@ -157,7 +178,7 @@ export default function Donate() {
             return;
         }
 
-        if (!formData.addressLine1.trim() || !formData.city.trim() || !formData.state) {
+        if (!formData.addressLine1.trim() || !formData.city.trim() || !formData.district.trim() || !formData.state) {
             setError(t.addressRequired);
             return;
         }
@@ -176,7 +197,7 @@ export default function Donate() {
                     currency: formData.currency,
                     paymentMethod: formData.paymentMethod,
                     receiptName: formData.receiptName,
-                    address: [formData.addressLine1, formData.addressLine2, formData.city, formData.state].filter(Boolean).join(', '),
+                    address: [formData.addressLine1, formData.addressLine2, formData.city, formData.district, formData.state].filter(Boolean).join(', '),
                     notes: formData.notes
                 })
             });
@@ -351,7 +372,7 @@ export default function Donate() {
                                     placeholder={t.addressLine2}
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">{t.cityLabel} <span className="text-red-500">*</span></label>
                                     <input
@@ -363,6 +384,33 @@ export default function Donate() {
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
                                         placeholder={t.cityPlaceholder}
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.districtLabel} <span className="text-red-500">*</span></label>
+                                    {formData.state === 'Maharashtra' ? (
+                                        <select
+                                            name="district"
+                                            required
+                                            value={formData.district}
+                                            onChange={handleChange}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                        >
+                                            <option value="">{t.selectDistrict}</option>
+                                            {maharashtraDistricts.map(d => (
+                                                <option key={d} value={d}>{d}</option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            name="district"
+                                            required
+                                            value={formData.district}
+                                            onChange={handleChange}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                            placeholder={t.districtPlaceholder}
+                                        />
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">{t.stateLabel} <span className="text-red-500">*</span></label>
