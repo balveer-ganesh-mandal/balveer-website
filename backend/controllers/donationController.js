@@ -80,31 +80,45 @@ exports.downloadReceipt = async (req, res) => {
         res.setHeader('Content-type', 'application/pdf');
         doc.pipe(res);
 
+        // Register Devanagari font for Marathi
+        const devanagariFont = path.join(__dirname, '..', 'fonts', 'NotoSansDevanagari.ttf');
+        if (fs.existsSync(devanagariFont)) {
+            doc.registerFont('Devanagari', devanagariFont);
+        }
+
         const pageWidth = doc.page.width;
         const marginLeft = 50;
         const marginRight = pageWidth - 50;
         const contentWidth = marginRight - marginLeft;
 
         // === HEADER BAR (maroon background) ===
-        doc.rect(0, 0, pageWidth, 100).fill('#8b0000');
+        doc.rect(0, 0, pageWidth, 120).fill('#8b0000');
 
-        // Header text
+        // Header text - English
         doc.fillColor('#fceabb');
-        doc.fontSize(24).text('Balveer Ganesh Mandal', marginLeft, 25, { align: 'center', width: contentWidth });
-        doc.fontSize(11).text('Chandicha Pawan Ganpati | Est. 1924 | Malkapur', marginLeft, 55, { align: 'center', width: contentWidth });
+        doc.fontSize(24).text('Balveer Ganesh Mandal', marginLeft, 18, { align: 'center', width: contentWidth });
+
+        // Header text - Marathi
+        if (fs.existsSync(devanagariFont)) {
+            doc.font('Devanagari').fontSize(18).text('\u092C\u093E\u0932\u0935\u0940\u0930 \u0917\u0923\u0947\u0936 \u092E\u0902\u0921\u0933', marginLeft, 48, { align: 'center', width: contentWidth });
+            doc.font('Helvetica');
+        }
+
+        doc.fillColor('#fceabb');
+        doc.fontSize(10).text('Chandicha Pawan Ganpati | Est. 1924 | Malkapur', marginLeft, 72, { align: 'center', width: contentWidth });
 
         // Gold accent line
-        doc.rect(0, 100, pageWidth, 4).fill('#d4af37');
+        doc.rect(0, 120, pageWidth, 4).fill('#d4af37');
 
         // === RECEIPT TITLE ===
         doc.fillColor('#8b0000');
-        doc.fontSize(18).text('DONATION RECEIPT', marginLeft, 120, { align: 'center', width: contentWidth });
+        doc.fontSize(18).text('DONATION RECEIPT', marginLeft, 140, { align: 'center', width: contentWidth });
 
         // Thin line under title
-        doc.moveTo(marginLeft + 150, 145).lineTo(marginRight - 150, 145).lineWidth(1).stroke('#d4af37');
+        doc.moveTo(marginLeft + 150, 165).lineTo(marginRight - 150, 165).lineWidth(1).stroke('#d4af37');
 
         // === RECEIPT INFO ===
-        let y = 165;
+        let y = 185;
         doc.fillColor('#666666').fontSize(10);
         doc.text('Receipt No:', marginLeft, y);
         doc.fillColor('#333333').fontSize(11);
