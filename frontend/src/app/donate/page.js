@@ -389,52 +389,48 @@ export default function Donate() {
                                 </select>
                             </div>
 
-                            {/* District - only shown after state is selected */}
-                            {formData.state && (
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.districtLabel} <span className="text-red-500">*</span></label>
-                                    {formData.state === 'Maharashtra' ? (
-                                        <select
-                                            name="district"
-                                            required
-                                            value={formData.district}
-                                            onChange={handleChange}
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
-                                        >
-                                            <option value="">{t.selectDistrict}</option>
-                                            {maharashtraDistricts.map(d => (
-                                                <option key={d} value={d}>{d}</option>
-                                            ))}
-                                        </select>
-                                    ) : (
-                                        <input
-                                            type="text"
-                                            name="district"
-                                            required
-                                            value={formData.district}
-                                            onChange={handleChange}
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
-                                            placeholder={t.districtPlaceholder}
-                                        />
-                                    )}
-                                </div>
-                            )}
-
-                            {/* City/Town/Village - only shown after district is filled */}
-                            {formData.state && formData.district && (
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.cityLabel} <span className="text-red-500">*</span></label>
-                                    <input
-                                        type="text"
-                                        name="city"
+                            {/* District */}
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">{t.districtLabel} <span className="text-red-500">*</span></label>
+                                {formData.state === 'Maharashtra' ? (
+                                    <select
+                                        name="district"
                                         required
-                                        value={formData.city}
+                                        value={formData.district}
                                         onChange={handleChange}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
-                                        placeholder={t.cityPlaceholder}
+                                    >
+                                        <option value="">{t.selectDistrict}</option>
+                                        {maharashtraDistricts.map(d => (
+                                            <option key={d} value={d}>{d}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        name="district"
+                                        required
+                                        value={formData.district}
+                                        onChange={handleChange}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                        placeholder={t.districtPlaceholder}
                                     />
-                                </div>
-                            )}
+                                )}
+                            </div>
+
+                            {/* City / Town / Village */}
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">{t.cityLabel} <span className="text-red-500">*</span></label>
+                                <input
+                                    type="text"
+                                    name="city"
+                                    required
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                    placeholder={t.cityPlaceholder}
+                                />
+                            </div>
                             <p className="text-xs text-gray-500">{t.addressHint}</p>
                         </div>
 
