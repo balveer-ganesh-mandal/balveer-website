@@ -14,6 +14,9 @@ export default function CommitteePage() {
     const [coreCommittee, setCoreCommittee] = useState(null);
     const [isLoadingCore, setIsLoadingCore] = useState(true);
 
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
+
     useEffect(() => {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -132,7 +135,7 @@ export default function CommitteePage() {
                                         <div className="relative group">
                                             <div className="absolute -inset-1 bg-gradient-to-r from-[#d4af37] to-[#be1111] rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" />
                                             <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-[#8b0000] shadow-2xl transform group-hover:scale-105 transition-transform duration-500 bg-white">
-                                                <img src={pres.img} alt="President" className="w-full h-full object-cover" />
+                                                <img src={getImageUrl(pres.img)} alt="President" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-[#4a0808] text-[#fceabb] px-6 py-2 rounded-full shadow-lg border border-[#d4af37]/30 whitespace-nowrap z-20">
                                                 <Star size={16} className="inline mr-2 text-[#d4af37]" />
@@ -155,7 +158,7 @@ export default function CommitteePage() {
                                             <div className="relative group">
                                                 <div className="absolute -inset-1 bg-gradient-to-r from-[#8b0000] to-[#be1111] rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" />
                                                 <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-[#be1111] shadow-xl transform group-hover:scale-105 transition-transform duration-500 bg-white">
-                                                    <img src={vp.img} alt="Vice President" className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(vp.img)} alt="Vice President" className="w-full h-full object-cover" />
                                                 </div>
                                                 <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#8b0000] text-white px-5 py-1.5 rounded-full shadow-lg border border-red-700/50 whitespace-nowrap z-20">
                                                     <span className="font-bold tracking-wider uppercase text-xs">{t.vicePresidentTitle}</span>
@@ -177,7 +180,7 @@ export default function CommitteePage() {
                                             <div className="relative group">
                                                 <div className="absolute -inset-1 bg-gradient-to-r from-[#e6ddd5] to-[#d4af37] rounded-full blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
                                                 <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden border-4 border-[#d4af37] shadow-lg transform group-hover:scale-105 transition-transform duration-500 bg-white">
-                                                    <img src={covp.img} alt="Co-Vice President" className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(covp.img)} alt="Co-Vice President" className="w-full h-full object-cover" />
                                                 </div>
                                                 <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#d4af37] text-[#4a0808] px-5 py-1.5 rounded-full shadow border border-[#be1111]/30 whitespace-nowrap z-20">
                                                     <span className="font-bold tracking-wider uppercase text-xs">{lang === 'en' ? 'Co-Vice President' : 'सह-उपाध्यक्ष'}</span>
@@ -200,7 +203,7 @@ export default function CommitteePage() {
                                         <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="flex flex-col items-center">
                                             <div className="relative group">
                                                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-[#8b0000] shadow-md group-hover:shadow-xl group-hover:border-[#be1111] transition-all duration-300 bg-white">
-                                                    <img src={leader.img} alt={leader.role[lang]} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                                                    <img src={getImageUrl(leader.img)} alt={leader.role[lang]} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                                                 </div>
                                                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white text-[#8b0000] px-4 py-1 rounded-full shadow border-b border-[#8b0000] whitespace-nowrap z-20">
                                                     <span className="font-bold tracking-wide uppercase text-[10px] md:text-xs">{leader.role[lang]}</span>

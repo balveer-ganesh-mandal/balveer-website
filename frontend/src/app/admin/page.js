@@ -5,6 +5,9 @@ import Link from "next/link";
 import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin } from "lucide-react";
 
 export default function AdminPage() {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
+
     const [isLive, setIsLive] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -727,7 +730,7 @@ export default function AdminPage() {
                                                     <tr key={item.id} className="border-b border-gray-100 hover:bg-red-50/50 transition-colors">
                                                         <td className="py-3 px-2">
                                                             <div className="w-16 h-16 rounded overflow-hidden shadow-sm border border-gray-200 bg-gray-50">
-                                                                <img src={item.src} alt={item.alt?.en || "Image"} className="w-full h-full object-cover" />
+                                                                <img src={getImageUrl(item.src)} alt={item.alt?.en || "Image"} className="w-full h-full object-cover" />
                                                             </div>
                                                         </td>
                                                         <td className="py-3 px-2 font-medium text-gray-700">{item.year}</td>

@@ -9,6 +9,9 @@ import { ArrowLeft, Image as ImageIcon } from "lucide-react";
 export default function GalleryPage() {
     const { lang } = useLanguage();
 
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
+
     const content = {
         en: {
             title: "Past Memories",
@@ -127,7 +130,7 @@ export default function GalleryPage() {
                                     className="relative aspect-square rounded-xl overflow-hidden shadow-md group border-4 border-white hover:shadow-2xl hover:border-[#fceabb] transition-all cursor-pointer bg-gray-100"
                                 >
                                     <img
-                                        src={img.src}
+                                        src={getImageUrl(img.src)}
                                         alt={img.alt[lang]}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         loading="lazy"
