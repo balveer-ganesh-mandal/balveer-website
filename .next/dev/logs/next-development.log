@@ -1,0 +1,84 @@
+[02:13:28.329] Server  ERROR   ⨯ Error: Cannot find module 'next/dist/client/components/builtin/global-not-found'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:13:28.358] Server  ERROR   Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:13:28.388] Server  ERROR   ⨯ Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:13:28.529] Server  ERROR   Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:13:29.120] Server  ERROR   ⨯ Error: Cannot find module 'next/dist/client/components/builtin/global-not-found'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:13:29.142] Server  ERROR   Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:13:29.170] Server  ERROR   ⨯ Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:13:29.192] Server  ERROR   Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:15:20.962] Server  ERROR   ⨯ Error: Cannot find module 'next/dist/client/components/builtin/global-not-found'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:15:21.002] Server  ERROR   Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:15:21.038] Server  ERROR   ⨯ Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
+[02:15:21.076] Server  ERROR   Error: Cannot find module 'next/dist/pages/_error'
+Require stack:
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\on-demand-entry-handler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\dev\hot-reloader-turbopack.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\avdp1\ganpati-mandal\node_modules\next\dist\server\lib\start-server.js
