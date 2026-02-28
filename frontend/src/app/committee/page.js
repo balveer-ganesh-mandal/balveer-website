@@ -32,7 +32,7 @@ export default function CommitteePage() {
             });
 
         // Fetch Core Committee
-        fetch(`${API_URL}/api/core-committee`)
+        fetch(`${API_URL}/core-committee`)
             .then(res => res.json())
             .then(data => {
                 if (data && data.president) {
