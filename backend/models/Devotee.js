@@ -46,14 +46,13 @@ const devoteeSchema = new mongoose.Schema({
 });
 
 // Encrypt password before saving
-devoteeSchema.pre('save', async function (next) {
+devoteeSchema.pre('save', async function () {
     // Only run if password was modified
-    if (!this.isModified('password')) return next();
+    if (!this.isModified('password')) return;
 
     // Hash password with cost of 10
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
 });
 
 // Match user entered password to hashed password in database
