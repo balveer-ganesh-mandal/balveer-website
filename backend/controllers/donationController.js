@@ -80,11 +80,18 @@ exports.downloadReceipt = async (req, res) => {
         res.setHeader('Content-type', 'application/pdf');
         doc.pipe(res);
 
-        // Register Devanagari font for Marathi
-        const devanagariFont = path.join(__dirname, '..', 'fonts', 'NotoSansDevanagari.ttf');
-        if (fs.existsSync(devanagariFont)) {
-            doc.registerFont('Devanagari', devanagariFont);
-        }
+        // Register fonts (same as website)
+        const fontsDir = path.join(__dirname, '..', 'fonts');
+        const yatraFont = path.join(fontsDir, 'YatraOne-Regular.ttf');
+        const muktaFont = path.join(fontsDir, 'Mukta-Regular.ttf');
+        const muktaBoldFont = path.join(fontsDir, 'Mukta-Bold.ttf');
+
+        if (fs.existsSync(yatraFont)) doc.registerFont('YatraOne', yatraFont);
+        if (fs.existsSync(muktaFont)) doc.registerFont('Mukta', muktaFont);
+        if (fs.existsSync(muktaBoldFont)) doc.registerFont('MuktaBold', muktaBoldFont);
+
+        const hasYatra = fs.existsSync(yatraFont);
+        const hasMukta = fs.existsSync(muktaFont);
 
         const pageWidth = doc.page.width;
         const marginLeft = 50;
@@ -94,24 +101,35 @@ exports.downloadReceipt = async (req, res) => {
         // === HEADER BAR (maroon background) ===
         doc.rect(0, 0, pageWidth, 160).fill('#8b0000');
 
-        // Header text - English name
+        // Header text - English name (Yatra One)
         doc.fillColor('#fceabb');
+        if (hasYatra) doc.font('YatraOne');
         doc.fontSize(20).text('Balveer Ganesh Mandal (Chandicha Pawan Ganpati)', marginLeft, 15, { align: 'center', width: contentWidth });
-        doc.fontSize(10).text('Address: Kalipura, Malkapur, Dist. Buldhana - 443101', marginLeft, 40, { align: 'center', width: contentWidth });
 
-        // Header text - Marathi name
-        if (fs.existsSync(devanagariFont)) {
-            doc.font('Devanagari').fillColor('#fceabb');
-            doc.fontSize(16).text('\u092C\u093E\u0932\u0935\u0940\u0930 \u0917\u0923\u0947\u0936 \u092E\u0902\u0921\u0933 (\u091A\u093E\u0902\u0926\u0940\u091A\u093E \u092A\u093E\u0935\u0928 \u0917\u0923\u092A\u0924\u0940)', marginLeft, 62, { align: 'center', width: contentWidth });
-            doc.fontSize(10).text('\u092A\u0924\u094D\u0924\u093E : \u0915\u093E\u0933\u0940\u092A\u0941\u0930\u093E, \u092E\u0932\u0915\u093E\u092A\u0942\u0930, \u091C\u093F. \u092C\u0941\u0932\u0922\u093E\u0923\u093E - \u0934\u0934\u0933\u0967\u0966\u0967', marginLeft, 84, { align: 'center', width: contentWidth });
-            doc.font('Helvetica');
-        }
+        // English address (Mukta)
+        if (hasMukta) doc.font('Mukta');
+        else doc.font('Helvetica');
+        doc.fontSize(10).text('Address: Kalipura, Malkapur, Dist. Buldhana - 443101', marginLeft, 42, { align: 'center', width: contentWidth });
+
+        // Marathi name (Yatra One)
+        if (hasYatra) doc.font('YatraOne');
+        doc.fillColor('#fceabb');
+        doc.fontSize(16).text('\u092C\u093E\u0932\u0935\u0940\u0930 \u0917\u0923\u0947\u0936 \u092E\u0902\u0921\u0933 (\u091A\u093E\u0902\u0926\u0940\u091A\u093E \u092A\u093E\u0935\u0928 \u0917\u0923\u092A\u0924\u0940)', marginLeft, 65, { align: 'center', width: contentWidth });
+
+        // Marathi address (Mukta)
+        if (hasMukta) doc.font('Mukta');
+        doc.fontSize(10).text('\u092A\u0924\u094D\u0924\u093E : \u0915\u093E\u0933\u0940\u092A\u0941\u0930\u093E, \u092E\u0932\u0915\u093E\u092A\u0942\u0930, \u091C\u093F. \u092C\u0941\u0932\u0922\u093E\u0923\u093E - \u096A\u096A\u0969\u0967\u0966\u0967', marginLeft, 90, { align: 'center', width: contentWidth });
+
+        // Reset to Mukta for body
+        if (hasMukta) doc.font('Mukta');
+        else doc.font('Helvetica');
 
         // Gold accent line
         doc.rect(0, 160, pageWidth, 4).fill('#d4af37');
 
         // === RECEIPT TITLE ===
         doc.fillColor('#8b0000');
+        if (hasYatra) doc.font('YatraOne');
         doc.fontSize(18).text('DONATION RECEIPT', marginLeft, 180, { align: 'center', width: contentWidth });
 
         // Thin line under title
@@ -119,6 +137,8 @@ exports.downloadReceipt = async (req, res) => {
 
         // === RECEIPT INFO ===
         let y = 225;
+        if (hasMukta) doc.font('Mukta');
+        else doc.font('Helvetica');
         doc.fillColor('#666666').fontSize(10);
         doc.text('Receipt No:', marginLeft, y);
         doc.fillColor('#333333').fontSize(11);
@@ -145,8 +165,11 @@ exports.downloadReceipt = async (req, res) => {
 
         const displayName = donation.receiptName || `${donation.devotee.firstName} ${donation.devotee.lastName}`;
         doc.fillColor('#4a0808').fontSize(16);
-        doc.font('Helvetica-Bold').text(displayName, marginLeft + 15, y + 25);
-        doc.font('Helvetica');
+        if (hasYatra) doc.font('YatraOne');
+        else doc.font('Helvetica-Bold');
+        doc.text(displayName, marginLeft + 15, y + 25);
+        if (hasMukta) doc.font('Mukta');
+        else doc.font('Helvetica');
 
         let infoY = y + 48;
         if (donation.address) {
@@ -167,8 +190,11 @@ exports.downloadReceipt = async (req, res) => {
 
         const currencySymbol = donation.currency === 'INR' ? 'Rs.' : donation.currency;
         doc.fillColor('#fceabb').fontSize(22);
-        doc.font('Helvetica-Bold').text(`${currencySymbol} ${donation.amount.toLocaleString('en-IN')}`, marginLeft + 20, y + 15, { align: 'right', width: contentWidth - 40 });
-        doc.font('Helvetica');
+        if (hasYatra) doc.font('YatraOne');
+        else doc.font('Helvetica-Bold');
+        doc.text(`${currencySymbol} ${donation.amount.toLocaleString('en-IN')}`, marginLeft + 20, y + 15, { align: 'right', width: contentWidth - 40 });
+        if (hasMukta) doc.font('Mukta');
+        else doc.font('Helvetica');
 
         // === PAYMENT DETAILS ===
         y += 70;
