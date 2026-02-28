@@ -1,5 +1,5 @@
 const Donation = require('../models/Donation');
-const puppeteer = require('puppeteer');
+const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
@@ -73,69 +73,129 @@ exports.downloadReceipt = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Not authorized to view this receipt' });
         }
 
-        // Read the HTML template
-        const templatePath = path.join(__dirname, '..', 'templates', 'receipt.html');
-        let html = fs.readFileSync(templatePath, 'utf8');
-
-        // Prepare data
-        const displayName = donation.receiptName || `${donation.devotee.firstName} ${donation.devotee.lastName}`;
-        const dateStr = new Date(donation.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-
-        // Replace placeholders
-        html = html.replace(/\{\{transactionId\}\}/g, donation.transactionId);
-        html = html.replace(/\{\{date\}\}/g, dateStr);
-        html = html.replace(/\{\{donorName\}\}/g, displayName);
-        html = html.replace(/\{\{amount\}\}/g, donation.amount.toLocaleString('en-IN'));
-        html = html.replace(/\{\{currency\}\}/g, donation.currency === 'INR' ? '₹' : donation.currency);
-        html = html.replace(/\{\{paymentMethod\}\}/g, donation.paymentMethod);
-        html = html.replace(/\{\{year\}\}/g, new Date().getFullYear().toString());
-
-        // Handle conditional blocks - address
-        if (donation.address) {
-            html = html.replace(/\{\{#if address\}\}/g, '').replace(/\{\{\/if\}\}/g, '');
-            html = html.replace(/\{\{address\}\}/g, donation.address);
-        } else {
-            html = html.replace(/\{\{#if address\}\}[\s\S]*?\{\{\/if\}\}/g, '');
-        }
-
-        // Handle conditional blocks - email
-        if (donation.devotee.email) {
-            html = html.replace(/\{\{#if email\}\}/g, '').replace(/\{\{\/if\}\}/g, '');
-            html = html.replace(/\{\{email\}\}/g, donation.devotee.email);
-        } else {
-            html = html.replace(/\{\{#if email\}\}[\s\S]*?\{\{\/if\}\}/g, '');
-        }
-
-        // Handle conditional blocks - notes
-        if (donation.notes) {
-            html = html.replace(/\{\{#if notes\}\}/g, '').replace(/\{\{\/if\}\}/g, '');
-            html = html.replace(/\{\{notes\}\}/g, donation.notes);
-        } else {
-            html = html.replace(/\{\{#if notes\}\}[\s\S]*?\{\{\/if\}\}/g, '');
-        }
-
-        // Launch puppeteer and generate PDF
-        const browser = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-        const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0' });
-
-        const pdfBuffer = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: { top: '20px', bottom: '20px', left: '20px', right: '20px' }
-        });
-
-        await browser.close();
-
-        // Send the PDF
+        const doc = new PDFDocument({ margin: 50, size: 'A4' });
         const filename = `Receipt_${donation.transactionId}.pdf`;
+
         res.setHeader('Content-disposition', 'attachment; filename="' + filename + '"');
         res.setHeader('Content-type', 'application/pdf');
-        res.setHeader('Content-Length', pdfBuffer.length);
-        res.end(pdfBuffer);
+        doc.pipe(res);
+
+        const pageWidth = doc.page.width;
+        const marginLeft = 50;
+        const marginRight = pageWidth - 50;
+        const contentWidth = marginRight - marginLeft;
+
+        // === HEADER BAR (maroon background) ===
+        doc.rect(0, 0, pageWidth, 100).fill('#8b0000');
+
+        // Header text
+        doc.fillColor('#fceabb');
+        doc.fontSize(24).text('Balveer Ganesh Mandal', marginLeft, 25, { align: 'center', width: contentWidth });
+        doc.fontSize(11).text('Chandicha Pawan Ganpati | Est. 1924 | Malkapur', marginLeft, 55, { align: 'center', width: contentWidth });
+
+        // Gold accent line
+        doc.rect(0, 100, pageWidth, 4).fill('#d4af37');
+
+        // === RECEIPT TITLE ===
+        doc.fillColor('#8b0000');
+        doc.fontSize(18).text('DONATION RECEIPT', marginLeft, 120, { align: 'center', width: contentWidth });
+
+        // Thin line under title
+        doc.moveTo(marginLeft + 150, 145).lineTo(marginRight - 150, 145).lineWidth(1).stroke('#d4af37');
+
+        // === RECEIPT INFO ===
+        let y = 165;
+        doc.fillColor('#666666').fontSize(10);
+        doc.text('Receipt No:', marginLeft, y);
+        doc.fillColor('#333333').fontSize(11);
+        doc.text(donation.transactionId, marginLeft + 120, y);
+
+        y += 20;
+        const dateStr = new Date(donation.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        doc.fillColor('#666666').fontSize(10);
+        doc.text('Date:', marginLeft, y);
+        doc.fillColor('#333333').fontSize(11);
+        doc.text(dateStr, marginLeft + 120, y);
+
+        // === DIVIDER ===
+        y += 30;
+        doc.moveTo(marginLeft, y).lineTo(marginRight, y).lineWidth(0.5).stroke('#e0e0e0');
+
+        // === DONOR INFO BOX ===
+        y += 15;
+        doc.rect(marginLeft, y, contentWidth, 80).lineWidth(1).stroke('#e8d5a3');
+        doc.rect(marginLeft, y, contentWidth, 80).fill('#faf7f0');
+
+        doc.fillColor('#999999').fontSize(9);
+        doc.text('RECEIVED WITH THANKS FROM', marginLeft + 15, y + 10);
+
+        const displayName = donation.receiptName || `${donation.devotee.firstName} ${donation.devotee.lastName}`;
+        doc.fillColor('#4a0808').fontSize(16);
+        doc.font('Helvetica-Bold').text(displayName, marginLeft + 15, y + 25);
+        doc.font('Helvetica');
+
+        let infoY = y + 48;
+        if (donation.address) {
+            doc.fillColor('#555555').fontSize(10);
+            doc.text('Address: ' + donation.address, marginLeft + 15, infoY, { width: contentWidth - 30 });
+            infoY += 15;
+        }
+        if (donation.devotee.email) {
+            doc.fillColor('#555555').fontSize(10);
+            doc.text('Email: ' + donation.devotee.email, marginLeft + 15, infoY);
+        }
+
+        // === AMOUNT BOX (maroon) ===
+        y += 100;
+        doc.rect(marginLeft, y, contentWidth, 50).fill('#8b0000');
+        doc.fillColor('#fceabb').fontSize(11);
+        doc.text('Donation Amount', marginLeft + 20, y + 10);
+
+        const currencySymbol = donation.currency === 'INR' ? 'Rs.' : donation.currency;
+        doc.fillColor('#fceabb').fontSize(22);
+        doc.font('Helvetica-Bold').text(`${currencySymbol} ${donation.amount.toLocaleString('en-IN')}`, marginLeft + 20, y + 15, { align: 'right', width: contentWidth - 40 });
+        doc.font('Helvetica');
+
+        // === PAYMENT DETAILS ===
+        y += 70;
+        doc.fillColor('#666666').fontSize(10);
+        doc.text('Payment Method:', marginLeft, y);
+        doc.fillColor('#333333').fontSize(11);
+        doc.text(donation.paymentMethod, marginLeft + 120, y);
+
+        y += 20;
+        doc.fillColor('#666666').fontSize(10);
+        doc.text('Status:', marginLeft, y);
+        doc.fillColor('#2e7d32').fontSize(11);
+        doc.text('Completed', marginLeft + 120, y);
+
+        if (donation.notes) {
+            y += 20;
+            doc.fillColor('#666666').fontSize(10);
+            doc.text('Notes:', marginLeft, y);
+            doc.fillColor('#333333').fontSize(11);
+            doc.text(donation.notes, marginLeft + 120, y, { width: contentWidth - 120 });
+        }
+
+        // === DIVIDER ===
+        y += 40;
+        doc.moveTo(marginLeft, y).lineTo(marginRight, y).lineWidth(0.5).stroke('#e0e0e0');
+
+        // === SIGNATORY ===
+        y += 30;
+        doc.moveTo(marginRight - 180, y + 20).lineTo(marginRight, y + 20).lineWidth(0.5).stroke('#999999');
+        doc.fillColor('#888888').fontSize(9);
+        doc.text('Authorized Signatory', marginRight - 180, y + 25, { width: 180, align: 'center' });
+
+        // === FOOTER ===
+        y += 70;
+        doc.moveTo(marginLeft, y).lineTo(marginRight, y).lineWidth(0.5).stroke('#e8d5a3');
+        y += 10;
+        doc.fillColor('#aaaaaa').fontSize(8);
+        doc.text('This is a computer-generated receipt and does not require a physical signature.', marginLeft, y, { align: 'center', width: contentWidth });
+        doc.text(`© ${new Date().getFullYear()} Balveer Ganesh Mandal (Chandicha Pawan Ganpati), Malkapur`, marginLeft, y + 12, { align: 'center', width: contentWidth });
+
+        doc.end();
 
     } catch (error) {
         console.error('Receipt Generation Error:', error);
