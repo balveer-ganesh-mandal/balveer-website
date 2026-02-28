@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, User } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
@@ -105,34 +105,53 @@ export default function Navbar() {
 
             <div className="absolute top-full left-0 mt-0 w-48 bg-[#be1111] border border-red-700/50 shadow-xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100">
               <div className="p-2 flex flex-col">
-                <Link href="/donate" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider flex items-center gap-2">
+                <Link href="/donate" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block font-medium tracking-wider flex items-center gap-2">
                   {t.donate}
                 </Link>
-                {isAuthenticated ? (
-                  <>
-                    <Link href="/dashboard" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider">
-                      My Dashboard
-                    </Link>
-                    <button onClick={logout} className="px-4 py-3 text-left text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider w-full">
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <Link href="/login" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider">
-                    Devotee Login
-                  </Link>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Language Toggle in Navbar */}
-          <button
-            onClick={() => setLang(lang === "en" ? "mr" : "en")}
-            className="bg-white text-[#be1111] hover:bg-[#fceabb] px-4 py-2 rounded-full font-bold shadow-md transition-all ml-4 w-24 text-center"
-          >
-            {lang === "en" ? "मराठी" : "English"}
-          </button>
+          <div className="flex items-center border-l border-red-700/50 pl-6 ml-2 gap-4">
+            {/* Language Toggle in Navbar */}
+            <button
+              onClick={() => setLang(lang === "en" ? "mr" : "en")}
+              className="bg-white text-[#be1111] hover:bg-[#fceabb] px-4 py-1.5 rounded-full font-bold shadow-md transition-all w-20 text-center text-xs"
+            >
+              {lang === "en" ? "मराठी" : "English"}
+            </button>
+
+            {/* User Auth Section */}
+            {isAuthenticated ? (
+              <div className="relative group">
+                <Link href="/dashboard" className="flex items-center gap-2 hover:text-[#fceabb] transition-colors py-2">
+                  <div className="bg-white/20 p-2 rounded-full hover:bg-white/30 transition-colors">
+                    <User size={18} />
+                  </div>
+                </Link>
+                <div className="absolute top-full right-0 mt-0 w-48 bg-[#be1111] border border-red-700/50 shadow-xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100">
+                  <div className="p-2 flex flex-col">
+                    <Link href="/dashboard" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 font-medium tracking-wider">
+                      My Dashboard
+                    </Link>
+                    <button onClick={logout} className="px-4 py-3 text-left text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block font-medium tracking-wider w-full">
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login" className="hover:text-[#fceabb] transition-colors font-medium text-sm">
+                  Login
+                </Link>
+                <span className="text-red-300/50 text-xs">|</span>
+                <Link href="/signup" className="hover:text-[#fceabb] transition-colors font-medium text-sm">
+                  Sign up
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Hamburger Button */}
