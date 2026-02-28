@@ -10,8 +10,8 @@ exports.createDonation = async (req, res) => {
     try {
         const { amount, currency, paymentMethod, notes, receiptName, address } = req.body;
 
-        if (!amount || !paymentMethod) {
-            return res.status(400).json({ success: false, message: 'Amount and payment method are required' });
+        if (!amount || !paymentMethod || !receiptName || !address) {
+            return res.status(400).json({ success: false, message: 'Amount, payment method, name, and address are required' });
         }
 
         // Mock a transaction ID for now since we aren't using a real payment gateway yet

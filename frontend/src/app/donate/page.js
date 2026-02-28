@@ -59,12 +59,15 @@ export default function Donate() {
             cityPlaceholder: 'e.g. Malkapur',
             stateLabel: 'State',
             selectState: 'Select State',
-            addressHint: 'Optional. This address will appear on the donation receipt PDF.',
+            addressHint: 'Required. This address will appear on the donation receipt PDF.',
             loggedInAs: 'Logged in as:',
             processing: 'Processing...',
             donate: 'Donate',
             thankYou: 'Thank you for your generous donation of',
             redirecting: 'Redirecting to your dashboard to view the receipt...',
+            nameRequired: 'Please enter a name for the receipt.',
+            addressRequired: 'Please fill in Address Line 1, City, and State.',
+            paymentRequired: 'Please select a payment method.',
             invalidAmount: 'Please enter a valid donation amount.',
             errorProcessing: 'Error processing donation.',
             serverError: 'An error occurred while connecting to the server.',
@@ -95,11 +98,14 @@ export default function Donate() {
             cityPlaceholder: 'उदा. मलकापूर',
             stateLabel: 'राज्य',
             selectState: 'राज्य निवडा',
-            addressHint: 'ऐच्छिक. हा पत्ता दान पावती PDF वर दिसेल.',
+            addressHint: 'आवश्यक. हा पत्ता दान पावती PDF वर दिसेल.',
             loggedInAs: 'लॉग इन:',
             processing: 'प्रक्रिया सुरू...',
             donate: 'दान करा',
             thankYou: 'तुमच्या उदार दानाबद्दल धन्यवाद! रक्कम:',
+            nameRequired: 'कृपया पावतीसाठी नाव टाका.',
+            addressRequired: 'कृपया पत्ता ओळ १, शहर आणि राज्य भरा.',
+            paymentRequired: 'कृपया पेमेंट पद्धत निवडा.',
             redirecting: 'पावती पाहण्यासाठी तुमच्या डॅशबोर्डवर पुनर्निर्देशित करत आहे...',
             invalidAmount: 'कृपया वैध दान रक्कम टाका.',
             errorProcessing: 'दान प्रक्रियेत त्रुटी.',
@@ -138,6 +144,21 @@ export default function Donate() {
 
         if (!formData.amount || isNaN(formData.amount) || Number(formData.amount) <= 0) {
             setError(t.invalidAmount);
+            return;
+        }
+
+        if (!formData.paymentMethod) {
+            setError(t.paymentRequired);
+            return;
+        }
+
+        if (!formData.receiptName.trim()) {
+            setError(t.nameRequired);
+            return;
+        }
+
+        if (!formData.addressLine1.trim() || !formData.city.trim() || !formData.state) {
+            setError(t.addressRequired);
             return;
         }
 
@@ -313,6 +334,7 @@ export default function Donate() {
                                 <input
                                     type="text"
                                     name="addressLine1"
+                                    required
                                     value={formData.addressLine1}
                                     onChange={handleChange}
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
@@ -335,6 +357,7 @@ export default function Donate() {
                                     <input
                                         type="text"
                                         name="city"
+                                        required
                                         value={formData.city}
                                         onChange={handleChange}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
@@ -345,6 +368,7 @@ export default function Donate() {
                                     <label className="block text-xs font-medium text-gray-500 mb-1">{t.stateLabel}</label>
                                     <select
                                         name="state"
+                                        required
                                         value={formData.state}
                                         onChange={handleChange}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
