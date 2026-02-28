@@ -13,6 +13,7 @@ export default function Donate() {
         currency: 'INR',
         paymentMethod: 'Credit Card',
         receiptName: '',
+        address: '',
         notes: ''
     });
     const [submitting, setSubmitting] = useState(false);
@@ -62,6 +63,7 @@ export default function Donate() {
                     currency: formData.currency,
                     paymentMethod: formData.paymentMethod,
                     receiptName: formData.receiptName,
+                    address: formData.address,
                     notes: formData.notes
                 })
             });
@@ -211,6 +213,20 @@ export default function Donate() {
                                 placeholder="Enter name to print on receipt"
                             />
                             <p className="mt-1 text-xs text-gray-500">This name will appear on the donation receipt PDF.</p>
+                        </div>
+
+                        {/* Address for Receipt */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Address (for Receipt)</label>
+                            <textarea
+                                name="address"
+                                rows="2"
+                                value={formData.address}
+                                onChange={handleChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                placeholder="Enter address to print on receipt"
+                            ></textarea>
+                            <p className="mt-1 text-xs text-gray-500">Optional. This address will appear on the donation receipt PDF.</p>
                         </div>
 
                         {/* Devotee Info Display */}

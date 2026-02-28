@@ -8,7 +8,7 @@ const path = require('path');
 // @access  Private
 exports.createDonation = async (req, res) => {
     try {
-        const { amount, currency, paymentMethod, notes, receiptName } = req.body;
+        const { amount, currency, paymentMethod, notes, receiptName, address } = req.body;
 
         if (!amount || !paymentMethod) {
             return res.status(400).json({ success: false, message: 'Amount and payment method are required' });
@@ -24,6 +24,7 @@ exports.createDonation = async (req, res) => {
             paymentMethod,
             transactionId,
             receiptName: receiptName || '',
+            address: address || '',
             notes,
             status: 'completed' // Assuming immediate success for mock
         });
@@ -95,6 +96,9 @@ exports.downloadReceipt = async (req, res) => {
 
         const displayName = donation.receiptName || `${donation.devotee.firstName} ${donation.devotee.lastName}`;
         doc.text(`Received with thanks from: ${displayName}`);
+        if (donation.address) {
+            doc.text(`Address: ${donation.address}`);
+        }
         if (donation.devotee.email) {
             doc.text(`Email: ${donation.devotee.email}`);
         }

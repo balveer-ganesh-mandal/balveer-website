@@ -39,6 +39,10 @@ const donationSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    address: {
+        type: String,
+        trim: true
+    },
     notes: {
         type: String,
         trim: true
