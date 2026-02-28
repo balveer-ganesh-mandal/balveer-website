@@ -22,6 +22,9 @@ export default function Login() {
     const { login, loginWithGoogle, sendOTP, verifyOTP } = useAuth();
     const router = useRouter();
 
+    const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const redirectUrl = searchParams.get('redirect') || '/dashboard';
+
     const handleEmailSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -30,7 +33,7 @@ export default function Login() {
         const result = await login(email, password);
 
         if (result.success) {
-            router.push('/dashboard');
+            router.push(redirectUrl);
         } else {
             setError(result.message);
         }
@@ -43,7 +46,7 @@ export default function Login() {
         setLoading(true);
         const result = await loginWithGoogle();
         if (result.success) {
-            router.push('/dashboard');
+            router.push(redirectUrl);
         } else {
             setError(result.message);
         }
