@@ -372,19 +372,25 @@ export default function Donate() {
                                     placeholder={t.addressLine2}
                                 />
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.cityLabel} <span className="text-red-500">*</span></label>
-                                    <input
-                                        type="text"
-                                        name="city"
-                                        required
-                                        value={formData.city}
-                                        onChange={handleChange}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
-                                        placeholder={t.cityPlaceholder}
-                                    />
-                                </div>
+                            {/* State */}
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">{t.stateLabel} <span className="text-red-500">*</span></label>
+                                <select
+                                    name="state"
+                                    required
+                                    value={formData.state}
+                                    onChange={handleChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                >
+                                    <option value="">{t.selectState}</option>
+                                    {indianStates.map(s => (
+                                        <option key={s} value={s}>{s}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* District - only shown after state is selected */}
+                            {formData.state && (
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">{t.districtLabel} <span className="text-red-500">*</span></label>
                                     {formData.state === 'Maharashtra' ? (
@@ -412,22 +418,23 @@ export default function Donate() {
                                         />
                                     )}
                                 </div>
+                            )}
+
+                            {/* City/Town/Village - only shown after district is filled */}
+                            {formData.state && formData.district && (
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.stateLabel} <span className="text-red-500">*</span></label>
-                                    <select
-                                        name="state"
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.cityLabel} <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        name="city"
                                         required
-                                        value={formData.state}
+                                        value={formData.city}
                                         onChange={handleChange}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
-                                    >
-                                        <option value="">{t.selectState}</option>
-                                        {indianStates.map(s => (
-                                            <option key={s} value={s}>{s}</option>
-                                        ))}
-                                    </select>
+                                        placeholder={t.cityPlaceholder}
+                                    />
                                 </div>
-                            </div>
+                            )}
                             <p className="text-xs text-gray-500">{t.addressHint}</p>
                         </div>
 
