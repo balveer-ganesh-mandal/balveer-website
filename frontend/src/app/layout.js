@@ -4,6 +4,7 @@ import { Yatra_One, Mukta } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { usePathname } from "next/navigation";
 
@@ -33,12 +34,14 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning className={`${yatra.variable} ${mukta.variable}`}>
       <body className="font-sans antialiased bg-[#fffdfc] text-gray-800 transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <LanguageProvider>
-            {!isAdminRoute && <Navbar />}
-            <div className={isAdminRoute ? "" : "pt-[65px] md:pt-[81px]"}>
-              {children}
-            </div>
-          </LanguageProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              {!isAdminRoute && <Navbar />}
+              <div className={isAdminRoute ? "" : "pt-[65px] md:pt-[81px]"}>
+                {children}
+              </div>
+            </LanguageProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

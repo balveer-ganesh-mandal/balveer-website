@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Navbar() {
   const { lang, setLang } = useLanguage();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Close mobile menu when a link is clicked
@@ -106,6 +108,20 @@ export default function Navbar() {
                 <Link href="/donate" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider flex items-center gap-2">
                   {t.donate}
                 </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/dashboard" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider">
+                      My Dashboard
+                    </Link>
+                    <button onClick={logout} className="px-4 py-3 text-left text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider w-full">
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider">
+                    Devotee Login
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -175,6 +191,20 @@ export default function Navbar() {
                 <Link href="/donate" onClick={closeMenu} className="text-white hover:text-[#fceabb] pl-4 py-1 transition-colors flex items-center gap-2">
                   {t.donate}
                 </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/dashboard" onClick={closeMenu} className="text-white hover:text-[#fceabb] pl-4 py-1 transition-colors">
+                      • My Dashboard
+                    </Link>
+                    <button onClick={() => { logout(); closeMenu(); }} className="text-left text-white hover:text-[#fceabb] pl-4 py-1 transition-colors">
+                      • Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" onClick={closeMenu} className="text-white hover:text-[#fceabb] pl-4 py-1 transition-colors">
+                    • Devotee Login
+                  </Link>
+                )}
               </div>
 
               {/* Mobile Language Toggle */}
