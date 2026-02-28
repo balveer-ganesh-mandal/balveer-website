@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const connectDB = require('./utils/db');
 require('dotenv').config();
+const connectDB = require('./utils/db');
 
 // Connect to MongoDB
 connectDB();
