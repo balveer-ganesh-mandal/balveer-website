@@ -25,6 +25,11 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/sub-committee', subCommitteeRoutes);
 app.use('/api/live-status', liveStatusRoutes);
 
+// Root Route
+app.get('/', (req, res) => {
+    res.json({ message: 'Ganpati Mandal Backend API is running' });
+});
+
 app.listen(PORT, () => {
     console.log(`Backend API running on http://localhost:${PORT}`);
 });
