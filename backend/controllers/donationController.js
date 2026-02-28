@@ -73,53 +73,114 @@ exports.downloadReceipt = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Not authorized to view this receipt' });
         }
 
+        // Register Devanagari font for Marathi support
+        const devanagariFont = path.join(__dirname, '..', 'fonts', 'NotoSansDevanagari.ttf');
+        const hasDevanagari = fs.existsSync(devanagariFont);
+
         // Create PDF
         const doc = new PDFDocument({ margin: 50 });
         const filename = `Receipt_${donation.transactionId}.pdf`;
 
-        // Setting response headers so the browser downloads the PDF instead of opening it inline
         res.setHeader('Content-disposition', 'attachment; filename="' + filename + '"');
         res.setHeader('Content-type', 'application/pdf');
-
-        // Pipe the PDF directly to the Express response
         doc.pipe(res);
 
-        // --- Build Receipt Design ---
-        doc.fontSize(20).text('GANPATI MANDAL', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(14).text('Donation Receipt', { align: 'center', underline: true });
-        doc.moveDown(2);
+        if (hasDevanagari) {
+            doc.registerFont('Devanagari', devanagariFont);
+            doc.registerFont('DevanagariB', devanagariFont);
+        }
 
-        doc.fontSize(12).text(`Receipt No: ${donation.transactionId}`);
-        doc.text(`Date: ${new Date(donation.date).toLocaleDateString()}`);
+        const useFont = (type) => {
+            if (type === 'mr') {
+                doc.font(hasDevanagari ? 'Devanagari' : 'Helvetica');
+            } else if (type === 'bold') {
+                doc.font(hasDevanagari ? 'DevanagariB' : 'Helvetica-Bold');
+            } else {
+                doc.font('Helvetica');
+            }
+        };
+
+        // --- Header ---
+        useFont('en');
+        doc.fontSize(22).text('GANPATI MANDAL', { align: 'center' });
+        if (hasDevanagari) {
+            useFont('mr');
+            doc.fontSize(18).text('गणपती मंडळ', { align: 'center' });
+        }
+
+        doc.moveDown(0.5);
+
+        // --- Divider line ---
+        doc.moveTo(50, doc.y).lineTo(560, doc.y).stroke('#8b0000');
+        doc.moveDown(0.5);
+
+        // --- Title ---
+        useFont('en');
+        doc.fontSize(14).text('Donation Receipt', { align: 'center' });
+        if (hasDevanagari) {
+            useFont('mr');
+            doc.fontSize(13).text('दान पावती', { align: 'center' });
+        }
+        doc.moveDown(1.5);
+
+        // --- Receipt Details ---
+        useFont('en');
+        doc.fontSize(11);
+        doc.text(`Receipt No / पावती क्र.: ${donation.transactionId}`);
+
+        const dateEn = new Date(donation.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        const dateMr = new Date(donation.date).toLocaleDateString('mr-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        doc.text(`Date / दिनांक: ${dateEn} (${dateMr})`);
         doc.moveDown();
 
+        // --- Donor Info ---
         const displayName = donation.receiptName || `${donation.devotee.firstName} ${donation.devotee.lastName}`;
-        doc.text(`Received with thanks from: ${displayName}`);
+        useFont('en');
+        doc.text(`Received with thanks from / यांच्याकडून सधन्यवाद प्राप्त:`);
+        useFont('bold');
+        doc.fontSize(13).text(displayName);
+        useFont('en');
+        doc.fontSize(11);
+
         if (donation.address) {
-            doc.text(`Address: ${donation.address}`);
+            doc.text(`Address / पत्ता: ${donation.address}`);
         }
         if (donation.devotee.email) {
-            doc.text(`Email: ${donation.devotee.email}`);
+            doc.text(`Email / ई-मेल: ${donation.devotee.email}`);
         }
         doc.moveDown();
 
-        doc.font('Helvetica-Bold').fontSize(14).text(`Donation Amount: ${donation.currency} ${donation.amount}`, {
-            background: '#eeeeee'
-        });
-        doc.font('Helvetica').fontSize(12);
+        // --- Divider ---
+        doc.moveTo(50, doc.y).lineTo(560, doc.y).stroke('#cccccc');
+        doc.moveDown(0.5);
 
+        // --- Amount ---
+        useFont('bold');
+        doc.fontSize(15).text(`Donation Amount / दान रक्कम: ${donation.currency} ${donation.amount}`);
+        useFont('en');
+        doc.fontSize(11);
         doc.moveDown();
-        doc.text(`Payment Method: ${donation.paymentMethod}`);
+
+        doc.text(`Payment Method / पेमेंट पद्धत: ${donation.paymentMethod}`);
         if (donation.notes) {
-            doc.text(`Notes: ${donation.notes}`);
+            doc.text(`Notes / टीप: ${donation.notes}`);
         }
 
-        doc.moveDown(4);
-        doc.text('Authorized Signatory', { align: 'right' });
+        doc.moveDown(3);
+
+        // --- Divider ---
+        doc.moveTo(50, doc.y).lineTo(560, doc.y).stroke('#cccccc');
+        doc.moveDown(1);
+
+        // --- Signatory ---
+        useFont('en');
+        doc.text('Authorized Signatory / अधिकृत स्वाक्षरी', { align: 'right' });
         doc.text('-------------------', { align: 'right' });
 
-        // Finalize PDF and end response
+        doc.moveDown(2);
+        doc.fontSize(9).fillColor('#888888').text('This is a computer-generated receipt. / ही संगणक-निर्मित पावती आहे.', { align: 'center' });
+
+        // Finalize PDF
         doc.end();
 
     } catch (error) {
