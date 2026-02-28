@@ -235,7 +235,7 @@ export default function Donate() {
 
                         {/* Quick Amounts */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">{t.selectAmount}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">{t.selectAmount} <span className="text-red-500">*</span></label>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                                 {[101, 501, 1001, 2100, 5100].map((amt) => (
                                     <button
@@ -268,7 +268,7 @@ export default function Donate() {
                                 </select>
                             </div>
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.customAmount}</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.customAmount} <span className="text-red-500">*</span></label>
                                 <input
                                     type="number"
                                     name="amount"
@@ -284,7 +284,7 @@ export default function Donate() {
 
                         {/* Payment Method */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.paymentMethod}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.paymentMethod} <span className="text-red-500">*</span></label>
                             <select
                                 name="paymentMethod"
                                 value={formData.paymentMethod}
@@ -314,7 +314,7 @@ export default function Donate() {
 
                         {/* Name for Receipt */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.receiptName}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.receiptName} <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 name="receiptName"
@@ -329,7 +329,7 @@ export default function Donate() {
 
                         {/* Address for Receipt */}
                         <div className="space-y-4">
-                            <label className="block text-sm font-medium text-gray-700">{t.addressTitle}</label>
+                            <label className="block text-sm font-medium text-gray-700">{t.addressTitle} <span className="text-red-500">*</span></label>
                             <div>
                                 <input
                                     type="text"
@@ -353,7 +353,7 @@ export default function Donate() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.cityLabel}</label>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.cityLabel} <span className="text-red-500">*</span></label>
                                     <input
                                         type="text"
                                         name="city"
@@ -365,7 +365,7 @@ export default function Donate() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.stateLabel}</label>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">{t.stateLabel} <span className="text-red-500">*</span></label>
                                     <select
                                         name="state"
                                         required
