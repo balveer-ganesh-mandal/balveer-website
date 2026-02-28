@@ -13,9 +13,23 @@ export default function Donate() {
         currency: 'INR',
         paymentMethod: 'Credit Card',
         receiptName: '',
-        address: '',
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
         notes: ''
     });
+
+    const indianStates = [
+        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+        'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+        'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+        'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+        'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+        'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+        'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+        'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+    ];
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -63,7 +77,7 @@ export default function Donate() {
                     currency: formData.currency,
                     paymentMethod: formData.paymentMethod,
                     receiptName: formData.receiptName,
-                    address: formData.address,
+                    address: [formData.addressLine1, formData.addressLine2, formData.city, formData.state].filter(Boolean).join(', '),
                     notes: formData.notes
                 })
             });
@@ -216,17 +230,56 @@ export default function Donate() {
                         </div>
 
                         {/* Address for Receipt */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Address (for Receipt)</label>
-                            <textarea
-                                name="address"
-                                rows="2"
-                                value={formData.address}
-                                onChange={handleChange}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
-                                placeholder="Enter address to print on receipt"
-                            ></textarea>
-                            <p className="mt-1 text-xs text-gray-500">Optional. This address will appear on the donation receipt PDF.</p>
+                        <div className="space-y-4">
+                            <label className="block text-sm font-medium text-gray-700">Address (for Receipt)</label>
+                            <div>
+                                <input
+                                    type="text"
+                                    name="addressLine1"
+                                    value={formData.addressLine1}
+                                    onChange={handleChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                    placeholder="Address Line 1 (House/Flat No., Street)"
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    type="text"
+                                    name="addressLine2"
+                                    value={formData.addressLine2}
+                                    onChange={handleChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                    placeholder="Address Line 2 (Area, Landmark)"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">City / Town / Village</label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        value={formData.city}
+                                        onChange={handleChange}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                        placeholder="e.g. Malkapur"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
+                                    <select
+                                        name="state"
+                                        value={formData.state}
+                                        onChange={handleChange}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+                                    >
+                                        <option value="">Select State</option>
+                                        {indianStates.map(s => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-500">Optional. This address will appear on the donation receipt PDF.</p>
                         </div>
 
                         {/* Devotee Info Display */}
