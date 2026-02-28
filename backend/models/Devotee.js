@@ -4,18 +4,21 @@ const bcrypt = require('bcryptjs');
 const devoteeSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: [true, 'First name is required'],
-        trim: true
+        required: false,
+        trim: true,
+        default: 'Devotee'
     },
     lastName: {
         type: String,
-        required: [true, 'Last name is required'],
-        trim: true
+        required: false,
+        trim: true,
+        default: ''
     },
     email: {
         type: String,
-        required: [true, 'Email is required'],
+        required: false,
         unique: true,
+        sparse: true,
         trim: true,
         lowercase: true,
         match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']

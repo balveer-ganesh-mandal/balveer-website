@@ -1,5 +1,14 @@
 const Devotee = require('../models/Devotee');
 const jwt = require('jsonwebtoken');
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin dynamically to avoid needing a service account JSON.
+// It will only be used for verifying ID tokens, which does not require DB permissions.
+if (!admin.apps.length) {
+    admin.initializeApp({
+        projectId: process.env.FIREBASE_PROJECT_ID || 'balveer-ganesh-mandal-e4eca',
+    });
+}
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -126,5 +135,71 @@ exports.getProfile = async (req, res) => {
     } catch (error) {
         console.error('Get Profile Error:', error);
         res.status(500).json({ success: false, message: 'Server error fetching profile' });
+    }
+};
+
+// @desc    Authenticate with Firebase (Google/Phone)
+// @route   POST /api/auth/firebase
+// @access  Public
+exports.firebaseAuth = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+
+        if (!idToken) {
+            return res.status(400).json({ success: false, message: 'No ID token provided' });
+        }
+
+        // Verify the Firebase ID token
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const { uid, email, phone_number, name } = decodedToken;
+
+        let devotee;
+
+        // Try to find user by email (Google) or phone (Phone Auth)
+        if (email) {
+            devotee = await Devotee.findOne({ email });
+        } else if (phone_number) {
+            devotee = await Devotee.findOne({ phone: phone_number });
+        }
+
+        // If user doesn't exist, create them
+        if (!devotee) {
+            let firstName = 'Devotee';
+            let lastName = '';
+
+            if (name) {
+                const nameParts = name.split(' ');
+                firstName = nameParts[0];
+                lastName = nameParts.slice(1).join(' ');
+            }
+
+            devotee = await Devotee.create({
+                firstName,
+                lastName,
+                email: email || undefined,
+                phone: phone_number || undefined,
+                password: uid, // Use Firebase UID as a secure randomly generated password essentially
+            });
+        }
+
+        // Generate our backend token to keep sessions consistent
+        const token = generateToken(devotee._id);
+
+        res.status(200).json({
+            success: true,
+            token,
+            user: {
+                id: devotee._id,
+                firstName: devotee.firstName,
+                lastName: devotee.lastName,
+                email: devotee.email,
+                phone: devotee.phone,
+                role: devotee.role
+            }
+        });
+
+    } catch (error) {
+        console.error('Firebase Auth Error:', error);
+        res.status(401).json({ success: false, message: 'Invalid or expired Firebase token' });
     }
 };
