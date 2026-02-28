@@ -18,7 +18,7 @@ export default function CommitteePage() {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
         // Fetch Sub Committees
-        fetch(`${API_URL}/api/sub-committee`)
+        fetch(`${API_URL}/sub-committee`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {

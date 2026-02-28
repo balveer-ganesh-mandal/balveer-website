@@ -14,7 +14,7 @@ export default function Home() {
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-    fetch(`${API_URL}/api/live-status`)
+    fetch(`${API_URL}/live-status`)
       .then(res => res.json())
       .then(data => {
         if (data && typeof data.isLive === 'boolean') {
@@ -23,7 +23,7 @@ export default function Home() {
       })
       .catch(err => console.error("Failed to fetch live status:", err));
 
-    fetch(`${API_URL}/api/events`)
+    fetch(`${API_URL}/events`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

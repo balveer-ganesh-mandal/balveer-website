@@ -33,19 +33,25 @@ export default function GalleryPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        fetch(`${API_URL}/api/gallery`)
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setImages(data);
+        const fetchGallery = async () => {
+            try {
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                const response = await fetch(`${API_URL}/gallery`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        setImages(data);
+                    }
+                } else {
+                    console.error('Failed to fetch gallery items, status:', response.status);
                 }
-                setIsLoading(false);
-            })
-            .catch(err => {
+            } catch (err) {
                 console.error("Failed to fetch gallery", err);
+            } finally {
                 setIsLoading(false);
-            });
+            }
+        };
+        fetchGallery();
     }, []);
 
     // Extract unique years from the data
