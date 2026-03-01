@@ -12,7 +12,6 @@ const translations = {
         loginPrompt: "Please enter the admin password to continue.",
         enterPassword: "Enter Admin Password",
         login: "Login",
-        passwordHint: "(Default hint: admin123)",
         // Header
         adminControl: "Mandal Admin Control",
         manageFeatures: "Manage website features",
@@ -115,7 +114,6 @@ const translations = {
         loginPrompt: "कृपया सुरू ठेवण्यासाठी प्रशासक पासवर्ड प्रविष्ट करा.",
         enterPassword: "प्रशासक पासवर्ड प्रविष्ट करा",
         login: "लॉगिन",
-        passwordHint: "(डीफॉल्ट संकेत: admin123)",
         // Header
         adminControl: "मंडळ प्रशासक नियंत्रण",
         manageFeatures: "वेबसाइट वैशिष्ट्ये व्यवस्थापित करा",
