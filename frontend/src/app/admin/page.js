@@ -763,7 +763,13 @@ export default function AdminPage() {
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-[#fffdfc] flex items-center justify-center p-6">
+            <div className="min-h-screen bg-[#fffdfc] flex items-center justify-center p-6 relative">
+                <button
+                    onClick={() => setLang(lang === 'en' ? 'mr' : 'en')}
+                    className="absolute top-4 right-4 px-3 py-1.5 rounded-full border-2 border-[#8b0000] text-[#8b0000] hover:bg-[#8b0000] hover:text-white transition-colors text-sm font-bold"
+                >
+                    {lang === 'en' ? 'मराठी' : 'English'}
+                </button>
                 <form onSubmit={handleLogin} className="bg-white p-8 rounded-xl shadow-2xl border border-gray-100 max-w-md w-full text-center space-y-6">
                     <ShieldCheck size={48} className="mx-auto text-[#8b0000]" />
                     <h1 className="text-2xl font-bold font-serif text-[#4a0808]">{t('adminAccess')}</h1>
