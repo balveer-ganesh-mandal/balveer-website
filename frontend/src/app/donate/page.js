@@ -446,7 +446,7 @@ export default function Donate() {
                                 disabled={submitting}
                                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 transition-colors"
                             >
-                                {submitting ? t.processing : `${t.donate} ${formData.currency} ${formData.amount || '0'}`}
+                                {submitting ? t.processing : `${t.donate} ${formData.currency === 'INR' ? '₹' : '$'}${formData.amount || '0'}`}
                             </button>
                         </div>
                     </form>
