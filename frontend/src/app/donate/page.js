@@ -13,7 +13,7 @@ export default function Donate() {
     const [formData, setFormData] = useState({
         amount: '',
         currency: 'INR',
-        paymentMethod: 'Credit Card',
+        paymentMethod: 'Select Payment Method',
         receiptName: '',
         addressLine1: '',
         addressLine2: '',
