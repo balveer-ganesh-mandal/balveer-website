@@ -787,7 +787,6 @@ export default function AdminPage() {
                     <button type="submit" className="w-full bg-[#8b0000] text-white py-2 rounded font-bold hover:bg-[#a50d0d] transition-colors">
                         {t('login')}
                     </button>
-                    <p className="text-xs text-gray-400 mt-4">{t('passwordHint')}</p>
                 </form>
             </div>
         );
