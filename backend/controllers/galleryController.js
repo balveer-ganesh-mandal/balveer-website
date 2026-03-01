@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getDataFilePath } = require('../utils/fileStorage');
+const cloudinary = require('../utils/cloudinary');
 
 const galleryDefault = [
     { id: 1, year: "2024", src: "/cpg.png", alt: { en: "Ganpati 2024", mr: "गणपती २०२४" } },
@@ -32,7 +33,10 @@ exports.addGalleryImage = (req, res) => {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
 
-        const fileName = req.file.filename;
+        // Cloudinary returns the URL in req.file.path
+        const imageUrl = req.file.path;
+        // Store the Cloudinary public_id for deletion later
+        const publicId = req.file.filename;
 
         const metaPath = getDataFilePath('gallery-meta.json');
         let currentData = galleryDefault;
@@ -43,7 +47,8 @@ exports.addGalleryImage = (req, res) => {
         const newImage = {
             id: Date.now(),
             year: year,
-            src: `/uploads/${fileName}`,
+            src: imageUrl,
+            cloudinaryId: publicId,
             alt: { en: altEn, mr: altMr }
         };
 
@@ -52,11 +57,12 @@ exports.addGalleryImage = (req, res) => {
 
         res.json({ success: true, image: newImage });
     } catch (error) {
+        console.error('Upload error:', error);
         res.status(500).json({ success: false, error: 'Upload failed' });
     }
 };
 
-exports.deleteGalleryImage = (req, res) => {
+exports.deleteGalleryImage = async (req, res) => {
     try {
         const id = req.query.id;
         if (!id) return res.status(400).json({ success: false, error: 'Missing ID' });
@@ -72,13 +78,19 @@ exports.deleteGalleryImage = (req, res) => {
         const updatedData = currentData.filter(img => img.id.toString() !== id);
         fs.writeFileSync(metaPath, JSON.stringify(updatedData));
 
+        // Delete from Cloudinary if it has a cloudinaryId
         try {
-            if (imageToDelete.src.startsWith('/uploads/')) {
+            if (imageToDelete.cloudinaryId) {
+                await cloudinary.uploader.destroy(imageToDelete.cloudinaryId);
+            } else if (imageToDelete.src.startsWith('/uploads/')) {
+                // Legacy: delete local file
                 const fileName = imageToDelete.src.split('/').pop();
                 const filePath = path.join(__dirname, '..', 'public', 'uploads', fileName);
                 if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
             }
-        } catch (e) { }
+        } catch (e) {
+            console.error('Error deleting image file:', e);
+        }
 
         res.json({ success: true, deletedId: id });
     } catch (error) {

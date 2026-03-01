@@ -1,18 +1,13 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../utils/cloudinary');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const fileExt = file.originalname.split('.').pop() || 'jpg';
-        cb(null, `gallery-${Date.now()}.${fileExt}`);
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'ganpati-mandal/gallery',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        transformation: [{ width: 1200, quality: 'auto' }]
     }
 });
 
