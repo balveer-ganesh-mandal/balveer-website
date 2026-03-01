@@ -3,8 +3,220 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+
+const translations = {
+    en: {
+        // Login
+        adminAccess: "Admin Access",
+        loginPrompt: "Please enter the admin password to continue.",
+        enterPassword: "Enter Admin Password",
+        login: "Login",
+        passwordHint: "(Default hint: admin123)",
+        // Header
+        adminControl: "Mandal Admin Control",
+        manageFeatures: "Manage website features",
+        backToSite: "Back to Site",
+        // Live Stream
+        liveStreamTitle: "Live Stream Visibility",
+        liveStreamDesc: "Toggle this to show or hide the \"Live Stream\" button in the bottom left corner of the main website. Turn this on only when a live event is actively happening.",
+        currentlyLive: "Currently Live",
+        hidden: "Hidden",
+        liveNote: "Note:",
+        liveNoteDesc: "This live status uses a local file to temporarily save state. In a production environment (like Vercel), this may reset to default on server restart. For permanent storage, connecting a database is recommended.",
+        // Tabs
+        coreCommittee: "Core Committee",
+        subCommittees: "Sub-Committees",
+        photoGallery: "Photo Gallery",
+        upcomingEvents: "Upcoming Events",
+        // Gallery
+        uploadToGallery: "Upload to Photo Gallery",
+        galleryDesc: "Add a new memory to the gallery. The newest photos will automatically appear at the top.",
+        imageFile: "Image File",
+        year: "Year",
+        captionEn: "Caption (English)",
+        captionMr: "Caption (Marathi)",
+        uploading: "Uploading...",
+        uploadPhoto: "Upload Photo",
+        uploadedPhotos: "Uploaded Photos",
+        showHistory: "Show History",
+        hideHistory: "Hide History",
+        image: "Image",
+        caption: "Caption (English / Marathi)",
+        action: "Action",
+        noPhotos: "No photos uploaded yet.",
+        showMore: "Show More Photos",
+        showLess: "Show Less",
+        // Events
+        manageEvents: "Manage Upcoming Events",
+        eventsDesc: "Add, edit, or remove the events displayed on the homepage.",
+        addNewEvent: "Add New Event",
+        editEvent: "Edit Event",
+        cancelEdit: "Cancel Edit",
+        eventTitleEn: "Event Title (English)",
+        eventTitleMr: "Event Title (Marathi)",
+        eventDate: "Event Pick Date",
+        dateNote: "Date displays will be automatically localized.",
+        eventTime: "Event Pick Time (Optional)",
+        locationEn: "Location (English)",
+        locationMr: "Location (Marathi)",
+        eventType: "Event Type/Category",
+        descEn: "Description (English)",
+        descMr: "Description (Marathi)",
+        adding: "Adding...",
+        saving: "Saving...",
+        addEvent: "Add Event",
+        updateEvent: "Update Event",
+        currentEvents: "Current Registered Events",
+        edit: "Edit",
+        delete: "Delete",
+        noEvents: "No upcoming events active. Add some events using the form above.",
+        // Sub-Committee
+        subCommMgmt: "Sub-Committee Management",
+        subCommDesc: "Add or remove members from various sub-committees. Changes will be instantly visible on the public Committee page.",
+        createNewSubComm: "Create New Sub-Committee",
+        commNameEn: "Committee Name (English)",
+        commNameMr: "Committee Name (Marathi)",
+        creating: "Creating...",
+        createComm: "Create Committee",
+        addNewMember: "Add New Member",
+        selectSubComm: "Select Sub-Committee",
+        memberNameEn: "Member Name (English)",
+        memberNameMr: "Member Name (Marathi)",
+        addMember: "Add Member",
+        currentMembers: "Current Members",
+        members: "Members",
+        noMembers: "No members added yet.",
+        loadingSubComm: "Loading sub-committees...",
+        // Core Committee
+        coreCommMgmt: "Core Committee Management",
+        coreCommDesc: "Update the top leadership and core members dynamically.",
+        addCoreMember: "Add General Core Member",
+        selectGroup: "Select Group",
+        imgUrl: "Image URL (Optional for Leaders)",
+        roleEn: "Role (English)",
+        roleMr: "Role (Marathi)",
+        coreLeaders: "Core Leaders",
+        advisoryBoard: "Advisory Board",
+        workingMembers: "Working Members",
+        // Edit Modal
+        editLeader: "Edit Leader",
+        editMember: "Edit Member",
+        nameEn: "Name (English)",
+        nameMr: "Name (Marathi)",
+        imageUrl: "Image URL",
+        cancel: "Cancel",
+        savingChanges: "Saving...",
+        saveChanges: "Save Changes",
+    },
+    mr: {
+        // Login
+        adminAccess: "प्रशासक प्रवेश",
+        loginPrompt: "कृपया सुरू ठेवण्यासाठी प्रशासक पासवर्ड प्रविष्ट करा.",
+        enterPassword: "प्रशासक पासवर्ड प्रविष्ट करा",
+        login: "लॉगिन",
+        passwordHint: "(डीफॉल्ट संकेत: admin123)",
+        // Header
+        adminControl: "मंडळ प्रशासक नियंत्रण",
+        manageFeatures: "वेबसाइट वैशिष्ट्ये व्यवस्थापित करा",
+        backToSite: "मुख्य साइटवर जा",
+        // Live Stream
+        liveStreamTitle: "लाइव्ह स्ट्रीम दृश्यता",
+        liveStreamDesc: "मुख्य वेबसाइटवर \"लाइव्ह स्ट्रीम\" बटण दाखवण्यासाठी किंवा लपवण्यासाठी हे टॉगल करा. कार्यक्रम सुरू असताना हे चालू करा.",
+        currentlyLive: "सध्या लाइव्ह",
+        hidden: "लपवलेले",
+        liveNote: "टीप:",
+        liveNoteDesc: "ही लाइव्ह स्थिती तात्पुरती फाइलमध्ये साठवली जाते. उत्पादन वातावरणात (जसे Vercel), सर्व्हर रीस्टार्ट केल्यावर हे डिफॉल्टवर येऊ शकते.",
+        // Tabs
+        coreCommittee: "कार्यकारिणी",
+        subCommittees: "उपसमित्या",
+        photoGallery: "फोटो गॅलरी",
+        upcomingEvents: "आगामी कार्यक्रम",
+        // Gallery
+        uploadToGallery: "फोटो गॅलरीमध्ये अपलोड करा",
+        galleryDesc: "गॅलरीमध्ये नवीन आठवण जोडा. नवीनतम फोटो आपोआप वर दिसतील.",
+        imageFile: "इमेज फाइल",
+        year: "वर्ष",
+        captionEn: "कॅप्शन (इंग्रजी)",
+        captionMr: "कॅप्शन (मराठी)",
+        uploading: "अपलोड होत आहे...",
+        uploadPhoto: "फोटो अपलोड करा",
+        uploadedPhotos: "अपलोड केलेले फोटो",
+        showHistory: "इतिहास दाखवा",
+        hideHistory: "इतिहास लपवा",
+        image: "इमेज",
+        caption: "कॅप्शन (इंग्रजी / मराठी)",
+        action: "क्रिया",
+        noPhotos: "अद्याप कोणतेही फोटो अपलोड केलेले नाहीत.",
+        showMore: "अजून फोटो दाखवा",
+        showLess: "कमी दाखवा",
+        // Events
+        manageEvents: "आगामी कार्यक्रम व्यवस्थापित करा",
+        eventsDesc: "मुख्यपृष्ठावर दाखवले जाणारे कार्यक्रम जोडा, संपादित करा किंवा काढा.",
+        addNewEvent: "नवीन कार्यक्रम जोडा",
+        editEvent: "कार्यक्रम संपादित करा",
+        cancelEdit: "संपादन रद्द करा",
+        eventTitleEn: "कार्यक्रम शीर्षक (इंग्रजी)",
+        eventTitleMr: "कार्यक्रम शीर्षक (मराठी)",
+        eventDate: "कार्यक्रम तारीख निवडा",
+        dateNote: "तारीख प्रदर्शन आपोआप स्थानिकीकृत होईल.",
+        eventTime: "कार्यक्रम वेळ (ऐच्छिक)",
+        locationEn: "ठिकाण (इंग्रजी)",
+        locationMr: "ठिकाण (मराठी)",
+        eventType: "कार्यक्रम प्रकार/श्रेणी",
+        descEn: "वर्णन (इंग्रजी)",
+        descMr: "वर्णन (मराठी)",
+        adding: "जोडत आहे...",
+        saving: "जतन होत आहे...",
+        addEvent: "कार्यक्रम जोडा",
+        updateEvent: "कार्यक्रम अपडेट करा",
+        currentEvents: "सध्याचे नोंदणीकृत कार्यक्रम",
+        edit: "संपादित करा",
+        delete: "हटवा",
+        noEvents: "सध्या कोणतेही कार्यक्रम नाहीत. वरील फॉर्म वापरून कार्यक्रम जोडा.",
+        // Sub-Committee
+        subCommMgmt: "उपसमिती व्यवस्थापन",
+        subCommDesc: "विविध उपसमित्यांमधून सदस्य जोडा किंवा काढा. बदल समिती पृष्ठावर लगेच दिसतील.",
+        createNewSubComm: "नवीन उपसमिती तयार करा",
+        commNameEn: "समिती नाव (इंग्रजी)",
+        commNameMr: "समिती नाव (मराठी)",
+        creating: "तयार होत आहे...",
+        createComm: "समिती तयार करा",
+        addNewMember: "नवीन सदस्य जोडा",
+        selectSubComm: "उपसमिती निवडा",
+        memberNameEn: "सदस्य नाव (इंग्रजी)",
+        memberNameMr: "सदस्य नाव (मराठी)",
+        addMember: "सदस्य जोडा",
+        currentMembers: "सध्याचे सदस्य",
+        members: "सदस्य",
+        noMembers: "अद्याप सदस्य जोडलेले नाहीत.",
+        loadingSubComm: "उपसमित्या लोड होत आहेत...",
+        // Core Committee
+        coreCommMgmt: "कार्यकारिणी व्यवस्थापन",
+        coreCommDesc: "शीर्ष नेतृत्व आणि मुख्य सदस्य गतिशीलपणे अपडेट करा.",
+        addCoreMember: "सामान्य कार्यकारिणी सदस्य जोडा",
+        selectGroup: "गट निवडा",
+        imgUrl: "इमेज URL (नेत्यांसाठी ऐच्छिक)",
+        roleEn: "भूमिका (इंग्रजी)",
+        roleMr: "भूमिका (मराठी)",
+        coreLeaders: "मुख्य नेते",
+        advisoryBoard: "सल्लागार मंडळ",
+        workingMembers: "कार्यकारी सदस्य",
+        // Edit Modal
+        editLeader: "नेता संपादित करा",
+        editMember: "सदस्य संपादित करा",
+        nameEn: "नाव (इंग्रजी)",
+        nameMr: "नाव (मराठी)",
+        imageUrl: "इमेज URL",
+        cancel: "रद्द करा",
+        savingChanges: "जतन होत आहे...",
+        saveChanges: "बदल जतन करा",
+    }
+};
 
 export default function AdminPage() {
+    const { lang } = useLanguage();
+    const t = (key) => translations[lang]?.[key] || translations.en[key] || key;
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
@@ -554,8 +766,8 @@ export default function AdminPage() {
             <div className="min-h-screen bg-[#fffdfc] flex items-center justify-center p-6">
                 <form onSubmit={handleLogin} className="bg-white p-8 rounded-xl shadow-2xl border border-gray-100 max-w-md w-full text-center space-y-6">
                     <ShieldCheck size={48} className="mx-auto text-[#8b0000]" />
-                    <h1 className="text-2xl font-bold font-serif text-[#4a0808]">Admin Access</h1>
-                    <p className="text-gray-500 text-sm">Please enter the admin password to continue.</p>
+                    <h1 className="text-2xl font-bold font-serif text-[#4a0808]">{t('adminAccess')}</h1>
+                    <p className="text-gray-500 text-sm">{t('loginPrompt')}</p>
 
                     <div>
                         <input
@@ -563,15 +775,15 @@ export default function AdminPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:outline-none focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
-                            placeholder="Enter Admin Password"
+                            placeholder={t('enterPassword')}
                         />
                         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                     </div>
 
                     <button type="submit" className="w-full bg-[#8b0000] text-white py-2 rounded font-bold hover:bg-[#a50d0d] transition-colors">
-                        Login
+                        {t('login')}
                     </button>
-                    <p className="text-xs text-gray-400 mt-4">(Default hint: admin123)</p>
+                    <p className="text-xs text-gray-400 mt-4">{t('passwordHint')}</p>
                 </form>
             </div>
         );
@@ -582,11 +794,11 @@ export default function AdminPage() {
             {/* Header */}
             <header className="bg-[#4a0808] text-[#fceabb] py-6 px-6 shadow-md border-b-4 border-[#be1111] flex justify-between items-center">
                 <div>
-                    <h1 className="text-xl md:text-2xl font-bold font-serif">Mandal Admin Control</h1>
-                    <p className="text-sm opacity-80">Manage website features</p>
+                    <h1 className="text-xl md:text-2xl font-bold font-serif">{t('adminControl')}</h1>
+                    <p className="text-sm opacity-80">{t('manageFeatures')}</p>
                 </div>
                 <Link href="/" className="flex items-center gap-2 hover:text-white transition-colors text-sm font-semibold">
-                    <ArrowLeft size={16} /> Back to Site
+                    <ArrowLeft size={16} /> {t('backToSite')}
                 </Link>
             </header>
 
@@ -599,9 +811,9 @@ export default function AdminPage() {
                             <Radio size={32} className={isLive ? "animate-pulse" : ""} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-800">Live Stream Visibility</h2>
+                            <h2 className="text-xl font-bold text-gray-800">{t('liveStreamTitle')}</h2>
                             <p className="text-gray-500 text-sm mt-1 max-w-md">
-                                Toggle this to show or hide the "Live Stream" button in the bottom left corner of the main website. Turn this on only when a live event is actively happening.
+                                {t('liveStreamDesc')}
                             </p>
                         </div>
                     </div>
@@ -615,13 +827,13 @@ export default function AdminPage() {
                             <span className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform shadow-md ${isLive ? 'translate-x-[34px]' : 'translate-x-1'}`} />
                         </button>
                         <span className={`font-bold text-sm ${isLive ? 'text-green-600' : 'text-gray-500'}`}>
-                            {isLive ? 'Currently Live' : 'Hidden'}
+                            {isLive ? t('currentlyLive') : t('hidden')}
                         </span>
                     </div>
                 </div>
 
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-sm text-yellow-800">
-                    <strong>Note:</strong> This live status uses a local file to temporarily save state. In a production environment (like Vercel), this may reset to default on server restart. For permanent storage, connecting a database is recommended.
+                    <strong>{t('liveNote')}</strong> {t('liveNoteDesc')}
                 </div>
 
                 {/* Tab Navigation Menu */}
@@ -632,7 +844,7 @@ export default function AdminPage() {
                             }`}
                     >
                         <Crown size={24} className={activeTab === "core-committee" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
-                        <span className="font-bold">Core Committee</span>
+                        <span className="font-bold">{t('coreCommittee')}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("sub-committee")}
@@ -640,7 +852,7 @@ export default function AdminPage() {
                             }`}
                     >
                         <Users size={24} className={activeTab === "sub-committee" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
-                        <span className="font-bold">Sub-Committees</span>
+                        <span className="font-bold">{t('subCommittees')}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("gallery")}
@@ -648,7 +860,7 @@ export default function AdminPage() {
                             }`}
                     >
                         <ImageIcon size={24} className={activeTab === "gallery" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
-                        <span className="font-bold">Photo Gallery</span>
+                        <span className="font-bold">{t('photoGallery')}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("events")}
@@ -656,7 +868,7 @@ export default function AdminPage() {
                             }`}
                     >
                         <Calendar size={24} className={activeTab === "events" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
-                        <span className="font-bold">Upcoming Events</span>
+                        <span className="font-bold">{t('upcomingEvents')}</span>
                     </button>
                 </div>
 
@@ -669,33 +881,33 @@ export default function AdminPage() {
                                     <ImageIcon size={32} />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-800">Upload to Photo Gallery</h2>
+                                    <h2 className="text-xl font-bold text-gray-800">{t('uploadToGallery')}</h2>
                                     <p className="text-gray-500 text-sm mt-1 max-w-md">
-                                        Add a new memory to the gallery. The newest photos will automatically appear at the top.
+                                        {t('galleryDesc')}
                                     </p>
                                 </div>
                             </div>
                             <form onSubmit={handleUpload} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Image File</label>
+                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imageFile')}</label>
                                     <input ref={fileInputRef} type="file" required accept="image/*" onChange={e => setUploadFile(e.target.files[0])} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#8b0000] file:text-white hover:file:bg-[#6b0808]" />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Year</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('year')}</label>
                                         <input type="number" required value={uploadYear} onChange={e => setUploadYear(e.target.value)} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. 2024" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Caption (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('captionEn')}</label>
                                         <input type="text" required value={uploadAltEn} onChange={e => setUploadAltEn(e.target.value)} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Ganpati 2024" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Caption (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('captionMr')}</label>
                                         <input type="text" required value={uploadAltMr} onChange={e => setUploadAltMr(e.target.value)} className="w-full px-4 py-2 bg-red-50 border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. गणपती २०२४" />
                                     </div>
                                 </div>
                                 <button type="submit" disabled={isUploading} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isUploading ? "Uploading..." : "Upload Photo"}
+                                    {isUploading ? t('uploading') : t('uploadPhoto')}
                                 </button>
                                 {uploadStatus && <p className={`text-sm font-medium mt-2 ${uploadStatus.includes("Error") || uploadStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{uploadStatus}</p>}
                             </form>
@@ -704,12 +916,12 @@ export default function AdminPage() {
                         {/* Gallery History List */}
                         <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-800">Uploaded Photos ({galleryItems.length})</h2>
+                                <h2 className="text-xl font-bold text-gray-800">{t('uploadedPhotos')} ({galleryItems.length})</h2>
                                 <button
                                     onClick={() => setShowHistory(!showHistory)}
                                     className="text-sm font-semibold border-2 border-[#8b0000] text-[#8b0000] hover:bg-[#8b0000] hover:text-white px-4 py-1.5 rounded-full transition-colors"
                                 >
-                                    {showHistory ? "Hide History" : "Show History"}
+                                    {showHistory ? t('hideHistory') : t('showHistory')}
                                 </button>
                             </div>
 
@@ -719,10 +931,10 @@ export default function AdminPage() {
                                         <table className="w-full text-left border-collapse">
                                             <thead>
                                                 <tr className="border-b-2 border-red-100 text-[#8b0000] text-sm">
-                                                    <th className="pb-3 px-2">Image</th>
-                                                    <th className="pb-3 px-2">Year</th>
-                                                    <th className="pb-3 px-2">Caption (English / Marathi)</th>
-                                                    <th className="pb-3 px-2 text-right">Action</th>
+                                                    <th className="pb-3 px-2">{t('image')}</th>
+                                                    <th className="pb-3 px-2">{t('year')}</th>
+                                                    <th className="pb-3 px-2">{t('caption')}</th>
+                                                    <th className="pb-3 px-2 text-right">{t('action')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -752,7 +964,7 @@ export default function AdminPage() {
                                                 ))}
                                                 {galleryItems.length === 0 && (
                                                     <tr>
-                                                        <td colSpan="4" className="py-8 text-center text-gray-500 italic">No photos uploaded yet.</td>
+                                                        <td colSpan="4" className="py-8 text-center text-gray-500 italic">{t('noPhotos')}</td>
                                                     </tr>
                                                 )}
                                             </tbody>
@@ -766,7 +978,7 @@ export default function AdminPage() {
                                                 onClick={() => setVisibleCount(prev => prev + 5)}
                                                 className="text-sm font-semibold border-2 border-[#8b0000] text-[#8b0000] hover:bg-[#8b0000] hover:text-white px-6 py-2 rounded-full transition-colors"
                                             >
-                                                Show More Photos
+                                                {t('showMore')}
                                             </button>
                                         )}
                                         {visibleCount > 5 && (
@@ -774,7 +986,7 @@ export default function AdminPage() {
                                                 onClick={() => setVisibleCount(5)}
                                                 className="text-sm font-semibold border-2 border-gray-300 text-gray-600 hover:bg-gray-100 px-6 py-2 rounded-full transition-colors"
                                             >
-                                                Show Less
+                                                {t('showLess')}
                                             </button>
                                         )}
                                     </div>
@@ -792,9 +1004,9 @@ export default function AdminPage() {
                                 <Calendar size={32} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-gray-800">Manage Upcoming Events</h2>
+                                <h2 className="text-xl font-bold text-gray-800">{t('manageEvents')}</h2>
                                 <p className="text-gray-500 text-sm mt-1 max-w-md">
-                                    Add, edit, or remove the events displayed on the homepage.
+                                    {t('eventsDesc')}
                                 </p>
                             </div>
                         </div>
@@ -802,45 +1014,45 @@ export default function AdminPage() {
                         {/* Add/Edit Event Form */}
                         <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-semibold text-[#8b0000]">{editingEventId ? "Edit Event" : "Add New Event"}</h3>
+                                <h3 className="font-semibold text-[#8b0000]">{editingEventId ? t('editEvent') : t('addNewEvent')}</h3>
                                 {editingEventId && (
                                     <button onClick={resetEventForm} className="text-sm font-medium text-gray-500 hover:text-gray-800 flex items-center gap-1">
-                                        <X size={16} /> Cancel Edit
+                                        <X size={16} /> {t('cancelEdit')}
                                     </button>
                                 )}
                             </div>
                             <form onSubmit={handleAddEvent} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Title (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('eventTitleEn')}</label>
                                         <input type="text" required value={eventTitleEn} onChange={e => setEventTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Ganeshotsav 2026 Preparations" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Title (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('eventTitleMr')}</label>
                                         <input type="text" required value={eventTitleMr} onChange={e => setEventTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. गणेशोत्सव २०२६ पूर्वतयारी" />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Pick Date</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('eventDate')}</label>
                                         <input type="date" required value={eventDate} onChange={e => setEventDate(e.target.value)} onClick={(e) => e.target.showPicker()} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors cursor-pointer" />
-                                        <p className="text-xs text-gray-500 mt-1">Date displays will be automatically localized.</p>
+                                        <p className="text-xs text-gray-500 mt-1">{t('dateNote')}</p>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Pick Time (Optional)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('eventTime')}</label>
                                         <input type="time" value={eventTime} onChange={e => setEventTime(e.target.value)} onClick={(e) => e.target.showPicker()} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors cursor-pointer" />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Location (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('locationEn')}</label>
                                         <input type="text" value={eventLocEn} onChange={e => setEventLocEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Mandal Karyalay" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Location (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('locationMr')}</label>
                                         <input type="text" value={eventLocMr} onChange={e => setEventLocMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. मंडळ कार्यालय" />
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Event Type/Category</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('eventType')}</label>
                                         <select
                                             value={eventType}
                                             onChange={e => setEventType(e.target.value)}
@@ -854,16 +1066,16 @@ export default function AdminPage() {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Description (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('descEn')}</label>
                                         <textarea rows={2} value={eventDescEn} onChange={e => setEventDescEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="Short details about the event..."></textarea>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Description (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('descMr')}</label>
                                         <textarea rows={2} value={eventDescMr} onChange={e => setEventDescMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="कार्यक्रमाची थोडक्यात माहिती..."></textarea>
                                     </div>
                                 </div>
                                 <button type="submit" disabled={isSubmittingEvent} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isSubmittingEvent ? (editingEventId ? "Saving..." : "Adding...") : (editingEventId ? "Update Event" : "Add Event")}
+                                    {isSubmittingEvent ? (editingEventId ? t('saving') : t('adding')) : (editingEventId ? t('updateEvent') : t('addEvent'))}
                                 </button>
                                 {eventStatusMsg && <p className={`text-sm font-medium mt-2 ${eventStatusMsg.includes("Error") || eventStatusMsg.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{eventStatusMsg}</p>}
                             </form>
@@ -871,7 +1083,7 @@ export default function AdminPage() {
 
                         {/* Events List */}
                         <div>
-                            <h3 className="font-semibold text-[#8b0000] mb-4">Current Registered Events</h3>
+                            <h3 className="font-semibold text-[#8b0000] mb-4">{t('currentEvents')}</h3>
                             {events && events.length > 0 ? (
                                 <div className="space-y-4">
                                     {events.map((ev) => (
@@ -895,7 +1107,7 @@ export default function AdminPage() {
                                                     title="Edit Event"
                                                 >
                                                     <Edit size={16} className="mr-2" />
-                                                    <span className="text-sm font-semibold">Edit</span>
+                                                    <span className="text-sm font-semibold">{t('edit')}</span>
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteEvent(ev.id)}
@@ -904,7 +1116,7 @@ export default function AdminPage() {
                                                     title="Delete Event"
                                                 >
                                                     <Trash2 size={16} className="mr-2" />
-                                                    <span className="text-sm font-semibold">Delete</span>
+                                                    <span className="text-sm font-semibold">{t('delete')}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -912,7 +1124,7 @@ export default function AdminPage() {
                                 </div>
                             ) : (
                                 <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 border border-gray-200">
-                                    No upcoming events active. Add some events using the form above.
+                                    {t('noEvents')}
                                 </div>
                             )}
                         </div>
@@ -927,29 +1139,29 @@ export default function AdminPage() {
                                 <Users size={32} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-gray-800">Sub-Committee Management</h2>
+                                <h2 className="text-xl font-bold text-gray-800">{t('subCommMgmt')}</h2>
                                 <p className="text-gray-500 text-sm mt-1 max-w-md">
-                                    Add or remove members from various sub-committees. Changes will be instantly visible on the public Committee page.
+                                    {t('subCommDesc')}
                                 </p>
                             </div>
                         </div>
 
                         {/* Create New Sub-Committee Form */}
                         <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
-                            <h3 className="font-semibold text-[#8b0000] mb-4">Create New Sub-Committee</h3>
+                            <h3 className="font-semibold text-[#8b0000] mb-4">{t('createNewSubComm')}</h3>
                             <form onSubmit={handleAddSubCommittee} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Committee Name (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('commNameEn')}</label>
                                         <input type="text" required value={newSubTitleEn} onChange={e => setNewSubTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Decoration Committee" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Committee Name (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('commNameMr')}</label>
                                         <input type="text" required value={newSubTitleMr} onChange={e => setNewSubTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सजावट समिती" />
                                     </div>
                                 </div>
                                 <button type="submit" disabled={isAddingSub} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isAddingSub ? "Creating..." : "Create Committee"}
+                                    {isAddingSub ? t('creating') : t('createComm')}
                                 </button>
                                 {addSubStatus && <p className={`text-sm font-medium mt-2 ${addSubStatus.includes("Error") || addSubStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addSubStatus}</p>}
                             </form>
@@ -957,11 +1169,11 @@ export default function AdminPage() {
 
                         {/* Add Member Form */}
                         <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
-                            <h3 className="font-semibold text-[#8b0000] mb-4">Add New Member</h3>
+                            <h3 className="font-semibold text-[#8b0000] mb-4">{t('addNewMember')}</h3>
                             <form onSubmit={handleAddMember} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Select Sub-Committee</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('selectSubComm')}</label>
                                         <select
                                             value={selectedSubCommittee}
                                             onChange={e => setSelectedSubCommittee(e.target.value)}
@@ -973,16 +1185,16 @@ export default function AdminPage() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Member Name (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameEn')}</label>
                                         <input type="text" required value={memberNameEn} onChange={e => setMemberNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Member Name (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameMr')}</label>
                                         <input type="text" required value={memberNameMr} onChange={e => setMemberNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
                                     </div>
                                 </div>
                                 <button type="submit" disabled={isAddingMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isAddingMember ? "Adding..." : "Add Member"}
+                                    {isAddingMember ? t('adding') : t('addMember')}
                                 </button>
                                 {addMemberStatus && <p className={`text-sm font-medium mt-2 ${addMemberStatus.includes("Error") || addMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addMemberStatus}</p>}
                             </form>
@@ -990,14 +1202,14 @@ export default function AdminPage() {
 
                         {/* Manage Members List */}
                         <div>
-                            <h3 className="font-semibold text-[#8b0000] mb-4">Current Members</h3>
+                            <h3 className="font-semibold text-[#8b0000] mb-4">{t('currentMembers')}</h3>
                             {subCommittees && subCommittees.length > 0 ? (
                                 <div className="space-y-6">
                                     {subCommittees.map((sub) => (
                                         <div key={sub.id} className="border border-gray-200 rounded-lg overflow-hidden">
                                             <div className="bg-gray-100 px-4 py-3 font-semibold text-gray-800 border-b border-gray-200 flex justify-between items-center">
                                                 <span>{sub.title.en} <span className="text-gray-500 font-normal text-sm">({sub.title.mr})</span></span>
-                                                <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-gray-300 text-gray-600">{sub.members ? sub.members.length : 0} Members</span>
+                                                <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-gray-300 text-gray-600">{sub.members ? sub.members.length : 0} {t('members')}</span>
                                             </div>
                                             <ul className="divide-y divide-gray-100">
                                                 {sub.members && sub.members.length > 0 ? (
@@ -1018,14 +1230,14 @@ export default function AdminPage() {
                                                         </li>
                                                     ))
                                                 ) : (
-                                                    <li className="p-4 text-center text-gray-500 italic text-sm">No members added yet.</li>
+                                                    <li className="p-4 text-center text-gray-500 italic text-sm">{t('noMembers')}</li>
                                                 )}
                                             </ul>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-6 text-gray-500 italic">Loading sub-committees...</div>
+                                <div className="text-center py-6 text-gray-500 italic">{t('loadingSubComm')}</div>
                             )}
                         </div>
                     </div>
@@ -1039,20 +1251,20 @@ export default function AdminPage() {
                                 <Crown size={32} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-gray-800">Core Committee Management</h2>
+                                <h2 className="text-xl font-bold text-gray-800">{t('coreCommMgmt')}</h2>
                                 <p className="text-gray-500 text-sm mt-1 max-w-md">
-                                    Update the top leadership and core members dynamically.
+                                    {t('coreCommDesc')}
                                 </p>
                             </div>
                         </div>
 
                         {/* Add List Member Form */}
                         <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
-                            <h3 className="font-semibold text-[#8b0000] mb-4 flex items-center gap-2"><Users size={18} /> Add General Core Member</h3>
+                            <h3 className="font-semibold text-[#8b0000] mb-4 flex items-center gap-2"><Users size={18} /> {t('addCoreMember')}</h3>
                             <form onSubmit={handleAddCoreMember} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Select Group</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('selectGroup')}</label>
                                         <select
                                             value={coreListTarget}
                                             onChange={e => setCoreListTarget(e.target.value)}
@@ -1067,11 +1279,11 @@ export default function AdminPage() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Member Name (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameEn')}</label>
                                         <input type="text" required value={coreListNameEn} onChange={e => setCoreListNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Member Name (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameMr')}</label>
                                         <input type="text" required value={coreListNameMr} onChange={e => setCoreListNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
                                     </div>
                                 </div>
@@ -1080,13 +1292,13 @@ export default function AdminPage() {
                                 {['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(coreListTarget) && (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                         <div className="col-span-1 md:col-span-3 lg:col-span-2">
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">Image URL (Optional for Leaders)</label>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imgUrl')}</label>
                                             <input type="url" value={coreListImg} onChange={e => setCoreListImg(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="https://..." />
                                         </div>
                                         {coreListTarget === "coreLeaders" && (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (English)</label>
+                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('roleEn')}</label>
                                                     <input type="text" list="rolesEn" required value={coreListRoleEn} onChange={e => setCoreListRoleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Secretary" />
                                                     <datalist id="rolesEn">
                                                         <option value="Secretary" />
@@ -1097,7 +1309,7 @@ export default function AdminPage() {
                                                     </datalist>
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (Marathi)</label>
+                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('roleMr')}</label>
                                                     <input type="text" list="rolesMr" required value={coreListRoleMr} onChange={e => setCoreListRoleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सचिव" />
                                                     <datalist id="rolesMr">
                                                         <option value="सचिव" />
@@ -1113,7 +1325,7 @@ export default function AdminPage() {
                                 )}
 
                                 <button type="submit" disabled={isAddingCoreMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isAddingCoreMember ? "Adding..." : "Add Member"}
+                                    {isAddingCoreMember ? t('adding') : t('addMember')}
                                 </button>
                                 {addCoreMemberStatus && <p className={`text-sm font-medium mt-2 ${addCoreMemberStatus.includes("Error") || addCoreMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addCoreMemberStatus}</p>}
                             </form>
@@ -1193,7 +1405,7 @@ export default function AdminPage() {
 
                                 {/* Core Leaders List */}
                                 <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">Core Leaders</h3>
+                                    <h3 className="font-semibold text-[#8b0000] mb-3">{t('coreLeaders')}</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                         {coreCommittee.coreLeaders?.map(member => (
                                             <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
@@ -1216,7 +1428,7 @@ export default function AdminPage() {
 
                                 {/* Advisors List */}
                                 <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">Advisory Board</h3>
+                                    <h3 className="font-semibold text-[#8b0000] mb-3">{t('advisoryBoard')}</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                         {coreCommittee.advisors?.map(member => (
                                             <div key={member.id} className="bg-gray-50 border border-gray-100 rounded px-3 py-2 flex justify-between items-center group">
@@ -1236,7 +1448,7 @@ export default function AdminPage() {
 
                                 {/* Members List */}
                                 <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">Working Members</h3>
+                                    <h3 className="font-semibold text-[#8b0000] mb-3">{t('workingMembers')}</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                         {coreCommittee.members?.map(member => (
                                             <div key={member.id} className="bg-gray-50 border border-gray-100 rounded px-3 py-2 flex justify-between items-center group">
@@ -1265,7 +1477,7 @@ export default function AdminPage() {
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center border-b border-gray-100 p-6">
                             <h3 className="text-xl font-bold text-[#8b0000] flex items-center gap-2">
-                                <Edit size={20} /> Edit {editingMemberGroup === 'coreLeaders' ? 'Leader' : 'Member'}
+                                <Edit size={20} /> {editingMemberGroup === 'coreLeaders' ? t('editLeader') : t('editMember')}
                             </h3>
                             <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                                 <X size={24} />
@@ -1275,11 +1487,11 @@ export default function AdminPage() {
                             <form onSubmit={handleEditSubmit} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Name (English)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameEn')}</label>
                                         <input type="text" required value={editNameEn} onChange={e => setEditNameEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Name (Marathi)</label>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameMr')}</label>
                                         <input type="text" required value={editNameMr} onChange={e => setEditNameMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
                                     </div>
                                 </div>
@@ -1297,7 +1509,7 @@ export default function AdminPage() {
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">Image URL</label>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imageUrl')}</label>
                                             <input type="url" value={editImg} onChange={e => setEditImg(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
                                         </div>
                                     </>
@@ -1305,10 +1517,10 @@ export default function AdminPage() {
 
                                 <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
                                     <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-5 py-2 text-gray-600 hover:bg-gray-100 rounded font-medium transition-colors">
-                                        Cancel
+                                        {t('cancel')}
                                     </button>
                                     <button type="submit" disabled={isSubmittingEdit} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                        {isSubmittingEdit ? "Saving..." : "Save Changes"}
+                                        {isSubmittingEdit ? t('savingChanges') : t('saveChanges')}
                                     </button>
                                 </div>
                             </form>
