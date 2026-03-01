@@ -121,7 +121,7 @@ export default function Dashboard() {
                                                 {new Date(donation.date).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {donation.currency} {donation.amount}
+                                                {donation.currency === 'INR' ? '₹' : donation.currency} {donation.amount}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {donation.paymentMethod}
