@@ -62,6 +62,8 @@ const translations = {
         eventType: "Event Type/Category",
         descEn: "Description (English)",
         descMr: "Description (Marathi)",
+        eventPoster: "Event Poster (Optional)",
+        posterNote: "Upload a poster or flyer image for this event.",
         adding: "Adding...",
         saving: "Saving...",
         addEvent: "Add Event",
@@ -164,6 +166,8 @@ const translations = {
         eventType: "कार्यक्रम प्रकार/श्रेणी",
         descEn: "वर्णन (इंग्रजी)",
         descMr: "वर्णन (मराठी)",
+        eventPoster: "कार्यक्रम पोस्टर (ऐच्छिक)",
+        posterNote: "या कार्यक्रमासाठी पोस्टर अपलोड करा.",
         adding: "जोडत आहे...",
         saving: "जतन होत आहे...",
         addEvent: "कार्यक्रम जोडा",
@@ -288,6 +292,8 @@ export default function AdminPage() {
     const [eventDescEn, setEventDescEn] = useState("");
     const [eventDescMr, setEventDescMr] = useState("");
     const [eventType, setEventType] = useState("general");
+    const [eventPoster, setEventPoster] = useState(null);
+    const eventPosterRef = useRef(null);
     const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
     const [eventStatusMsg, setEventStatusMsg] = useState("");
     const [isDeletingEvent, setIsDeletingEvent] = useState(false);
@@ -681,25 +687,28 @@ export default function AdminPage() {
                 formattedTimeMr = dateObj.toLocaleTimeString('mr-IN', { hour: '2-digit', minute: '2-digit' });
             }
 
-            const eventData = {
-                ...(editingEventId ? { id: editingEventId } : {}),
-                title: { en: eventTitleEn, mr: eventTitleMr },
-                date: { en: formattedDateEn, mr: formattedDateMr },
-                time: { en: formattedTimeEn, mr: formattedTimeMr },
-                dateRaw: eventDate,
-                timeRaw: eventTime,
-                loc: { en: eventLocEn, mr: eventLocMr },
-                desc: { en: eventDescEn, mr: eventDescMr },
-                type: eventType
-            };
-
-            const action = editingEventId ? "edit-event" : "add-event";
-
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+            const formData = new FormData();
+            if (editingEventId) formData.append('id', editingEventId);
+            formData.append('titleEn', eventTitleEn);
+            formData.append('titleMr', eventTitleMr);
+            formData.append('dateEn', formattedDateEn);
+            formData.append('dateMr', formattedDateMr);
+            formData.append('timeEn', formattedTimeEn);
+            formData.append('timeMr', formattedTimeMr);
+            formData.append('dateRaw', eventDate);
+            formData.append('timeRaw', eventTime);
+            formData.append('locEn', eventLocEn);
+            formData.append('locMr', eventLocMr);
+            formData.append('descEn', eventDescEn);
+            formData.append('descMr', eventDescMr);
+            formData.append('type', eventType);
+            if (eventPoster) formData.append('poster', eventPoster);
+
             const res = await fetch(`${API_URL}/events`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action, eventData })
+                body: formData
             });
 
             const data = await res.json();
@@ -725,6 +734,8 @@ export default function AdminPage() {
         setEventLocEn(""); setEventLocMr("");
         setEventDescEn(""); setEventDescMr("");
         setEventType("general");
+        setEventPoster(null);
+        if (eventPosterRef.current) eventPosterRef.current.value = "";
     };
 
     const handleEditEventClick = (ev) => {
@@ -738,6 +749,8 @@ export default function AdminPage() {
         setEventDescEn(ev.desc?.en || "");
         setEventDescMr(ev.desc?.mr || "");
         setEventType(ev.type || "general");
+        setEventPoster(null);
+        if (eventPosterRef.current) eventPosterRef.current.value = "";
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -1084,6 +1097,15 @@ export default function AdminPage() {
                                         <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('descMr')}</label>
                                         <textarea rows={2} value={eventDescMr} onChange={e => setEventDescMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="कार्यक्रमाची थोडक्यात माहिती..."></textarea>
                                     </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('eventPoster')}</label>
+                                        <p className="text-xs text-gray-500 mb-2">{t('posterNote')}</p>
+                                        <input ref={eventPosterRef} type="file" accept="image/*" onChange={e => setEventPoster(e.target.files[0])} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#8b0000] file:text-white hover:file:bg-[#6b0808]" />
+                                        {editingEventId && events.find(e => e.id === editingEventId)?.poster && !eventPoster && (
+                                            <p className="text-xs text-green-600 mt-1">✓ Current poster will be kept unless you upload a new one.</p>
+                                        )}
+                                    </div>
                                 </div>
                                 <button type="submit" disabled={isSubmittingEvent} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
                                     {isSubmittingEvent ? (editingEventId ? t('saving') : t('adding')) : (editingEventId ? t('updateEvent') : t('addEvent'))}
@@ -1110,6 +1132,11 @@ export default function AdminPage() {
                                                     {ev.time?.en && <span className="flex items-center gap-1"><Clock size={14} /> {ev.time.en}</span>}
                                                     {ev.loc?.en && <span className="flex items-center gap-1"><MapPin size={14} /> {ev.loc.en}</span>}
                                                 </div>
+                                                {ev.poster && (
+                                                    <div className="mt-2">
+                                                        <img src={ev.poster} alt="Event poster" className="w-24 h-24 object-cover rounded border border-gray-200 shadow-sm" />
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex flex-col gap-2 self-start md:self-auto min-w-[120px]">
                                                 <button
@@ -1140,406 +1167,413 @@ export default function AdminPage() {
                             )}
                         </div>
                     </div>
-                )}
+                )
+                }
 
                 {/* Sub-Committee Management */}
-                {activeTab === "sub-committee" && (
-                    <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
-                        <div className="flex items-start gap-4 mb-6">
-                            <div className="p-4 rounded-full bg-purple-100 text-purple-600">
-                                <Users size={32} />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-800">{t('subCommMgmt')}</h2>
-                                <p className="text-gray-500 text-sm mt-1 max-w-md">
-                                    {t('subCommDesc')}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Create New Sub-Committee Form */}
-                        <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
-                            <h3 className="font-semibold text-[#8b0000] mb-4">{t('createNewSubComm')}</h3>
-                            <form onSubmit={handleAddSubCommittee} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('commNameEn')}</label>
-                                        <input type="text" required value={newSubTitleEn} onChange={e => setNewSubTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Decoration Committee" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('commNameMr')}</label>
-                                        <input type="text" required value={newSubTitleMr} onChange={e => setNewSubTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सजावट समिती" />
-                                    </div>
+                {
+                    activeTab === "sub-committee" && (
+                        <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="p-4 rounded-full bg-purple-100 text-purple-600">
+                                    <Users size={32} />
                                 </div>
-                                <button type="submit" disabled={isAddingSub} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isAddingSub ? t('creating') : t('createComm')}
-                                </button>
-                                {addSubStatus && <p className={`text-sm font-medium mt-2 ${addSubStatus.includes("Error") || addSubStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addSubStatus}</p>}
-                            </form>
-                        </div>
-
-                        {/* Add Member Form */}
-                        <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
-                            <h3 className="font-semibold text-[#8b0000] mb-4">{t('addNewMember')}</h3>
-                            <form onSubmit={handleAddMember} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('selectSubComm')}</label>
-                                        <select
-                                            value={selectedSubCommittee}
-                                            onChange={e => setSelectedSubCommittee(e.target.value)}
-                                            className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
-                                        >
-                                            {subCommittees && subCommittees.map(sub => (
-                                                <option key={sub.id} value={sub.id}>{sub.title.en} ({sub.title.mr})</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameEn')}</label>
-                                        <input type="text" required value={memberNameEn} onChange={e => setMemberNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameMr')}</label>
-                                        <input type="text" required value={memberNameMr} onChange={e => setMemberNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
-                                    </div>
-                                </div>
-                                <button type="submit" disabled={isAddingMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isAddingMember ? t('adding') : t('addMember')}
-                                </button>
-                                {addMemberStatus && <p className={`text-sm font-medium mt-2 ${addMemberStatus.includes("Error") || addMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addMemberStatus}</p>}
-                            </form>
-                        </div>
-
-                        {/* Manage Members List */}
-                        <div>
-                            <h3 className="font-semibold text-[#8b0000] mb-4">{t('currentMembers')}</h3>
-                            {subCommittees && subCommittees.length > 0 ? (
-                                <div className="space-y-6">
-                                    {subCommittees.map((sub) => (
-                                        <div key={sub.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                                            <div className="bg-gray-100 px-4 py-3 font-semibold text-gray-800 border-b border-gray-200 flex justify-between items-center">
-                                                <span>{sub.title.en} <span className="text-gray-500 font-normal text-sm">({sub.title.mr})</span></span>
-                                                <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-gray-300 text-gray-600">{sub.members ? sub.members.length : 0} {t('members')}</span>
-                                            </div>
-                                            <ul className="divide-y divide-gray-100">
-                                                {sub.members && sub.members.length > 0 ? (
-                                                    sub.members.map((member) => (
-                                                        <li key={member.id} className="p-4 flex justify-between items-center hover:bg-red-50/50 transition-colors">
-                                                            <div>
-                                                                <p className="font-medium text-gray-800">{member.name.en}</p>
-                                                                <p className="text-sm text-gray-500">{member.name.mr}</p>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => handleDeleteMember(sub.id, member.id)}
-                                                                disabled={isDeletingMember}
-                                                                className="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded transition-colors disabled:opacity-50"
-                                                                title="Remove Member"
-                                                            >
-                                                                <Trash2 size={20} />
-                                                            </button>
-                                                        </li>
-                                                    ))
-                                                ) : (
-                                                    <li className="p-4 text-center text-gray-500 italic text-sm">{t('noMembers')}</li>
-                                                )}
-                                            </ul>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center py-6 text-gray-500 italic">{t('loadingSubComm')}</div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Core Committee Management */}
-                {activeTab === "core-committee" && (
-                    <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
-                        <div className="flex items-start gap-4 mb-6">
-                            <div className="p-4 rounded-full bg-amber-100 text-amber-600">
-                                <Crown size={32} />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-800">{t('coreCommMgmt')}</h2>
-                                <p className="text-gray-500 text-sm mt-1 max-w-md">
-                                    {t('coreCommDesc')}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Add List Member Form */}
-                        <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
-                            <h3 className="font-semibold text-[#8b0000] mb-4 flex items-center gap-2"><Users size={18} /> {t('addCoreMember')}</h3>
-                            <form onSubmit={handleAddCoreMember} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('selectGroup')}</label>
-                                        <select
-                                            value={coreListTarget}
-                                            onChange={e => setCoreListTarget(e.target.value)}
-                                            className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
-                                        >
-                                            <option value="president">President (अध्यक्ष)</option>
-                                            <option value="vicePresident">Vice President (उपाध्यक्ष)</option>
-                                            <option value="coVicePresident">Co-Vice President (सह-उपाध्यक्ष)</option>
-                                            <option value="coreLeaders">Core Leaders (उदा. सचिव, खजिनदार)</option>
-                                            <option value="advisors">Advisory Board (सल्लागार मंडळ)</option>
-                                            <option value="members">Working Members (कार्यकारी सदस्य)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameEn')}</label>
-                                        <input type="text" required value={coreListNameEn} onChange={e => setCoreListNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameMr')}</label>
-                                        <input type="text" required value={coreListNameMr} onChange={e => setCoreListNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
-                                    </div>
-                                </div>
-
-                                {/* Extra fields for Top Roles */}
-                                {['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(coreListTarget) && (
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                                        <div className="col-span-1 md:col-span-3 lg:col-span-2">
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imgUrl')}</label>
-                                            <input type="url" value={coreListImg} onChange={e => setCoreListImg(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="https://..." />
-                                        </div>
-                                        {coreListTarget === "coreLeaders" && (
-                                            <>
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('roleEn')}</label>
-                                                    <input type="text" list="rolesEn" required value={coreListRoleEn} onChange={e => setCoreListRoleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Secretary" />
-                                                    <datalist id="rolesEn">
-                                                        <option value="Secretary" />
-                                                        <option value="Joint Secretary" />
-                                                        <option value="Treasurer" />
-                                                        <option value="Advisor" />
-                                                        <option value="Coordinator" />
-                                                    </datalist>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('roleMr')}</label>
-                                                    <input type="text" list="rolesMr" required value={coreListRoleMr} onChange={e => setCoreListRoleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सचिव" />
-                                                    <datalist id="rolesMr">
-                                                        <option value="सचिव" />
-                                                        <option value="सह-सचिव" />
-                                                        <option value="खजिनदार" />
-                                                        <option value="सल्लागार" />
-                                                        <option value="समन्वयक" />
-                                                    </datalist>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-
-                                <button type="submit" disabled={isAddingCoreMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                    {isAddingCoreMember ? t('adding') : t('addMember')}
-                                </button>
-                                {addCoreMemberStatus && <p className={`text-sm font-medium mt-2 ${addCoreMemberStatus.includes("Error") || addCoreMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addCoreMemberStatus}</p>}
-                            </form>
-                        </div>
-
-                        {/* Manage Core Committee Members Lists */}
-                        {coreCommittee && (
-                            <div className="space-y-8">
-                                {/* President List */}
                                 <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">President (अध्यक्ष)</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {coreCommittee.president?.map(member => (
-                                            <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
-                                                <div>
-                                                    <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
-                                                    <p className="text-xs text-gray-500">{member.name.mr}</p>
-                                                </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => openEditModal('president', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
-                                                        <Edit size={16} />
-                                                    </button>
-                                                    <button onClick={() => handleDeleteCoreMember('president', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Vice President List */}
-                                <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">Vice President (उपाध्यक्ष)</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {coreCommittee.vicePresident?.map(member => (
-                                            <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
-                                                <div>
-                                                    <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
-                                                    <p className="text-xs text-gray-500">{member.name.mr}</p>
-                                                </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => openEditModal('vicePresident', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
-                                                        <Edit size={16} />
-                                                    </button>
-                                                    <button onClick={() => handleDeleteCoreMember('vicePresident', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Co-Vice President List */}
-                                <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">Co-Vice President (सह-उपाध्यक्ष)</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {coreCommittee.coVicePresident?.map(member => (
-                                            <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
-                                                <div>
-                                                    <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
-                                                    <p className="text-xs text-gray-500">{member.name.mr}</p>
-                                                </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => openEditModal('coVicePresident', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
-                                                        <Edit size={16} />
-                                                    </button>
-                                                    <button onClick={() => handleDeleteCoreMember('coVicePresident', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Core Leaders List */}
-                                <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">{t('coreLeaders')}</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                        {coreCommittee.coreLeaders?.map(member => (
-                                            <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
-                                                <div>
-                                                    <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
-                                                    <p className="text-xs text-gray-500">{member.role.en}</p>
-                                                </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => openEditModal('coreLeaders', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
-                                                        <Edit size={16} />
-                                                    </button>
-                                                    <button onClick={() => handleDeleteCoreMember('coreLeaders', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Advisors List */}
-                                <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">{t('advisoryBoard')}</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                        {coreCommittee.advisors?.map(member => (
-                                            <div key={member.id} className="bg-gray-50 border border-gray-100 rounded px-3 py-2 flex justify-between items-center group">
-                                                <span className="text-sm font-medium text-gray-700 truncate mr-2" title={member.name.en}>{member.name.en}</span>
-                                                <div className="flex gap-2">
-                                                    <button onClick={() => openEditModal('advisors', member)} className="text-blue-400 hover:text-blue-600 transition-colors">
-                                                        <Edit size={14} />
-                                                    </button>
-                                                    <button onClick={() => handleDeleteCoreMember('advisors', member.id)} className="text-red-400 hover:text-red-600 transition-colors">
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Members List */}
-                                <div>
-                                    <h3 className="font-semibold text-[#8b0000] mb-3">{t('workingMembers')}</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                        {coreCommittee.members?.map(member => (
-                                            <div key={member.id} className="bg-gray-50 border border-gray-100 rounded px-3 py-2 flex justify-between items-center group">
-                                                <span className="text-sm font-medium text-gray-700 truncate mr-2" title={member.name.en}>{member.name.en}</span>
-                                                <div className="flex gap-2">
-                                                    <button onClick={() => openEditModal('members', member)} className="text-blue-400 hover:text-blue-600 transition-colors">
-                                                        <Edit size={14} />
-                                                    </button>
-                                                    <button onClick={() => handleDeleteCoreMember('members', member.id)} className="text-red-400 hover:text-red-600 transition-colors">
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <h2 className="text-xl font-bold text-gray-800">{t('subCommMgmt')}</h2>
+                                    <p className="text-gray-500 text-sm mt-1 max-w-md">
+                                        {t('subCommDesc')}
+                                    </p>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                )}
-            </main>
 
-            {/* Edit Modal Checkout logic */}
-            {isEditModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center border-b border-gray-100 p-6">
-                            <h3 className="text-xl font-bold text-[#8b0000] flex items-center gap-2">
-                                <Edit size={20} /> {editingMemberGroup === 'coreLeaders' ? t('editLeader') : t('editMember')}
-                            </h3>
-                            <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <div className="p-6">
-                            <form onSubmit={handleEditSubmit} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameEn')}</label>
-                                        <input type="text" required value={editNameEn} onChange={e => setEditNameEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameMr')}</label>
-                                        <input type="text" required value={editNameMr} onChange={e => setEditNameMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
-                                    </div>
-                                </div>
-
-                                {editingMemberGroup === 'coreLeaders' && (
-                                    <>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (English)</label>
-                                                <input type="text" required value={editRoleEn} onChange={e => setEditRoleEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (Marathi)</label>
-                                                <input type="text" required value={editRoleMr} onChange={e => setEditRoleMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
-                                            </div>
+                            {/* Create New Sub-Committee Form */}
+                            <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                                <h3 className="font-semibold text-[#8b0000] mb-4">{t('createNewSubComm')}</h3>
+                                <form onSubmit={handleAddSubCommittee} className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('commNameEn')}</label>
+                                            <input type="text" required value={newSubTitleEn} onChange={e => setNewSubTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Decoration Committee" />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imageUrl')}</label>
-                                            <input type="url" value={editImg} onChange={e => setEditImg(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('commNameMr')}</label>
+                                            <input type="text" required value={newSubTitleMr} onChange={e => setNewSubTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सजावट समिती" />
                                         </div>
-                                    </>
-                                )}
+                                    </div>
+                                    <button type="submit" disabled={isAddingSub} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                        {isAddingSub ? t('creating') : t('createComm')}
+                                    </button>
+                                    {addSubStatus && <p className={`text-sm font-medium mt-2 ${addSubStatus.includes("Error") || addSubStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addSubStatus}</p>}
+                                </form>
+                            </div>
 
-                                <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
-                                    <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-5 py-2 text-gray-600 hover:bg-gray-100 rounded font-medium transition-colors">
-                                        {t('cancel')}
+                            {/* Add Member Form */}
+                            <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                                <h3 className="font-semibold text-[#8b0000] mb-4">{t('addNewMember')}</h3>
+                                <form onSubmit={handleAddMember} className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('selectSubComm')}</label>
+                                            <select
+                                                value={selectedSubCommittee}
+                                                onChange={e => setSelectedSubCommittee(e.target.value)}
+                                                className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
+                                            >
+                                                {subCommittees && subCommittees.map(sub => (
+                                                    <option key={sub.id} value={sub.id}>{sub.title.en} ({sub.title.mr})</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameEn')}</label>
+                                            <input type="text" required value={memberNameEn} onChange={e => setMemberNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameMr')}</label>
+                                            <input type="text" required value={memberNameMr} onChange={e => setMemberNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
+                                        </div>
+                                    </div>
+                                    <button type="submit" disabled={isAddingMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                        {isAddingMember ? t('adding') : t('addMember')}
                                     </button>
-                                    <button type="submit" disabled={isSubmittingEdit} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
-                                        {isSubmittingEdit ? t('savingChanges') : t('saveChanges')}
-                                    </button>
+                                    {addMemberStatus && <p className={`text-sm font-medium mt-2 ${addMemberStatus.includes("Error") || addMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addMemberStatus}</p>}
+                                </form>
+                            </div>
+
+                            {/* Manage Members List */}
+                            <div>
+                                <h3 className="font-semibold text-[#8b0000] mb-4">{t('currentMembers')}</h3>
+                                {subCommittees && subCommittees.length > 0 ? (
+                                    <div className="space-y-6">
+                                        {subCommittees.map((sub) => (
+                                            <div key={sub.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                                                <div className="bg-gray-100 px-4 py-3 font-semibold text-gray-800 border-b border-gray-200 flex justify-between items-center">
+                                                    <span>{sub.title.en} <span className="text-gray-500 font-normal text-sm">({sub.title.mr})</span></span>
+                                                    <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-gray-300 text-gray-600">{sub.members ? sub.members.length : 0} {t('members')}</span>
+                                                </div>
+                                                <ul className="divide-y divide-gray-100">
+                                                    {sub.members && sub.members.length > 0 ? (
+                                                        sub.members.map((member) => (
+                                                            <li key={member.id} className="p-4 flex justify-between items-center hover:bg-red-50/50 transition-colors">
+                                                                <div>
+                                                                    <p className="font-medium text-gray-800">{member.name.en}</p>
+                                                                    <p className="text-sm text-gray-500">{member.name.mr}</p>
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => handleDeleteMember(sub.id, member.id)}
+                                                                    disabled={isDeletingMember}
+                                                                    className="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded transition-colors disabled:opacity-50"
+                                                                    title="Remove Member"
+                                                                >
+                                                                    <Trash2 size={20} />
+                                                                </button>
+                                                            </li>
+                                                        ))
+                                                    ) : (
+                                                        <li className="p-4 text-center text-gray-500 italic text-sm">{t('noMembers')}</li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6 text-gray-500 italic">{t('loadingSubComm')}</div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                }
+
+                {/* Core Committee Management */}
+                {
+                    activeTab === "core-committee" && (
+                        <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="p-4 rounded-full bg-amber-100 text-amber-600">
+                                    <Crown size={32} />
                                 </div>
-                            </form>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800">{t('coreCommMgmt')}</h2>
+                                    <p className="text-gray-500 text-sm mt-1 max-w-md">
+                                        {t('coreCommDesc')}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Add List Member Form */}
+                            <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                                <h3 className="font-semibold text-[#8b0000] mb-4 flex items-center gap-2"><Users size={18} /> {t('addCoreMember')}</h3>
+                                <form onSubmit={handleAddCoreMember} className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('selectGroup')}</label>
+                                            <select
+                                                value={coreListTarget}
+                                                onChange={e => setCoreListTarget(e.target.value)}
+                                                className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
+                                            >
+                                                <option value="president">President (अध्यक्ष)</option>
+                                                <option value="vicePresident">Vice President (उपाध्यक्ष)</option>
+                                                <option value="coVicePresident">Co-Vice President (सह-उपाध्यक्ष)</option>
+                                                <option value="coreLeaders">Core Leaders (उदा. सचिव, खजिनदार)</option>
+                                                <option value="advisors">Advisory Board (सल्लागार मंडळ)</option>
+                                                <option value="members">Working Members (कार्यकारी सदस्य)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameEn')}</label>
+                                            <input type="text" required value={coreListNameEn} onChange={e => setCoreListNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameMr')}</label>
+                                            <input type="text" required value={coreListNameMr} onChange={e => setCoreListNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
+                                        </div>
+                                    </div>
+
+                                    {/* Extra fields for Top Roles */}
+                                    {['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(coreListTarget) && (
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                            <div className="col-span-1 md:col-span-3 lg:col-span-2">
+                                                <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imgUrl')}</label>
+                                                <input type="url" value={coreListImg} onChange={e => setCoreListImg(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="https://..." />
+                                            </div>
+                                            {coreListTarget === "coreLeaders" && (
+                                                <>
+                                                    <div>
+                                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('roleEn')}</label>
+                                                        <input type="text" list="rolesEn" required value={coreListRoleEn} onChange={e => setCoreListRoleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Secretary" />
+                                                        <datalist id="rolesEn">
+                                                            <option value="Secretary" />
+                                                            <option value="Joint Secretary" />
+                                                            <option value="Treasurer" />
+                                                            <option value="Advisor" />
+                                                            <option value="Coordinator" />
+                                                        </datalist>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('roleMr')}</label>
+                                                        <input type="text" list="rolesMr" required value={coreListRoleMr} onChange={e => setCoreListRoleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. सचिव" />
+                                                        <datalist id="rolesMr">
+                                                            <option value="सचिव" />
+                                                            <option value="सह-सचिव" />
+                                                            <option value="खजिनदार" />
+                                                            <option value="सल्लागार" />
+                                                            <option value="समन्वयक" />
+                                                        </datalist>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <button type="submit" disabled={isAddingCoreMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                        {isAddingCoreMember ? t('adding') : t('addMember')}
+                                    </button>
+                                    {addCoreMemberStatus && <p className={`text-sm font-medium mt-2 ${addCoreMemberStatus.includes("Error") || addCoreMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addCoreMemberStatus}</p>}
+                                </form>
+                            </div>
+
+                            {/* Manage Core Committee Members Lists */}
+                            {coreCommittee && (
+                                <div className="space-y-8">
+                                    {/* President List */}
+                                    <div>
+                                        <h3 className="font-semibold text-[#8b0000] mb-3">President (अध्यक्ष)</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            {coreCommittee.president?.map(member => (
+                                                <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
+                                                    <div>
+                                                        <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
+                                                        <p className="text-xs text-gray-500">{member.name.mr}</p>
+                                                    </div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => openEditModal('president', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
+                                                            <Edit size={16} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteCoreMember('president', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Vice President List */}
+                                    <div>
+                                        <h3 className="font-semibold text-[#8b0000] mb-3">Vice President (उपाध्यक्ष)</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            {coreCommittee.vicePresident?.map(member => (
+                                                <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
+                                                    <div>
+                                                        <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
+                                                        <p className="text-xs text-gray-500">{member.name.mr}</p>
+                                                    </div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => openEditModal('vicePresident', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
+                                                            <Edit size={16} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteCoreMember('vicePresident', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Co-Vice President List */}
+                                    <div>
+                                        <h3 className="font-semibold text-[#8b0000] mb-3">Co-Vice President (सह-उपाध्यक्ष)</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            {coreCommittee.coVicePresident?.map(member => (
+                                                <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
+                                                    <div>
+                                                        <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
+                                                        <p className="text-xs text-gray-500">{member.name.mr}</p>
+                                                    </div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => openEditModal('coVicePresident', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
+                                                            <Edit size={16} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteCoreMember('coVicePresident', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Core Leaders List */}
+                                    <div>
+                                        <h3 className="font-semibold text-[#8b0000] mb-3">{t('coreLeaders')}</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            {coreCommittee.coreLeaders?.map(member => (
+                                                <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
+                                                    <div>
+                                                        <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
+                                                        <p className="text-xs text-gray-500">{member.role.en}</p>
+                                                    </div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => openEditModal('coreLeaders', member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
+                                                            <Edit size={16} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteCoreMember('coreLeaders', member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Advisors List */}
+                                    <div>
+                                        <h3 className="font-semibold text-[#8b0000] mb-3">{t('advisoryBoard')}</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                            {coreCommittee.advisors?.map(member => (
+                                                <div key={member.id} className="bg-gray-50 border border-gray-100 rounded px-3 py-2 flex justify-between items-center group">
+                                                    <span className="text-sm font-medium text-gray-700 truncate mr-2" title={member.name.en}>{member.name.en}</span>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => openEditModal('advisors', member)} className="text-blue-400 hover:text-blue-600 transition-colors">
+                                                            <Edit size={14} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteCoreMember('advisors', member.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Members List */}
+                                    <div>
+                                        <h3 className="font-semibold text-[#8b0000] mb-3">{t('workingMembers')}</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                            {coreCommittee.members?.map(member => (
+                                                <div key={member.id} className="bg-gray-50 border border-gray-100 rounded px-3 py-2 flex justify-between items-center group">
+                                                    <span className="text-sm font-medium text-gray-700 truncate mr-2" title={member.name.en}>{member.name.en}</span>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => openEditModal('members', member)} className="text-blue-400 hover:text-blue-600 transition-colors">
+                                                            <Edit size={14} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteCoreMember('members', member.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )
+                }
+            </main >
+
+            {/* Edit Modal Checkout logic */}
+            {
+                isEditModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center border-b border-gray-100 p-6">
+                                <h3 className="text-xl font-bold text-[#8b0000] flex items-center gap-2">
+                                    <Edit size={20} /> {editingMemberGroup === 'coreLeaders' ? t('editLeader') : t('editMember')}
+                                </h3>
+                                <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            <div className="p-6">
+                                <form onSubmit={handleEditSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameEn')}</label>
+                                            <input type="text" required value={editNameEn} onChange={e => setEditNameEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameMr')}</label>
+                                            <input type="text" required value={editNameMr} onChange={e => setEditNameMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                        </div>
+                                    </div>
+
+                                    {editingMemberGroup === 'coreLeaders' && (
+                                        <>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (English)</label>
+                                                    <input type="text" required value={editRoleEn} onChange={e => setEditRoleEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (Marathi)</label>
+                                                    <input type="text" required value={editRoleMr} onChange={e => setEditRoleMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imageUrl')}</label>
+                                                <input type="url" value={editImg} onChange={e => setEditImg(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
+                                        <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-5 py-2 text-gray-600 hover:bg-gray-100 rounded font-medium transition-colors">
+                                            {t('cancel')}
+                                        </button>
+                                        <button type="submit" disabled={isSubmittingEdit} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                            {isSubmittingEdit ? t('savingChanges') : t('saveChanges')}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-        </div>
+        </div >
     );
 }
