@@ -215,7 +215,7 @@ const translations = {
 };
 
 export default function AdminPage() {
-    const { lang } = useLanguage();
+    const { lang, setLang } = useLanguage();
     const t = (key) => translations[lang]?.[key] || translations.en[key] || key;
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
@@ -797,9 +797,17 @@ export default function AdminPage() {
                     <h1 className="text-xl md:text-2xl font-bold font-serif">{t('adminControl')}</h1>
                     <p className="text-sm opacity-80">{t('manageFeatures')}</p>
                 </div>
-                <Link href="/" className="flex items-center gap-2 hover:text-white transition-colors text-sm font-semibold">
-                    <ArrowLeft size={16} /> {t('backToSite')}
-                </Link>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => setLang(lang === 'en' ? 'mr' : 'en')}
+                        className="px-3 py-1.5 rounded-full border-2 border-[#fceabb] text-[#fceabb] hover:bg-[#fceabb] hover:text-[#4a0808] transition-colors text-sm font-bold"
+                    >
+                        {lang === 'en' ? 'मराठी' : 'English'}
+                    </button>
+                    <Link href="/" className="flex items-center gap-2 hover:text-white transition-colors text-sm font-semibold">
+                        <ArrowLeft size={16} /> {t('backToSite')}
+                    </Link>
+                </div>
             </header>
 
             {/* Dashboard Content */}
