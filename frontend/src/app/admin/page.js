@@ -536,7 +536,7 @@ export default function AdminPage() {
         setIsDeletingEvent(true);
         try {
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-            const res = await fetch(`${API_URL}/api/events?id=${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/events?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
                 fetchEvents();
