@@ -13,7 +13,7 @@ export default function Donate() {
     const [formData, setFormData] = useState({
         amount: '',
         currency: 'INR',
-        paymentMethod: 'Select Payment Method',
+        paymentMethod: '',
         receiptName: '',
         addressLine1: '',
         addressLine2: '',
@@ -53,6 +53,7 @@ export default function Donate() {
             customAmount: 'Custom Amount',
             enterAmount: 'Enter amount',
             paymentMethod: 'Payment Method',
+            selectPayment: 'Select Payment Method',
             creditCard: 'Credit Card',
             debitCard: 'Debit Card',
             upi: 'UPI',
@@ -95,6 +96,7 @@ export default function Donate() {
             customAmount: 'इच्छित रक्कम',
             enterAmount: 'रक्कम टाका',
             paymentMethod: 'पेमेंट पद्धत',
+            selectPayment: 'पेमंट पद्धत निवडा',
             creditCard: 'क्रेडिट कार्ड',
             debitCard: 'डेबिट कार्ड',
             upi: 'UPI',
@@ -308,10 +310,12 @@ export default function Donate() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">{t.paymentMethod} <span className="text-red-500">*</span></label>
                             <select
                                 name="paymentMethod"
+                                required
                                 value={formData.paymentMethod}
                                 onChange={handleChange}
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
                             >
+                                <option value="" disabled>{t.selectPayment}</option>
                                 <option value="Credit Card">{t.creditCard}</option>
                                 <option value="Debit Card">{t.debitCard}</option>
                                 <option value="UPI">{t.upi}</option>
