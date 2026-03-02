@@ -234,11 +234,38 @@ exports.downloadReceipt = async (req, res) => {
         y += 40;
         doc.moveTo(marginLeft, y).lineTo(marginRight, y).lineWidth(0.5).stroke('#e0e0e0');
 
-        // === SIGNATORY ===
+        // === SIGNATORIES ===
         y += 30;
-        doc.moveTo(marginRight - 180, y + 20).lineTo(marginRight, y + 20).lineWidth(0.5).stroke('#999999');
-        doc.fillColor('#888888').fontSize(9);
-        doc.text('Authorized Signatory', marginRight - 180, y + 25, { width: 180, align: 'center' });
+
+        // Register signature font
+        const signatureFont = path.join(fontsDir, 'GreatVibes-Regular.ttf');
+        const hasSignatureFont = fs.existsSync(signatureFont);
+        if (hasSignatureFont) doc.registerFont('GreatVibes', signatureFont);
+
+        const signatories = [
+            { name: 'Swapnil D. Deshpande', title: 'President' },
+            { name: 'Nilesh N. Pimparkar', title: 'Vice President' },
+            { name: 'Chinmay C. Deshpande', title: 'Treasurer' },
+        ];
+
+        const sigWidth = contentWidth / 3;
+        signatories.forEach((sig, i) => {
+            const sigX = marginLeft + (i * sigWidth);
+
+            // Signature in cursive font
+            if (hasSignatureFont) doc.font('GreatVibes');
+            doc.fillColor('#333333').fontSize(14);
+            doc.text(sig.name, sigX, y, { width: sigWidth, align: 'center' });
+
+            // Line under signature
+            const lineStart = sigX + 15;
+            const lineEnd = sigX + sigWidth - 15;
+            doc.moveTo(lineStart, y + 22).lineTo(lineEnd, y + 22).lineWidth(0.5).stroke('#999999');
+
+            // Designation
+            doc.font('Helvetica').fillColor('#888888').fontSize(8);
+            doc.text(sig.title, sigX, y + 26, { width: sigWidth, align: 'center' });
+        });
 
         // === FOOTER ===
         y += 70;
