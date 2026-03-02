@@ -110,7 +110,7 @@ exports.downloadReceipt = async (req, res) => {
             doc.image(logoPath, marginLeft, logoY, { width: logoSize, height: logoSize });
         }
         if (fs.existsSync(cpgPath)) {
-            doc.image(cpgPath, marginRight - logoSize, logoY, { width: logoSize, height: logoSize });
+            doc.image(cpgPath, marginRight - logoSize, logoY, { fit: [logoSize, logoSize], align: 'center', valign: 'center' });
         }
 
         // Center text between logos
@@ -137,9 +137,21 @@ exports.downloadReceipt = async (req, res) => {
         doc.fontSize(8);
         doc.text('\u092A\u0924\u094D\u0924\u093E : \u0915\u093E\u0933\u0940\u092A\u0941\u0930\u093E, \u092E\u0932\u0915\u093E\u092A\u0942\u0930, \u091C\u093F. \u092C\u0941\u0932\u0922\u093E\u0923\u093E - \u096A\u096A\u0969\u0967\u0966\u0967', textLeft, 86, { align: 'center', width: textWidth });
 
-        // Established line
+        // Established line - English part
         doc.font('Helvetica').fillColor('#fceabb').fontSize(8);
-        doc.text('Established: 1924  |  \u0938\u094D\u0925\u093E\u092A\u0928\u093E : \u0967\u096F\u0968\u096A', textLeft, 102, { align: 'center', width: textWidth });
+        const estEnText = 'Established: 1924  |  ';
+        const estEnWidth = doc.widthOfString(estEnText);
+        const estTotalText = '\u0938\u094D\u0925\u093E\u092A\u0928\u093E : \u0967\u096F\u0968\u096A';
+        // Calculate centering
+        let estMrWidth = 0;
+        if (hasMukta) { doc.font('Mukta').fontSize(8); estMrWidth = doc.widthOfString(estTotalText); }
+        const estTotalWidth = estEnWidth + estMrWidth;
+        const estStartX = textLeft + (textWidth - estTotalWidth) / 2;
+        doc.font('Helvetica').fillColor('#fceabb').fontSize(8);
+        doc.text(estEnText, estStartX, 102, { continued: false, lineBreak: false });
+        if (hasMukta) doc.font('Mukta');
+        doc.fillColor('#fceabb').fontSize(8);
+        doc.text(estTotalText, estStartX + estEnWidth, 102, { lineBreak: false });
 
         // Gold accent line
         doc.rect(0, 140, pageWidth, 4).fill('#d4af37');
