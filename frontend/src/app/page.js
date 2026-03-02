@@ -39,11 +39,11 @@ export default function Home() {
       title: "Balveer Ganesh Mandal",
       historyTitle: "Our History",
       historyText1:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Balveer Ganesh Mandal (Chandicha Pawan Ganpati) was born out of a deep friendship — founded by Late Shri. Nimbadas Pimparkar, Shri. Rajabhau Dawale, Shri. Hande, and other friends during their high school days. What started as a youthful initiative quickly grew into one of Malkapur's most cherished traditions.",
       historyText2:
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        "The Mandal's defining moment came during its Golden Jubilee, when it acquired a magnificent 3-foot silver Ganesh idol — the crown jewel that remains the major attraction for all devotees during Ganeshotsav and the Visarjan Miravnuk to this day.",
       historyText3:
-        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+        "After facing challenges, the youth revived the Mandal in 2022 in association with the respected committee. Our Mandal is unique in celebrating the 10-day festival with peace, discipline, silence, and harmony — a tradition our founders envisioned over a century ago.",
       readMore: "Read Full History",
       visarjanTitle: "2025",
       visarjanText:
@@ -65,11 +65,11 @@ export default function Home() {
       subtitle: "स्थापना : १९२४",
       historyTitle: "आमचा इतिहास",
       historyText1:
-        "येथे तुमच्या मंडळाचा किंवा संस्थेचा मुख्य इतिहास थोडक्यात लिहा. हा मजकूर बदलून तुम्ही तुमचा स्वतःचा माहितीपूर्ण मजकूर टाकू शकता. लोकांना तुमच्या कार्याबद्दल माहिती देणारा हा सुरुवातीचा परिच्छेद असावा.",
+        "बालवीर गणेश मंडळ (चंडीचा पावन गणपती) हे गाढ मैत्रीतून जन्मले — कै. श्री. निंबादास पिंपरकर, श्री. राजाभाऊ दवाळे, श्री. हांडे आणि इतर मित्रांनी त्यांच्या शालेय जीवनातच या मंडळाची स्थापना केली. तरुण वयातील या उपक्रमाने लवकरच मलकापूरच्या सर्वात जपलेल्या परंपरांपैकी एक रूप धारण केले.",
       historyText2:
-        "त्यानंतरच्या काही महत्त्वाच्या घडामोडी किंवा टप्पे या दुसऱ्या परिच्छेदात लिहावेत. मंडळाने समाजासाठी केलेले योगदान आणि त्यांचे महत्त्व तुम्ही येथे विशद करू शकता.",
+        "मंडळाचा निर्णायक क्षण सुवर्णमहोत्सवाच्या वेळी आला, जेव्हा भव्य ३ फूट उंचीच्या चांदीच्या गणेश मूर्तीची खरेदी केली गेली — हा मुकुटमणी आजही गणेशोत्सव आणि विसर्जन मिरवणुकीत सर्व भक्तांचे प्रमुख आकर्षण आहे.",
       historyText3:
-        "भविष्यातील उद्दिष्टे किंवा सध्या सुरू असलेल्या मोठ्या उपक्रमांबद्दल थोडक्यात माहिती देऊन या भागाचा समारोप करावा. यामुळे वाचकांना मंडळाशी जोडलेले वाटेल.",
+        "आव्हानांना तोंड दिल्यानंतर, २०२२ मध्ये तरुणाईने ज्येष्ठ समितीच्या सहकार्याने मंडळाला पुनरुज्जीवित केले. आमचे मंडळ शांतता, शिस्त, मौन आणि सुसंवादाने १० दिवसीय उत्सव साजरा करण्याच्या अनोख्या परंपरेसाठी ओळखले जाते — एक परंपरा जी आमच्या संस्थापकांनी शतकापूर्वी कल्पिली होती.",
       readMore: "संपूर्ण इतिहास वाचा",
       visarjanTitle: "२०२५",
       visarjanText:
