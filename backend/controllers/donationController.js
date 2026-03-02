@@ -100,24 +100,46 @@ exports.downloadReceipt = async (req, res) => {
         doc.rect(0, 0, pageWidth, 140).fill('#8b0000');
         doc.fillColor('#fceabb');
 
+        // Add logos
+        const logoPath = path.join(__dirname, '..', 'public', 'logo.png');
+        const cpgPath = path.join(__dirname, '..', 'public', 'cpg.png');
+        const logoSize = 70;
+        const logoY = 10;
+
+        if (fs.existsSync(logoPath)) {
+            doc.image(logoPath, marginLeft, logoY, { width: logoSize, height: logoSize });
+        }
+        if (fs.existsSync(cpgPath)) {
+            doc.image(cpgPath, marginRight - logoSize, logoY, { width: logoSize, height: logoSize });
+        }
+
+        // Center text between logos
+        const textLeft = marginLeft + logoSize + 10;
+        const textWidth = contentWidth - (logoSize + 10) * 2;
+
         // English name (Yatra One)
         if (hasYatra) doc.font('YatraOne');
-        doc.fontSize(17).text('Balveer Ganesh Mandal (Chandicha Pawan Ganpati)', marginLeft, 12, { align: 'center', width: contentWidth });
+        doc.fillColor('#fceabb').fontSize(15).text('Balveer Ganesh Mandal', textLeft, 12, { align: 'center', width: textWidth });
+        doc.fontSize(10).text('(Chandicha Pawan Ganpati)', textLeft, 30, { align: 'center', width: textWidth });
 
         // English address (Helvetica)
-        doc.font('Helvetica').fontSize(9);
-        doc.text('Address: Kalipura, Malkapur, Dist. Buldhana - 443101', marginLeft, 38, { align: 'center', width: contentWidth });
+        doc.font('Helvetica').fontSize(8);
+        doc.text('Address: Kalipura, Malkapur, Dist. Buldhana - 443101', textLeft, 46, { align: 'center', width: textWidth });
 
         // Marathi name (Yatra One or Mukta)
         if (hasYatra) doc.font('YatraOne');
         else if (hasMukta) doc.font('Mukta');
-        doc.fillColor('#fceabb').fontSize(14);
-        doc.text('\u092C\u093E\u0932\u0935\u0940\u0930 \u0917\u0923\u0947\u0936 \u092E\u0902\u0921\u0933 (\u091A\u093E\u0902\u0926\u0940\u091A\u093E \u092A\u093E\u0935\u0928 \u0917\u0923\u092A\u0924\u0940)', marginLeft, 58, { align: 'center', width: contentWidth });
+        doc.fillColor('#fceabb').fontSize(13);
+        doc.text('\u092C\u093E\u0932\u0935\u0940\u0930 \u0917\u0923\u0947\u0936 \u092E\u0902\u0921\u0933 (\u091A\u093E\u0902\u0926\u0940\u091A\u093E \u092A\u093E\u0935\u0928 \u0917\u0923\u092A\u0924\u0940)', textLeft, 66, { align: 'center', width: textWidth });
 
         // Marathi address (Mukta)
         if (hasMukta) doc.font('Mukta');
-        doc.fontSize(9);
-        doc.text('\u092A\u0924\u094D\u0924\u093E : \u0915\u093E\u0933\u0940\u092A\u0941\u0930\u093E, \u092E\u0932\u0915\u093E\u092A\u0942\u0930, \u091C\u093F. \u092C\u0941\u0932\u0922\u093E\u0923\u093E - \u096A\u096A\u0969\u0967\u0966\u0967', marginLeft, 82, { align: 'center', width: contentWidth });
+        doc.fontSize(8);
+        doc.text('\u092A\u0924\u094D\u0924\u093E : \u0915\u093E\u0933\u0940\u092A\u0941\u0930\u093E, \u092E\u0932\u0915\u093E\u092A\u0942\u0930, \u091C\u093F. \u092C\u0941\u0932\u0922\u093E\u0923\u093E - \u096A\u096A\u0969\u0967\u0966\u0967', textLeft, 86, { align: 'center', width: textWidth });
+
+        // Established line
+        doc.font('Helvetica').fillColor('#fceabb').fontSize(8);
+        doc.text('Established: 1924  |  \u0938\u094D\u0925\u093E\u092A\u0928\u093E : \u0967\u096F\u0968\u096A', textLeft, 102, { align: 'center', width: textWidth });
 
         // Gold accent line
         doc.rect(0, 140, pageWidth, 4).fill('#d4af37');
