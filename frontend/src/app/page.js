@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { PlayCircle, Youtube, Facebook, Instagram, Mail, Calendar, HandCoins, MapPin, Clock, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
@@ -229,9 +230,9 @@ export default function Home() {
             </div>
 
             <div className="pt-4">
-              <button className="bg-[#df2f2f] hover:bg-[#b01e1e] text-white px-6 py-2.5 rounded text-sm font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-[0_10px_20px_rgba(185,28,28,0.3)] hover:-translate-y-1 border border-red-700">
-                Read More
-              </button>
+              <Link href="/about" className="inline-block bg-[#df2f2f] hover:bg-[#b01e1e] text-white px-6 py-2.5 rounded text-sm font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-[0_10px_20px_rgba(185,28,28,0.3)] hover:-translate-y-1 border border-red-700">
+                {t.readMore}
+              </Link>
             </div>
           </motion.div>
 
