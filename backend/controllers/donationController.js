@@ -97,17 +97,17 @@ exports.downloadReceipt = async (req, res) => {
         const contentWidth = marginRight - marginLeft;
 
         // === HEADER BAR (maroon background) ===
-        doc.rect(0, 0, pageWidth, 140).fill('#8b0000');
+        doc.rect(0, 0, pageWidth, 155).fill('#8b0000');
         doc.fillColor('#fceabb');
 
         // Add logos
         const logoPath = path.join(__dirname, '..', 'public', 'logo.png');
         const cpgPath = path.join(__dirname, '..', 'public', 'cpg.png');
-        const logoSize = 70;
-        const logoY = 10;
+        const logoSize = 90;
+        const logoY = 8;
 
         if (fs.existsSync(logoPath)) {
-            doc.image(logoPath, marginLeft, logoY, { width: logoSize, height: logoSize });
+            doc.image(logoPath, marginLeft, logoY, { fit: [logoSize, logoSize], align: 'center', valign: 'center' });
         }
         if (fs.existsSync(cpgPath)) {
             doc.image(cpgPath, marginRight - logoSize, logoY, { fit: [logoSize, logoSize], align: 'center', valign: 'center' });
@@ -119,55 +119,44 @@ exports.downloadReceipt = async (req, res) => {
 
         // English name (Yatra One)
         if (hasYatra) doc.font('YatraOne');
-        doc.fillColor('#fceabb').fontSize(15).text('Balveer Ganesh Mandal', textLeft, 12, { align: 'center', width: textWidth });
-        doc.fontSize(10).text('(Chandicha Pawan Ganpati)', textLeft, 30, { align: 'center', width: textWidth });
+        doc.fillColor('#fceabb').fontSize(15).text('Balveer Ganesh Mandal', textLeft, 14, { align: 'center', width: textWidth });
+        doc.fontSize(10).text('(Chandicha Pawan Ganpati)', textLeft, 32, { align: 'center', width: textWidth });
 
         // English address (Helvetica)
         doc.font('Helvetica').fontSize(8);
-        doc.text('Address: Kalipura, Malkapur, Dist. Buldhana - 443101', textLeft, 46, { align: 'center', width: textWidth });
+        doc.text('Address: Kalipura, Malkapur, Dist. Buldhana - 443101', textLeft, 48, { align: 'center', width: textWidth });
 
         // Marathi name (Yatra One or Mukta)
         if (hasYatra) doc.font('YatraOne');
         else if (hasMukta) doc.font('Mukta');
         doc.fillColor('#fceabb').fontSize(13);
-        doc.text('\u092C\u093E\u0932\u0935\u0940\u0930 \u0917\u0923\u0947\u0936 \u092E\u0902\u0921\u0933 (\u091A\u093E\u0902\u0926\u0940\u091A\u093E \u092A\u093E\u0935\u0928 \u0917\u0923\u092A\u0924\u0940)', textLeft, 66, { align: 'center', width: textWidth });
+        doc.text('\u092C\u093E\u0932\u0935\u0940\u0930 \u0917\u0923\u0947\u0936 \u092E\u0902\u0921\u0933 (\u091A\u093E\u0902\u0926\u0940\u091A\u093E \u092A\u093E\u0935\u0928 \u0917\u0923\u092A\u0924\u0940)', textLeft, 68, { align: 'center', width: textWidth });
 
         // Marathi address (Mukta)
         if (hasMukta) doc.font('Mukta');
         doc.fontSize(8);
-        doc.text('\u092A\u0924\u094D\u0924\u093E : \u0915\u093E\u0933\u0940\u092A\u0941\u0930\u093E, \u092E\u0932\u0915\u093E\u092A\u0942\u0930, \u091C\u093F. \u092C\u0941\u0932\u0922\u093E\u0923\u093E - \u096A\u096A\u0969\u0967\u0966\u0967', textLeft, 86, { align: 'center', width: textWidth });
+        doc.text('\u092A\u0924\u094D\u0924\u093E : \u0915\u093E\u0933\u0940\u092A\u0941\u0930\u093E, \u092E\u0932\u0915\u093E\u092A\u0942\u0930, \u091C\u093F. \u092C\u0941\u0932\u0922\u093E\u0923\u093E - \u096A\u096A\u0969\u0967\u0966\u0967', textLeft, 90, { align: 'center', width: textWidth });
 
-        // Established line - English part
-        doc.font('Helvetica').fillColor('#fceabb').fontSize(8);
-        const estEnText = 'Established: 1924  |  ';
-        const estEnWidth = doc.widthOfString(estEnText);
-        const estTotalText = '\u0938\u094D\u0925\u093E\u092A\u0928\u093E : \u0967\u096F\u0968\u096A';
-        // Calculate centering
-        let estMrWidth = 0;
-        if (hasMukta) { doc.font('Mukta').fontSize(8); estMrWidth = doc.widthOfString(estTotalText); }
-        const estTotalWidth = estEnWidth + estMrWidth;
-        const estStartX = textLeft + (textWidth - estTotalWidth) / 2;
-        doc.font('Helvetica').fillColor('#fceabb').fontSize(8);
-        doc.text(estEnText, estStartX, 102, { continued: false, lineBreak: false });
+        // Established line - use Mukta for entire line to keep alignment
         if (hasMukta) doc.font('Mukta');
-        doc.fillColor('#fceabb').fontSize(8);
-        doc.text(estTotalText, estStartX + estEnWidth, 102, { lineBreak: false });
+        doc.fillColor('#fceabb').fontSize(9);
+        doc.text('Established: 1924  |  \u0938\u094D\u0925\u093E\u092A\u0928\u093E : \u0967\u096F\u0968\u096A', textLeft, 110, { align: 'center', width: textWidth });
 
         // Gold accent line
-        doc.rect(0, 140, pageWidth, 4).fill('#d4af37');
+        doc.rect(0, 155, pageWidth, 4).fill('#d4af37');
 
         // Reset to Helvetica for body
         doc.font('Helvetica');
 
         // === RECEIPT TITLE ===
         doc.fillColor('#8b0000');
-        doc.fontSize(16).text('DONATION RECEIPT', marginLeft, 155, { align: 'center', width: contentWidth });
+        doc.fontSize(16).text('DONATION RECEIPT', marginLeft, 170, { align: 'center', width: contentWidth });
 
         // Thin line under title
-        doc.moveTo(marginLeft + 150, 175).lineTo(marginRight - 150, 175).lineWidth(1).stroke('#d4af37');
+        doc.moveTo(marginLeft + 150, 190).lineTo(marginRight - 150, 190).lineWidth(1).stroke('#d4af37');
 
         // === RECEIPT INFO ===
-        let y = 190;
+        let y = 205;
         doc.font('Helvetica');
         doc.fillColor('#666666').fontSize(10);
         doc.text('Receipt No:', marginLeft, y);
@@ -250,9 +239,9 @@ exports.downloadReceipt = async (req, res) => {
         y += 30;
 
         // Register signature font
-        const signatureFont = path.join(fontsDir, 'GreatVibes-Regular.ttf');
+        const signatureFont = path.join(fontsDir, 'AlexBrush-Regular.ttf');
         const hasSignatureFont = fs.existsSync(signatureFont);
-        if (hasSignatureFont) doc.registerFont('GreatVibes', signatureFont);
+        if (hasSignatureFont) doc.registerFont('AlexBrush', signatureFont);
 
         const signatories = [
             { name: 'Swapnil D. Deshpande', title: 'President' },
@@ -265,8 +254,8 @@ exports.downloadReceipt = async (req, res) => {
             const sigX = marginLeft + (i * sigWidth);
 
             // Signature in cursive font
-            if (hasSignatureFont) doc.font('GreatVibes');
-            doc.fillColor('#333333').fontSize(14);
+            if (hasSignatureFont) doc.font('AlexBrush');
+            doc.fillColor('#1a1a1a').fontSize(13);
             doc.text(sig.name, sigX, y, { width: sigWidth, align: 'center' });
 
             // Line under signature
