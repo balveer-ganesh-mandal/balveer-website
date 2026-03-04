@@ -312,12 +312,14 @@ export default function CommitteePage() {
                                             {sub.members && sub.members.length > 0 ? (
                                                 sub.members.map((member, j) => (
                                                     <div key={j} className={`text-center text-gray-800 font-medium py-1 ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
-                                                        <div>{member.name[lang]}</div>
-                                                        {member.role?.[lang] && (
-                                                            <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#8b0000] text-white uppercase tracking-wide">
-                                                                {member.role[lang]}
-                                                            </span>
-                                                        )}
+                                                        <span className="inline-flex items-center gap-2 justify-center">
+                                                            {member.name[lang]}
+                                                            {member.role?.[lang] && (
+                                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#8b0000] text-white uppercase tracking-wide whitespace-nowrap">
+                                                                    {member.role[lang]}
+                                                                </span>
+                                                            )}
+                                                        </span>
                                                     </div>
                                                 ))
                                             ) : (
