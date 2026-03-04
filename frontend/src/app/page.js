@@ -348,26 +348,36 @@ export default function Home() {
                     className="bg-[#fffdfc] p-6 md:p-8 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-[#e6ddd5] group hover:border-[#be1111]/30 hover:shadow-xl transition-all relative overflow-hidden"
                   >
                     <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-[#d4af37] to-[#be1111] transform origin-top scale-y-50 group-hover:scale-y-100 transition-transform duration-500" />
-                    <div className="pl-4">
-                      {ev.img && (
-                        <div className="mb-4 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
-                          <img src={getImageUrl(ev.img)} alt={ev.title[lang]} className="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-500" />
+                    <div className="pl-4 flex flex-col md:flex-row gap-6 md:gap-8 min-h-[200px]">
+                      {/* Left Side: Details */}
+                      <div className="flex-1 flex flex-col justify-start">
+                        <div>
+                          <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-bold uppercase tracking-widest rounded-full mb-3">
+                            {badgeText}
+                          </span>
                         </div>
-                      )}
+                        <h3 className="text-xl md:text-2xl font-bold text-[#4a0808] mb-4 font-serif">{ev.title[lang]}</h3>
 
-                      <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-bold uppercase tracking-widest rounded-full mb-3">
-                        {badgeText}
-                      </span>
-                      <h3 className="text-xl md:text-2xl font-bold text-[#4a0808] mb-4 font-serif">{ev.title[lang]}</h3>
-
-                      <div className="space-y-3 mb-6 flex flex-col items-start text-sm text-gray-600">
-                        <div className="flex items-center gap-2"><Calendar size={16} className="text-[#d4af37]" /> <span className="font-semibold">{ev.date[lang]}</span></div>
-                        {ev.time?.[lang] && <div className="flex items-center gap-2"><Clock size={16} className="text-gray-400" /> <span>{ev.time[lang]}</span></div>}
-                        {ev.loc?.[lang] && <div className="flex items-center gap-2"><MapPin size={16} className="text-gray-400" /> <span>{ev.loc[lang]}</span></div>}
+                        <div className="space-y-3 mb-6 flex flex-col items-start text-sm text-gray-600">
+                          <div className="flex items-center gap-2"><Calendar size={16} className="text-[#d4af37]" /> <span className="font-semibold">{ev.date[lang]}</span></div>
+                          {ev.time?.[lang] && <div className="flex items-center gap-2"><Clock size={16} className="text-gray-400" /> <span>{ev.time[lang]}</span></div>}
+                          {ev.loc?.[lang] && <div className="flex items-center gap-2"><MapPin size={16} className="text-gray-400" /> <span>{ev.loc[lang]}</span></div>}
+                        </div>
+                        <p className="text-gray-600 text-sm md:text-base leading-relaxed border-t border-gray-100 pt-4 mt-auto">
+                          {ev.desc[lang]}
+                        </p>
                       </div>
-                      <p className="text-gray-600 text-sm md:text-base leading-relaxed border-t border-gray-100 pt-4">
-                        {ev.desc[lang]}
-                      </p>
+
+                      {/* Right Side: Poster Space */}
+                      <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 flex items-center justify-center">
+                        {ev.img ? (
+                          <div className="w-full rounded-lg overflow-hidden border border-gray-100 shadow-sm">
+                            <img src={getImageUrl(ev.img)} alt={ev.title[lang]} className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-500" />
+                          </div>
+                        ) : (
+                          <div className="hidden md:block w-full h-full min-h-[150px]"></div>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 );
