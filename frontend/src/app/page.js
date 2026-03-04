@@ -349,7 +349,13 @@ export default function Home() {
                   >
                     <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-[#d4af37] to-[#be1111] transform origin-top scale-y-50 group-hover:scale-y-100 transition-transform duration-500" />
                     <div className="pl-4">
-                      <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-bold uppercase tracking-widest rounded-full mb-4">
+                      {ev.img && (
+                        <div className="mb-4 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
+                          <img src={getImageUrl(ev.img)} alt={ev.title[lang]} className="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-500" />
+                        </div>
+                      )}
+
+                      <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-bold uppercase tracking-widest rounded-full mb-3">
                         {badgeText}
                       </span>
                       <h3 className="text-xl md:text-2xl font-bold text-[#4a0808] mb-4 font-serif">{ev.title[lang]}</h3>
