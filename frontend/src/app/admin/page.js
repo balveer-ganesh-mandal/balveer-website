@@ -247,6 +247,7 @@ export default function AdminPage() {
     const [selectedSubCommittee, setSelectedSubCommittee] = useState("media");
     const [memberNameEn, setMemberNameEn] = useState("");
     const [memberNameMr, setMemberNameMr] = useState("");
+    const [memberRole, setMemberRole] = useState("");
     const [isAddingMember, setIsAddingMember] = useState(false);
     const [addMemberStatus, setAddMemberStatus] = useState("");
     const [isDeletingMember, setIsDeletingMember] = useState(false);
@@ -474,20 +475,29 @@ export default function AdminPage() {
 
         try {
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const payload = {
+                subCommitteeId: selectedSubCommittee,
+                nameEn: memberNameEn,
+                nameMr: memberNameMr
+            };
+            if (memberRole === 'head') {
+                payload.roleEn = 'Head';
+                payload.roleMr = 'प्रमुख';
+            } else if (memberRole === 'jt-head') {
+                payload.roleEn = 'Jt. Head';
+                payload.roleMr = 'सह-प्रमुख';
+            }
             const res = await fetch(`${API_URL}/sub-committee`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    subCommitteeId: selectedSubCommittee,
-                    nameEn: memberNameEn,
-                    nameMr: memberNameMr
-                })
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
             if (data.success) {
                 setAddMemberStatus("Member added successfully!");
                 setMemberNameEn("");
                 setMemberNameMr("");
+                setMemberRole("");
                 fetchSubCommittees(); // Refresh the list
             } else {
                 setAddMemberStatus("Error: " + (data.error || "Failed to add member"));
@@ -1254,6 +1264,18 @@ export default function AdminPage() {
                                             <input type="text" required value={memberNameMr} onChange={e => setMemberNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
                                         </div>
                                     </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{lang === 'mr' ? 'भूमिका (ऐच्छिक)' : 'Role (Optional)'}</label>
+                                        <select
+                                            value={memberRole}
+                                            onChange={e => setMemberRole(e.target.value)}
+                                            className="w-full md:w-64 px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
+                                        >
+                                            <option value="">{lang === 'mr' ? 'सदस्य (सामान्य)' : 'Member (Regular)'}</option>
+                                            <option value="head">{lang === 'mr' ? 'प्रमुख (Head)' : 'Head (प्रमुख)'}</option>
+                                            <option value="jt-head">{lang === 'mr' ? 'सह-प्रमुख (Jt. Head)' : 'Jt. Head (सह-प्रमुख)'}</option>
+                                        </select>
+                                    </div>
                                     <button type="submit" disabled={isAddingMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
                                         {isAddingMember ? t('adding') : t('addMember')}
                                     </button>
@@ -1277,8 +1299,11 @@ export default function AdminPage() {
                                                         sub.members.map((member) => (
                                                             <li key={member.id} className="p-4 flex justify-between items-center hover:bg-red-50/50 transition-colors">
                                                                 <div>
-                                                                    <p className="font-medium text-gray-800">{member.name.en}</p>
-                                                                    <p className="text-sm text-gray-500">{member.name.mr}</p>
+                                                                    <p className="font-medium text-gray-800">
+                                                                        {member.name.en}
+                                                                        {member.role?.en && <span className="ml-2 text-xs font-bold px-2 py-0.5 rounded-full bg-[#8b0000] text-white">{member.role.en}</span>}
+                                                                    </p>
+                                                                    <p className="text-sm text-gray-500">{member.name.mr}{member.role?.mr ? ` (${member.role.mr})` : ''}</p>
                                                                 </div>
                                                                 <button
                                                                     onClick={() => handleDeleteMember(sub.id, member.id)}

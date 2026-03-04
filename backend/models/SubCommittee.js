@@ -4,6 +4,10 @@ const subMemberSchema = new mongoose.Schema({
     name: {
         en: { type: String, required: true },
         mr: { type: String, required: true }
+    },
+    role: {
+        en: { type: String, default: '' },
+        mr: { type: String, default: '' }
     }
 }, { _id: true });
 
