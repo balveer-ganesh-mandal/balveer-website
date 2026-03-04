@@ -1,9 +1,21 @@
 const SubCommittee = require('../models/SubCommittee');
 
+// Default sub-committees to seed when collection is empty
+const defaultSubCommittees = [
+    { title: { en: "Media Committee", mr: "माध्यम समिती" }, members: [] },
+    { title: { en: "Event Committee", mr: "कार्यक्रम समिती" }, members: [] },
+    { title: { en: "Volunteer Committee", mr: "स्वयंसेवक समिती" }, members: [] }
+];
+
 exports.getSubCommittees = async (req, res) => {
     try {
-        const committees = await SubCommittee.find().sort({ createdAt: 1 });
-        // Map _id to id for frontend compatibility
+        let committees = await SubCommittee.find().sort({ createdAt: 1 });
+
+        // Seed defaults if collection is empty
+        if (committees.length === 0) {
+            committees = await SubCommittee.insertMany(defaultSubCommittees);
+        }
+
         const mapped = committees.map(c => {
             const obj = c.toObject();
             obj.id = obj._id.toString();
