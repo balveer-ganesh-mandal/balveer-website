@@ -17,6 +17,15 @@ export default function CommitteePage() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
+    // Prepend Shri./श्री. to names if not already present
+    const withShri = (name) => {
+        if (!name) return name;
+        if (lang === 'mr') {
+            return name.startsWith('श्री') ? name : `श्री. ${name}`;
+        }
+        return name.toLowerCase().startsWith('shri') ? name : `Shri. ${name}`;
+    };
+
     useEffect(() => {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -144,7 +153,7 @@ export default function CommitteePage() {
                                             </div>
                                         </div>
                                         <h3 className={`mt-10 font-bold text-[#4a0808] text-center max-w-[200px] md:max-w-[260px] mx-auto leading-snug break-words ${lang === 'en' ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}>
-                                            {pres.name[lang]}
+                                            {withShri(pres.name[lang])}
                                         </h3>
                                     </motion.div>
                                 ))}
@@ -165,7 +174,7 @@ export default function CommitteePage() {
                                                 </div>
                                             </div>
                                             <h3 className={`mt-8 font-bold text-[#4a0808] text-center max-w-[200px] md:max-w-[260px] mx-auto leading-snug break-words ${lang === 'en' ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}>
-                                                {vp.name[lang]}
+                                                {withShri(vp.name[lang])}
                                             </h3>
                                         </motion.div>
                                     ))}
@@ -187,7 +196,7 @@ export default function CommitteePage() {
                                                 </div>
                                             </div>
                                             <h3 className={`mt-8 font-bold text-[#4a0808] text-center max-w-[180px] md:max-w-[240px] mx-auto leading-snug break-words ${lang === 'en' ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'}`}>
-                                                {covp.name[lang]}
+                                                {withShri(covp.name[lang])}
                                             </h3>
                                         </motion.div>
                                     ))}
@@ -210,7 +219,7 @@ export default function CommitteePage() {
                                                 </div>
                                             </div>
                                             <h3 className={`mt-6 font-bold text-[#4a0808] text-center max-w-[180px] md:max-w-[220px] mx-auto leading-snug break-words ${lang === 'en' ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}>
-                                                {leader.name[lang]}
+                                                {withShri(leader.name[lang])}
                                             </h3>
                                         </motion.div>
                                     ))}
@@ -231,7 +240,7 @@ export default function CommitteePage() {
                                         {coreCommittee.advisors.map((advisor, i) => (
                                             <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-[#be1111]/30 hover:text-[#8b0000] transition-all cursor-default relative overflow-hidden group">
                                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#fceabb]/20 to-transparent group-hover:translate-x-full -translate-x-full transition-transform duration-700" />
-                                                <span className={`font-semibold ${lang === 'mr' ? 'text-xl' : ''}`}>{advisor.name[lang]}</span>
+                                                <span className={`font-semibold ${lang === 'mr' ? 'text-xl' : ''}`}>{withShri(advisor.name[lang])}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -254,7 +263,7 @@ export default function CommitteePage() {
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-center text-base text-gray-800">
                                         {coreCommittee.members.map((member, i) => (
                                             <div key={i} className={`py-3 px-2 rounded hover:bg-red-50 hover:text-[#8b0000] transition-colors border-b border-gray-100 last:border-0 font-medium cursor-default truncate ${lang === 'mr' ? 'text-lg' : ''}`}>
-                                                {member.name[lang]}
+                                                {withShri(member.name[lang])}
                                             </div>
                                         ))}
                                     </div>
@@ -291,7 +300,7 @@ export default function CommitteePage() {
                                             {sub.members && sub.members.length > 0 ? (
                                                 sub.members.map((member, j) => (
                                                     <div key={j} className={`text-center text-gray-800 font-medium ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
-                                                        {member.name[lang]}
+                                                        {withShri(member.name[lang])}
                                                     </div>
                                                 ))
                                             ) : (
