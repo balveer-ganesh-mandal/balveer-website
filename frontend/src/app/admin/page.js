@@ -625,6 +625,22 @@ export default function AdminPage() {
         setIsDeletingMember(false);
     };
 
+    const handleDeleteSubCommittee = async (subCommitteeId) => {
+        if (!confirm("Are you sure you want to delete this entire sub-committee and all its members?")) return;
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const res = await fetch(`${API_URL}/sub-committee?subCommitteeId=${subCommitteeId}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchSubCommittees();
+            } else {
+                alert("Failed to delete: " + data.error);
+            }
+        } catch (error) {
+            alert("Delete failed");
+        }
+    };
+
     const handleAddCoreMember = async (e) => {
         e.preventDefault();
         if (!coreListNameEn || !coreListNameMr) return;
@@ -1353,7 +1369,12 @@ export default function AdminPage() {
                                             <div key={sub.id} className="border border-gray-200 rounded-lg overflow-hidden">
                                                 <div className="bg-gray-100 px-4 py-3 font-semibold text-gray-800 border-b border-gray-200 flex justify-between items-center">
                                                     <span>{sub.title.en} <span className="text-gray-500 font-normal text-sm">({sub.title.mr})</span></span>
-                                                    <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-gray-300 text-gray-600">{sub.members ? sub.members.length : 0} {t('members')}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm bg-white px-2 py-0.5 rounded-full border border-gray-300 text-gray-600">{sub.members ? sub.members.length : 0} {t('members')}</span>
+                                                        <button onClick={() => handleDeleteSubCommittee(sub.id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded transition-colors" title="Delete Sub-Committee">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <ul className="divide-y divide-gray-100">
                                                     {sub.members && sub.members.length > 0 ? (

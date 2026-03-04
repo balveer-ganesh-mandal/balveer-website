@@ -117,7 +117,13 @@ exports.editSubCommitteeMember = async (req, res) => {
 exports.deleteSubCommitteeMember = async (req, res) => {
     try {
         const { subCommitteeId, memberId } = req.query;
-        if (!subCommitteeId || !memberId) return res.status(400).json({ success: false, error: 'Missing parameters' });
+        if (!subCommitteeId) return res.status(400).json({ success: false, error: 'Missing subCommitteeId' });
+
+        // If no memberId, delete the entire sub-committee
+        if (!memberId) {
+            await SubCommittee.findByIdAndDelete(subCommitteeId);
+            return res.json({ success: true, deletedCommittee: subCommitteeId });
+        }
 
         const committee = await SubCommittee.findById(subCommitteeId);
         if (!committee) return res.status(404).json({ success: false, error: 'Not found' });
@@ -130,7 +136,7 @@ exports.deleteSubCommitteeMember = async (req, res) => {
 
         res.json({ success: true, deletedId: memberId });
     } catch (error) {
-        console.error('Delete sub committee member error:', error);
+        console.error('Delete sub committee error:', error);
         res.status(500).json({ success: false, error: 'Delete failed' });
     }
 };
