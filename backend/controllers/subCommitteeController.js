@@ -1,11 +1,7 @@
 const fs = require('fs');
 const { getDataFilePath } = require('../utils/fileStorage');
 
-const subCommitteeDefault = [
-    { id: "media", title: { en: "Media Committee", mr: "माध्यम समिती" }, members: [] },
-    { id: "event", title: { en: "Event Committee", mr: "कार्यक्रम समिती" }, members: [] },
-    { id: "volunteer", title: { en: "Volunteer Committee", mr: "स्वयंसेवक समिती" }, members: [] }
-];
+const subCommitteeDefault = [];
 
 exports.getSubCommittees = (req, res) => {
     try {
