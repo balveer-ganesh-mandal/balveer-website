@@ -301,8 +301,8 @@ export default function CommitteePage() {
                                 <div className="col-span-3 flex justify-center py-10 opacity-50">
                                     <Loader2 className="animate-spin text-[#8b0000]" size={40} />
                                 </div>
-                            ) : subCommittees.length > 0 ? (
-                                subCommittees.map((sub, i) => (
+                            ) : subCommittees.filter(sub => sub.members && sub.members.length > 0).length > 0 ? (
+                                subCommittees.filter(sub => sub.members && sub.members.length > 0).map((sub, i) => (
                                     <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-[#e6ddd5] hover:shadow-md transition-shadow relative overflow-hidden group">
                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#d4af37] to-[#be1111] transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
                                         <h3 className="text-xl font-bold text-[#4a0808] mb-4 text-center border-b border-gray-100 pb-3">
