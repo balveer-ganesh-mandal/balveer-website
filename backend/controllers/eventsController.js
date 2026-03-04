@@ -2,26 +2,7 @@ const fs = require('fs');
 const { getDataFilePath } = require('../utils/fileStorage');
 const cloudinary = require('../utils/cloudinary');
 
-const eventsDefault = [
-    {
-        id: "go2026",
-        title: { en: "Ganeshotsav 2026 Preparations", mr: "गणेशोत्सव २०२६ पूर्वतयारी" },
-        date: { en: "August 15, 2026", mr: "१५ ऑगस्ट २०२६" },
-        time: { en: "10:00 AM Onwards", mr: "सकाळी १०:०० पासून" },
-        loc: { en: "Mandal Karyalay, Malkapur", mr: "मंडळ कार्यालय, मलकापूर" },
-        desc: { en: "Kickoff meeting and volunteer drive for the upcoming grand Ganeshotsav. All devotees are welcome to participate.", mr: "आगामी भव्य गणेशोत्सवासाठी स्वयंसेवक नोंदणी आणि नियोजन बैठक. सर्व भाविकांचे स्वागत आहे." },
-        type: "meeting"
-    },
-    {
-        id: "blood2026",
-        title: { en: "Maha Raktadan Shibir", mr: "महारक्तदान शिबिर" },
-        date: { en: "September 02, 2026", mr: "०२ सप्टेंबर २०२६" },
-        time: { en: "09:00 AM to 04:00 PM", mr: "सकाळी ०९:०० ते संध्याकाळी ०४:०० " },
-        loc: { en: "Main Pandal Area", mr: "मुख्य मंडप परिसर" },
-        desc: { en: "Annual blood donation camp organized by Balveer Ganesh Mandal in collaboration with local hospitals.", mr: "स्थानिक रुग्णालयांच्या सहकार्याने बालवीर गणेश मंडळाद्वारे आयोजित वार्षिक रक्तदान शिबिर." },
-        type: "donation"
-    }
-];
+const eventsDefault = [];
 
 exports.getEvents = (req, res) => {
     try {
