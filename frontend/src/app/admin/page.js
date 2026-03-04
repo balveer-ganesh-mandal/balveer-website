@@ -252,6 +252,15 @@ export default function AdminPage() {
     const [addMemberStatus, setAddMemberStatus] = useState("");
     const [isDeletingMember, setIsDeletingMember] = useState(false);
 
+    // Sub-Committee Edit modal states
+    const [isSubEditOpen, setIsSubEditOpen] = useState(false);
+    const [subEditCommitteeId, setSubEditCommitteeId] = useState("");
+    const [subEditMemberId, setSubEditMemberId] = useState("");
+    const [subEditNameEn, setSubEditNameEn] = useState("");
+    const [subEditNameMr, setSubEditNameMr] = useState("");
+    const [subEditRole, setSubEditRole] = useState("");
+    const [isSubmittingSubEdit, setIsSubmittingSubEdit] = useState(false);
+
     // Create New Sub-Committee states
     const [newSubTitleEn, setNewSubTitleEn] = useState("");
     const [newSubTitleMr, setNewSubTitleMr] = useState("");
@@ -508,6 +517,58 @@ export default function AdminPage() {
         } finally {
             setIsAddingMember(false);
         }
+    };
+
+    const openSubEdit = (committeeId, member) => {
+        setSubEditCommitteeId(committeeId);
+        setSubEditMemberId(member.id);
+        setSubEditNameEn(member.name.en);
+        setSubEditNameMr(member.name.mr);
+        const roleEn = (member.role?.en || '').toLowerCase();
+        if (roleEn === 'head') setSubEditRole('head');
+        else if (roleEn.includes('jt') || roleEn.includes('joint')) setSubEditRole('jt-head');
+        else setSubEditRole('');
+        setIsSubEditOpen(true);
+    };
+
+    const handleSubEditSubmit = async (e) => {
+        e.preventDefault();
+        if (!subEditNameEn || !subEditNameMr) return;
+        setIsSubmittingSubEdit(true);
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const payload = {
+                subCommitteeId: subEditCommitteeId,
+                memberId: subEditMemberId,
+                nameEn: subEditNameEn,
+                nameMr: subEditNameMr
+            };
+            if (subEditRole === 'head') {
+                payload.roleEn = 'Head';
+                payload.roleMr = 'प्रमुख';
+            } else if (subEditRole === 'jt-head') {
+                payload.roleEn = 'Jt. Head';
+                payload.roleMr = 'सह-प्रमुख';
+            } else {
+                payload.roleEn = '';
+                payload.roleMr = '';
+            }
+            const res = await fetch(`${API_URL}/sub-committee`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                fetchSubCommittees();
+                setIsSubEditOpen(false);
+            } else {
+                alert("Failed: " + data.error);
+            }
+        } catch (error) {
+            alert("Edit failed");
+        }
+        setIsSubmittingSubEdit(false);
     };
 
     const handleAddSubCommittee = async (e) => {
@@ -1305,14 +1366,23 @@ export default function AdminPage() {
                                                                     </p>
                                                                     <p className="text-sm text-gray-500">{member.name.mr}{member.role?.mr ? ` (${member.role.mr})` : ''}</p>
                                                                 </div>
-                                                                <button
-                                                                    onClick={() => handleDeleteMember(sub.id, member.id)}
-                                                                    disabled={isDeletingMember}
-                                                                    className="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded transition-colors disabled:opacity-50"
-                                                                    title="Remove Member"
-                                                                >
-                                                                    <Trash2 size={20} />
-                                                                </button>
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onClick={() => openSubEdit(sub.id, member)}
+                                                                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded transition-colors"
+                                                                        title="Edit Member"
+                                                                    >
+                                                                        <Edit size={18} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteMember(sub.id, member.id)}
+                                                                        disabled={isDeletingMember}
+                                                                        className="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded transition-colors disabled:opacity-50"
+                                                                        title="Remove Member"
+                                                                    >
+                                                                        <Trash2 size={18} />
+                                                                    </button>
+                                                                </div>
                                                             </li>
                                                         ))
                                                     ) : (
@@ -1653,6 +1723,53 @@ export default function AdminPage() {
                     </div>
                 )
             }
+
+            {/* Sub-Committee Edit Modal */}
+            {
+                isSubEditOpen && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-lg overflow-hidden">
+                            <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-200">
+                                <h3 className="text-lg font-bold text-[#8b0000]">{lang === 'mr' ? 'सदस्य संपादन' : 'Edit Member'}</h3>
+                                <button onClick={() => setIsSubEditOpen(false)} className="p-1 hover:bg-gray-200 rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="p-6">
+                                <form onSubmit={handleSubEditSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameEn')}</label>
+                                            <input type="text" required value={subEditNameEn} onChange={e => setSubEditNameEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('nameMr')}</label>
+                                            <input type="text" required value={subEditNameMr} onChange={e => setSubEditNameMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">{lang === 'mr' ? 'भूमिका' : 'Role'}</label>
+                                        <select value={subEditRole} onChange={e => setSubEditRole(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors">
+                                            <option value="">{lang === 'mr' ? 'सदस्य (सामान्य)' : 'Member (Regular)'}</option>
+                                            <option value="head">{lang === 'mr' ? 'प्रमुख (Head)' : 'Head (प्रमुख)'}</option>
+                                            <option value="jt-head">{lang === 'mr' ? 'सह-प्रमुख (Jt. Head)' : 'Jt. Head (सह-प्रमुख)'}</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+                                        <button type="button" onClick={() => setIsSubEditOpen(false)} className="px-5 py-2 text-gray-600 hover:bg-gray-100 rounded font-medium transition-colors">
+                                            {t('cancel')}
+                                        </button>
+                                        <button type="submit" disabled={isSubmittingSubEdit} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                            {isSubmittingSubEdit ? (lang === 'mr' ? 'जतन करत आहे...' : 'Saving...') : (lang === 'mr' ? 'बदल जतन करा' : 'Save Changes')}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
 
         </div >
     );

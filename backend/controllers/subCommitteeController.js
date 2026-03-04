@@ -1,21 +1,38 @@
 const SubCommittee = require('../models/SubCommittee');
 
-// Default sub-committees to seed when collection is empty
+// Default sub-committees to seed if missing
 const defaultSubCommittees = [
     { title: { en: "Media Committee", mr: "माध्यम समिती" }, members: [] },
     { title: { en: "Event Committee", mr: "कार्यक्रम समिती" }, members: [] },
     { title: { en: "Volunteer Committee", mr: "स्वयंसेवक समिती" }, members: [] }
 ];
 
+// Ensure defaults exist (runs once on first GET)
+const ensureDefaults = async () => {
+    for (const def of defaultSubCommittees) {
+        const exists = await SubCommittee.findOne({ 'title.en': def.title.en });
+        if (!exists) {
+            await SubCommittee.create(def);
+        }
+    }
+};
+
+// Sort helper: Head first, Jt. Head second, regular members last
+const sortMembers = (members) => {
+    const rolePriority = (r) => {
+        const role = (r?.en || '').toLowerCase();
+        if (role === 'head') return 0;
+        if (role.includes('jt') || role.includes('joint')) return 1;
+        return 2;
+    };
+    members.sort((a, b) => rolePriority(a.role) - rolePriority(b.role));
+};
+
 exports.getSubCommittees = async (req, res) => {
     try {
-        let committees = await SubCommittee.find().sort({ createdAt: 1 });
+        await ensureDefaults();
 
-        // Seed defaults if collection is empty
-        if (committees.length === 0) {
-            committees = await SubCommittee.insertMany(defaultSubCommittees);
-        }
-
+        const committees = await SubCommittee.find().sort({ createdAt: 1 });
         const mapped = committees.map(c => {
             const obj = c.toObject();
             obj.id = obj._id.toString();
@@ -61,16 +78,7 @@ exports.addSubCommitteeOrMember = async (req, res) => {
         }
 
         committee.members.push(newMemberData);
-
-        // Sort: Head first, then Jt. Head, then regular members
-        const rolePriority = (r) => {
-            const role = (r?.en || '').toLowerCase();
-            if (role === 'head') return 0;
-            if (role.includes('jt') || role.includes('joint')) return 1;
-            return 2;
-        };
-        committee.members.sort((a, b) => rolePriority(a.role) - rolePriority(b.role));
-
+        sortMembers(committee.members);
         await committee.save();
 
         const newMember = committee.members[committee.members.length - 1];
@@ -78,6 +86,31 @@ exports.addSubCommitteeOrMember = async (req, res) => {
     } catch (error) {
         console.error('Add sub committee/member error:', error);
         res.status(500).json({ success: false, error: 'Update failed' });
+    }
+};
+
+exports.editSubCommitteeMember = async (req, res) => {
+    try {
+        const { subCommitteeId, memberId, nameEn, nameMr, roleEn, roleMr } = req.body;
+        if (!subCommitteeId || !memberId) return res.status(400).json({ success: false, error: 'Missing IDs' });
+
+        const committee = await SubCommittee.findById(subCommitteeId);
+        if (!committee) return res.status(404).json({ success: false, error: 'Not found' });
+
+        const member = committee.members.id(memberId);
+        if (!member) return res.status(404).json({ success: false, error: 'Member not found' });
+
+        if (nameEn) member.name.en = nameEn;
+        if (nameMr) member.name.mr = nameMr;
+        member.role = { en: roleEn || '', mr: roleMr || '' };
+
+        sortMembers(committee.members);
+        await committee.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Edit sub committee member error:', error);
+        res.status(500).json({ success: false, error: 'Edit failed' });
     }
 };
 
