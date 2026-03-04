@@ -44,9 +44,18 @@ exports.getCoreCommittee = async (req, res) => {
 
 exports.updateCoreCommitteeData = async (req, res) => {
     try {
-        const { group, action, data } = req.body;
+        let { group, action, data } = req.body;
+        // When sent via FormData, data may be a JSON string
+        if (typeof data === 'string') {
+            try { data = JSON.parse(data); } catch (e) { }
+        }
         if (!group || !action || !data) {
             return res.status(400).json({ success: false, error: 'Missing required payload structure' });
+        }
+
+        // If an image file was uploaded via Cloudinary, use it
+        if (req.file) {
+            data.img = req.file.path; // Cloudinary URL
         }
 
         const doc = await getOrCreateDoc();

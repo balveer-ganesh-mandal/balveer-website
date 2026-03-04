@@ -266,6 +266,9 @@ export default function AdminPage() {
     const [coreListRoleEn, setCoreListRoleEn] = useState("");
     const [coreListRoleMr, setCoreListRoleMr] = useState("");
     const [coreListImg, setCoreListImg] = useState("");
+    const [coreListImgFile, setCoreListImgFile] = useState(null);
+    const [coreListImgMode, setCoreListImgMode] = useState("upload"); // 'upload' or 'url'
+    const coreListImgRef = useRef(null);
     const [isAddingCoreMember, setIsAddingCoreMember] = useState(false);
     const [addCoreMemberStatus, setAddCoreMemberStatus] = useState("");
 
@@ -278,6 +281,9 @@ export default function AdminPage() {
     const [editRoleEn, setEditRoleEn] = useState("");
     const [editRoleMr, setEditRoleMr] = useState("");
     const [editImg, setEditImg] = useState("");
+    const [editImgFile, setEditImgFile] = useState(null);
+    const [editImgMode, setEditImgMode] = useState("url"); // 'upload' or 'url'
+    const editImgRef = useRef(null);
     const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
     // Events Management States
@@ -559,18 +565,24 @@ export default function AdminPage() {
             if (coreListTarget === "coreLeaders") {
                 payloadData.roleEn = coreListRoleEn;
                 payloadData.roleMr = coreListRoleMr;
+            }
+            // If URL mode, include the URL
+            if (coreListImgMode === 'url' && coreListImg) {
                 payloadData.img = coreListImg;
             }
 
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const formData = new FormData();
+            formData.append('group', coreListTarget);
+            formData.append('action', 'add-member');
+            formData.append('data', JSON.stringify(payloadData));
+            if (coreListImgMode === 'upload' && coreListImgFile) {
+                formData.append('memberImg', coreListImgFile);
+            }
+
             const res = await fetch(`${API_URL}/core-committee`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    group: coreListTarget,
-                    action: "add-member",
-                    data: payloadData
-                })
+                body: formData
             });
             const data = await res.json();
             if (data.success) {
@@ -580,7 +592,9 @@ export default function AdminPage() {
                 setCoreListRoleEn("");
                 setCoreListRoleMr("");
                 setCoreListImg("");
-                fetchCoreCommittee(); // Refresh data
+                setCoreListImgFile(null);
+                if (coreListImgRef.current) coreListImgRef.current.value = '';
+                fetchCoreCommittee();
             } else {
                 setAddCoreMemberStatus("Error: " + (data.error || "Failed to add member"));
             }
@@ -613,15 +627,17 @@ export default function AdminPage() {
         setEditingMemberId(member.id);
         setEditNameEn(member.name.en);
         setEditNameMr(member.name.mr);
-        if (group === "coreLeaders" && member.role) {
-            setEditRoleEn(member.role.en || "");
-            setEditRoleMr(member.role.mr || "");
+        if (['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(group)) {
+            setEditRoleEn(member.role?.en || "");
+            setEditRoleMr(member.role?.mr || "");
             setEditImg(member.img || "");
         } else {
             setEditRoleEn("");
             setEditRoleMr("");
             setEditImg("");
         }
+        setEditImgFile(null);
+        setEditImgMode(member.img ? "url" : "upload");
         setIsEditModalOpen(true);
     };
 
@@ -632,25 +648,30 @@ export default function AdminPage() {
 
         try {
             const payloadData = { id: editingMemberId, nameEn: editNameEn, nameMr: editNameMr };
-            if (editingMemberGroup === "coreLeaders") {
+            if (['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(editingMemberGroup)) {
                 payloadData.roleEn = editRoleEn;
                 payloadData.roleMr = editRoleMr;
-                payloadData.img = editImg;
+                if (editImgMode === 'url' && editImg) {
+                    payloadData.img = editImg;
+                }
             }
 
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const formData = new FormData();
+            formData.append('group', editingMemberGroup);
+            formData.append('action', 'edit-member');
+            formData.append('data', JSON.stringify(payloadData));
+            if (editImgMode === 'upload' && editImgFile) {
+                formData.append('memberImg', editImgFile);
+            }
+
             const res = await fetch(`${API_URL}/core-committee`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    group: editingMemberGroup,
-                    action: "edit-member",
-                    data: payloadData
-                })
+                body: formData
             });
             const data = await res.json();
             if (data.success) {
-                fetchCoreCommittee(); // refresh
+                fetchCoreCommittee();
                 setIsEditModalOpen(false);
             } else {
                 alert("Failed to edit member: " + data.error);
@@ -1334,8 +1355,24 @@ export default function AdminPage() {
                                     {['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(coreListTarget) && (
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                             <div className="col-span-1 md:col-span-3 lg:col-span-2">
-                                                <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imgUrl')}</label>
-                                                <input type="url" value={coreListImg} onChange={e => setCoreListImg(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="https://..." />
+                                                <label className="block text-sm font-semibold text-[#8b0000] mb-2">{lang === 'mr' ? 'फोटो (ऐच्छिक)' : 'Photo (Optional)'}</label>
+                                                <div className="flex gap-2 mb-2">
+                                                    <button type="button" onClick={() => setCoreListImgMode('upload')} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${coreListImgMode === 'upload' ? 'bg-[#8b0000] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                                        📁 {lang === 'mr' ? 'डिव्हाइस वरून अपलोड' : 'Upload from Device'}
+                                                    </button>
+                                                    <button type="button" onClick={() => setCoreListImgMode('url')} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${coreListImgMode === 'url' ? 'bg-[#8b0000] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                                        🔗 {lang === 'mr' ? 'URL पेस्ट करा' : 'Paste URL'}
+                                                    </button>
+                                                </div>
+                                                {coreListImgMode === 'upload' ? (
+                                                    <div>
+                                                        <input type="file" accept="image/*" ref={coreListImgRef} onChange={e => setCoreListImgFile(e.target.files[0] || null)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] transition-colors text-sm" />
+                                                        {coreListImgFile && <p className="text-xs text-green-600 mt-1">✓ {coreListImgFile.name}</p>}
+                                                    </div>
+                                                ) : (
+                                                    <input type="url" value={coreListImg} onChange={e => setCoreListImg(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="https://..." />
+                                                )}
+                                                <p className="text-xs text-gray-400 mt-1">{lang === 'mr' ? 'फोटो न दिल्यास नावाच्या आद्याक्षरांचा अवतार तयार होईल' : 'If no photo is provided, an avatar with initials will be generated'}</p>
                                             </div>
                                             {coreListTarget === "coreLeaders" && (
                                                 <>
@@ -1540,21 +1577,39 @@ export default function AdminPage() {
                                         </div>
                                     </div>
 
-                                    {editingMemberGroup === 'coreLeaders' && (
+                                    {['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(editingMemberGroup) && (
                                         <>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (English)</label>
-                                                    <input type="text" required value={editRoleEn} onChange={e => setEditRoleEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                            {editingMemberGroup === 'coreLeaders' && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (English)</label>
+                                                        <input type="text" required value={editRoleEn} onChange={e => setEditRoleEn(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (Marathi)</label>
+                                                        <input type="text" required value={editRoleMr} onChange={e => setEditRoleMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-[#8b0000] mb-1">Role (Marathi)</label>
-                                                    <input type="text" required value={editRoleMr} onChange={e => setEditRoleMr(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
-                                                </div>
-                                            </div>
+                                            )}
                                             <div>
-                                                <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('imageUrl')}</label>
-                                                <input type="url" value={editImg} onChange={e => setEditImg(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                                <label className="block text-sm font-semibold text-[#8b0000] mb-2">{lang === 'mr' ? 'फोटो' : 'Photo'}</label>
+                                                <div className="flex gap-2 mb-2">
+                                                    <button type="button" onClick={() => setEditImgMode('upload')} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${editImgMode === 'upload' ? 'bg-[#8b0000] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                                        📁 {lang === 'mr' ? 'अपलोड' : 'Upload'}
+                                                    </button>
+                                                    <button type="button" onClick={() => setEditImgMode('url')} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${editImgMode === 'url' ? 'bg-[#8b0000] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                                        🔗 {lang === 'mr' ? 'URL' : 'URL'}
+                                                    </button>
+                                                </div>
+                                                {editImgMode === 'upload' ? (
+                                                    <div>
+                                                        <input type="file" accept="image/*" ref={editImgRef} onChange={e => setEditImgFile(e.target.files[0] || null)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] transition-colors text-sm" />
+                                                        {editImgFile && <p className="text-xs text-green-600 mt-1">✓ {editImgFile.name}</p>}
+                                                    </div>
+                                                ) : (
+                                                    <input type="url" value={editImg} onChange={e => setEditImg(e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-800 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="https://..." />
+                                                )}
+                                                {editImg && editImgMode === 'url' && <img src={editImg} alt="Preview" className="mt-2 w-16 h-16 rounded-full object-cover border-2 border-[#8b0000]" />}
                                             </div>
                                         </>
                                     )}
