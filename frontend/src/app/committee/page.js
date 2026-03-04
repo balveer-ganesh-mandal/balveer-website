@@ -312,7 +312,7 @@ export default function CommitteePage() {
                                             {sub.members && sub.members.length > 0 ? (
                                                 sub.members.map((member, j) => (
                                                     <div key={j} className={`text-center text-gray-800 font-medium ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
-                                                        {withShri(member.name[lang])}
+                                                        {member.name[lang]}
                                                     </div>
                                                 ))
                                             ) : (
