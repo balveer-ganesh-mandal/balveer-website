@@ -372,7 +372,7 @@ export default function Home() {
                       </div>
 
                       {/* Right Side: Poster Space */}
-                      <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 flex items-center justify-center">
+                      <div className="w-full md:w-2/5 lg:w-1/3 flex-shrink-0 flex items-center justify-center">
                         {ev.poster ? (
                           <div className="w-full rounded-lg overflow-hidden border border-gray-100 shadow-sm">
                             <img src={getImageUrl(ev.poster)} alt={ev.title[lang]} className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-500" />
