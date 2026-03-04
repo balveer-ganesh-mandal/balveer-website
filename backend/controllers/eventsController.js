@@ -1,48 +1,36 @@
-const fs = require('fs');
-const { getDataFilePath } = require('../utils/fileStorage');
+const Event = require('../models/Event');
 const cloudinary = require('../utils/cloudinary');
 
-const eventsDefault = [];
-
-exports.getEvents = (req, res) => {
+exports.getEvents = async (req, res) => {
     try {
-        const metaPath = getDataFilePath('events-meta.json');
-        if (!fs.existsSync(metaPath)) {
-            fs.writeFileSync(metaPath, JSON.stringify(eventsDefault));
-            return res.json(eventsDefault);
-        }
-        res.json(JSON.parse(fs.readFileSync(metaPath, 'utf8')));
+        const events = await Event.find().sort({ createdAt: -1 });
+        // Map _id to id for frontend compatibility
+        const mapped = events.map(e => {
+            const obj = e.toObject();
+            obj.id = obj._id.toString();
+            return obj;
+        });
+        res.json(mapped);
     } catch (error) {
-        res.json(eventsDefault);
+        console.error('Get events error:', error);
+        res.json([]);
     }
 };
 
 exports.addOrUpdateEvent = async (req, res) => {
     try {
-        const metaPath = getDataFilePath('events-meta.json');
-
-        let currentData = eventsDefault;
-        if (fs.existsSync(metaPath)) {
-            currentData = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-        }
-
         let formattedEvent;
 
-        // Handle FormData (multipart) - fields come as flat strings
-        // Handle JSON body - fields may come as { action, eventData }
         if (req.body.eventData) {
-            // JSON format with eventData object
             let eventData = req.body.eventData;
             if (typeof eventData === 'string') {
                 eventData = JSON.parse(eventData);
             }
             formattedEvent = eventData;
-            formattedEvent.id = formattedEvent.id || Date.now().toString();
         } else if (req.body.titleEn) {
-            // Flat form fields (from FormData)
             const { id, titleEn, titleMr, dateEn, dateMr, timeEn, timeMr, locEn, locMr, descEn, descMr, type, dateRaw, timeRaw } = req.body;
             formattedEvent = {
-                id: id || Date.now().toString(),
+                id: id || null,
                 title: { en: titleEn, mr: titleMr },
                 date: { en: dateEn, mr: dateMr },
                 time: { en: timeEn, mr: timeMr },
@@ -58,36 +46,40 @@ exports.addOrUpdateEvent = async (req, res) => {
 
         // Handle poster image upload via Cloudinary
         if (req.file) {
-            const posterUrl = req.file.path;
-            const posterId = req.file.filename;
-            formattedEvent.poster = posterUrl;
-            formattedEvent.posterCloudinaryId = posterId;
+            formattedEvent.poster = req.file.path;
+            formattedEvent.posterCloudinaryId = req.file.filename;
         }
 
         const targetId = formattedEvent.id;
 
         if (targetId) {
-            const index = currentData.findIndex(e => String(e.id) === String(targetId));
-            if (index > -1) {
-                // If editing and no new poster uploaded, keep the old one
-                if (!req.file && currentData[index].poster) {
-                    formattedEvent.poster = currentData[index].poster;
-                    formattedEvent.posterCloudinaryId = currentData[index].posterCloudinaryId;
+            // Try to find existing event
+            const existing = await Event.findById(targetId).catch(() => null);
+            if (existing) {
+                // Keep old poster if no new one uploaded
+                if (!req.file && existing.poster) {
+                    formattedEvent.poster = existing.poster;
+                    formattedEvent.posterCloudinaryId = existing.posterCloudinaryId;
                 }
-                // If editing with a new poster, delete the old one from Cloudinary
-                if (req.file && currentData[index].posterCloudinaryId) {
-                    try { await cloudinary.uploader.destroy(currentData[index].posterCloudinaryId); } catch (e) { }
+                // Delete old poster from Cloudinary if replacing
+                if (req.file && existing.posterCloudinaryId) {
+                    try { await cloudinary.uploader.destroy(existing.posterCloudinaryId); } catch (e) { }
                 }
-                currentData[index] = formattedEvent;
-            } else {
-                currentData.push(formattedEvent);
+                // Remove id from update data
+                delete formattedEvent.id;
+                const updated = await Event.findByIdAndUpdate(targetId, formattedEvent, { new: true });
+                const obj = updated.toObject();
+                obj.id = obj._id.toString();
+                return res.json({ success: true, event: obj });
             }
-        } else {
-            currentData.push(formattedEvent);
         }
 
-        fs.writeFileSync(metaPath, JSON.stringify(currentData));
-        res.json({ success: true, event: formattedEvent });
+        // Create new event
+        delete formattedEvent.id;
+        const newEvent = await Event.create(formattedEvent);
+        const obj = newEvent.toObject();
+        obj.id = obj._id.toString();
+        res.json({ success: true, event: obj });
     } catch (error) {
         console.error('Event save error:', error);
         res.status(500).json({ success: false, error: 'Update failed' });
@@ -99,23 +91,18 @@ exports.deleteEvent = async (req, res) => {
         const id = req.query.id;
         if (!id) return res.status(400).json({ success: false, error: 'Missing ID' });
 
-        const metaPath = getDataFilePath('events-meta.json');
-        if (!fs.existsSync(metaPath)) return res.status(404).json({ success: false, error: 'No data found' });
-
-        let currentData = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-        const eventToDelete = currentData.find(e => String(e.id) === String(id));
-
-        if (!eventToDelete) return res.status(404).json({ success: false, error: 'Event not found' });
+        const event = await Event.findById(id);
+        if (!event) return res.status(404).json({ success: false, error: 'Event not found' });
 
         // Delete poster from Cloudinary if exists
-        if (eventToDelete.posterCloudinaryId) {
-            try { await cloudinary.uploader.destroy(eventToDelete.posterCloudinaryId); } catch (e) { }
+        if (event.posterCloudinaryId) {
+            try { await cloudinary.uploader.destroy(event.posterCloudinaryId); } catch (e) { }
         }
 
-        currentData = currentData.filter(e => String(e.id) !== String(id));
-        fs.writeFileSync(metaPath, JSON.stringify(currentData));
+        await Event.findByIdAndDelete(id);
         res.json({ success: true, deletedId: id });
     } catch (error) {
+        console.error('Event delete error:', error);
         res.status(500).json({ success: false, error: 'Delete failed' });
     }
 };

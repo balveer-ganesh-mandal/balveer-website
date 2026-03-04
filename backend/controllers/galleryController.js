@@ -1,30 +1,24 @@
+const GalleryImage = require('../models/GalleryImage');
+const cloudinary = require('../utils/cloudinary');
 const fs = require('fs');
 const path = require('path');
-const { getDataFilePath } = require('../utils/fileStorage');
-const cloudinary = require('../utils/cloudinary');
 
-const galleryDefault = [
-    { id: 1, year: "2024", src: "/cpg.png", alt: { en: "Ganpati 2024", mr: "गणपती २०२४" } },
-    { id: 3, year: "2023", src: "/cpg.png", alt: { en: "Ganpati 2023", mr: "गणपती २०२३" } },
-    { id: 5, year: "2022", src: "/cpg.png", alt: { en: "Ganpati 2022", mr: "गणपती २०२२" } },
-    { id: 7, year: "2021", src: "/cpg.png", alt: { en: "Ganpati 2021", mr: "गणपती २०२१" } },
-    { id: 9, year: "2020", src: "/cpg.png", alt: { en: "Ganpati 2020", mr: "गणपती २०२०" } }
-];
-
-exports.getGallery = (req, res) => {
+exports.getGallery = async (req, res) => {
     try {
-        const metaPath = getDataFilePath('gallery-meta.json');
-        if (!fs.existsSync(metaPath)) {
-            fs.writeFileSync(metaPath, JSON.stringify(galleryDefault));
-            return res.json(galleryDefault);
-        }
-        res.json(JSON.parse(fs.readFileSync(metaPath, 'utf8')));
+        const images = await GalleryImage.find().sort({ createdAt: -1 });
+        const mapped = images.map(img => {
+            const obj = img.toObject();
+            obj.id = obj._id.toString();
+            return obj;
+        });
+        res.json(mapped);
     } catch (error) {
-        res.json(galleryDefault);
+        console.error('Get gallery error:', error);
+        res.json([]);
     }
 };
 
-exports.addGalleryImage = (req, res) => {
+exports.addGalleryImage = async (req, res) => {
     try {
         const imageFile = req.file;
         const { year, altEn, altMr } = req.body;
@@ -33,29 +27,16 @@ exports.addGalleryImage = (req, res) => {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
 
-        // Cloudinary returns the URL in req.file.path
-        const imageUrl = req.file.path;
-        // Store the Cloudinary public_id for deletion later
-        const publicId = req.file.filename;
-
-        const metaPath = getDataFilePath('gallery-meta.json');
-        let currentData = galleryDefault;
-        if (fs.existsSync(metaPath)) {
-            currentData = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-        }
-
-        const newImage = {
-            id: Date.now(),
+        const newImage = await GalleryImage.create({
             year: year,
-            src: imageUrl,
-            cloudinaryId: publicId,
+            src: req.file.path,
+            cloudinaryId: req.file.filename,
             alt: { en: altEn, mr: altMr }
-        };
+        });
 
-        const updatedData = [newImage, ...currentData];
-        fs.writeFileSync(metaPath, JSON.stringify(updatedData));
-
-        res.json({ success: true, image: newImage });
+        const obj = newImage.toObject();
+        obj.id = obj._id.toString();
+        res.json({ success: true, image: obj });
     } catch (error) {
         console.error('Upload error:', error);
         res.status(500).json({ success: false, error: 'Upload failed' });
@@ -67,24 +48,16 @@ exports.deleteGalleryImage = async (req, res) => {
         const id = req.query.id;
         if (!id) return res.status(400).json({ success: false, error: 'Missing ID' });
 
-        const metaPath = getDataFilePath('gallery-meta.json');
-        if (!fs.existsSync(metaPath)) return res.status(404).json({ success: false, error: 'No data found' });
-
-        const currentData = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-        const imageToDelete = currentData.find(img => img.id.toString() === id);
-
-        if (!imageToDelete) return res.status(404).json({ success: false, error: 'Image not found' });
-
-        const updatedData = currentData.filter(img => img.id.toString() !== id);
-        fs.writeFileSync(metaPath, JSON.stringify(updatedData));
+        const image = await GalleryImage.findById(id);
+        if (!image) return res.status(404).json({ success: false, error: 'Image not found' });
 
         // Delete from Cloudinary if it has a cloudinaryId
         try {
-            if (imageToDelete.cloudinaryId) {
-                await cloudinary.uploader.destroy(imageToDelete.cloudinaryId);
-            } else if (imageToDelete.src.startsWith('/uploads/')) {
+            if (image.cloudinaryId) {
+                await cloudinary.uploader.destroy(image.cloudinaryId);
+            } else if (image.src && image.src.startsWith('/uploads/')) {
                 // Legacy: delete local file
-                const fileName = imageToDelete.src.split('/').pop();
+                const fileName = image.src.split('/').pop();
                 const filePath = path.join(__dirname, '..', 'public', 'uploads', fileName);
                 if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
             }
@@ -92,8 +65,10 @@ exports.deleteGalleryImage = async (req, res) => {
             console.error('Error deleting image file:', e);
         }
 
+        await GalleryImage.findByIdAndDelete(id);
         res.json({ success: true, deletedId: id });
     } catch (error) {
+        console.error('Gallery delete error:', error);
         res.status(500).json({ success: false, error: 'Delete failed' });
     }
 };
