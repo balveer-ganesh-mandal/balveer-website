@@ -42,7 +42,7 @@ export default function CommitteePage() {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
         // Fetch Sub Committees
-        fetch(`${API_URL}/sub-committee`)
+        fetch(`${API_URL}/api/sub-committee`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
@@ -56,7 +56,7 @@ export default function CommitteePage() {
             });
 
         // Fetch Core Committee
-        fetch(`${API_URL}/core-committee`)
+        fetch(`${API_URL}/api/core-committee`)
             .then(res => res.json())
             .then(data => {
                 if (data && data.president) {
