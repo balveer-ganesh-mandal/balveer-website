@@ -24,7 +24,7 @@ export default function Dashboard() {
 
     const fetchDonations = async () => {
         try {
-            const res = await fetch(`${API_URL}/donations/my-donations`, {
+            const res = await fetch(`${API_URL}/api/donations/my-donations`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
     const handleDownloadReceipt = async (donationId, transactionId) => {
         try {
-            const res = await fetch(`${API_URL}/donations/${donationId}/receipt`, {
+            const res = await fetch(`${API_URL}/api/donations/${donationId}/receipt`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

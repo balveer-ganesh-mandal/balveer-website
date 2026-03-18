@@ -188,7 +188,7 @@ export default function Donate() {
         setSubmitting(true);
 
         try {
-            const res = await fetch(`${API_URL}/donations`, {
+            const res = await fetch(`${API_URL}/api/donations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

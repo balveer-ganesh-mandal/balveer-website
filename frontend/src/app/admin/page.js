@@ -219,7 +219,7 @@ const translations = {
 export default function AdminPage() {
     const { lang, setLang } = useLanguage();
     const t = (key) => translations[lang]?.[key] || translations.en[key] || key;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
     const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
     const [isLive, setIsLive] = useState(false);
@@ -317,9 +317,9 @@ export default function AdminPage() {
     // Fetch initial status
     useEffect(() => {
         if (!isAuthenticated) return;
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
-        fetch(`${API_URL}/live-status`)
+        fetch(`${API_URL}/api/live-status`)
             .then(res => res.json())
             .then(data => {
                 setIsLive(data.isLive);
@@ -335,8 +335,8 @@ export default function AdminPage() {
 
     const fetchGallery = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/gallery`, { cache: "no-store", next: { revalidate: 0 } });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/gallery`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
                 setGalleryItems(data);
@@ -348,8 +348,8 @@ export default function AdminPage() {
 
     const fetchSubCommittees = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/sub-committee`, { cache: "no-store", next: { revalidate: 0 } });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/sub-committee`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
                 setSubCommittees(data);
@@ -366,8 +366,8 @@ export default function AdminPage() {
 
     const fetchCoreCommittee = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/core-committee`, { cache: "no-store", next: { revalidate: 0 } });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/core-committee`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (data && data.president) {
                 setCoreCommittee(data);
@@ -379,8 +379,8 @@ export default function AdminPage() {
 
     const fetchEvents = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/events`, { cache: "no-store", next: { revalidate: 0 } });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/events`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
                 setEvents(data);
@@ -404,9 +404,9 @@ export default function AdminPage() {
     const toggleLiveStatus = async () => {
         setIsLoading(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const newStatus = !isLive;
-            const res = await fetch(`${API_URL}/live-status`, {
+            const res = await fetch(`${API_URL}/api/live-status`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ isLive: newStatus })
@@ -434,8 +434,8 @@ export default function AdminPage() {
         formData.append("altMr", uploadAltMr);
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/gallery`, {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/gallery`, {
                 method: "POST",
                 body: formData
             });
@@ -461,8 +461,8 @@ export default function AdminPage() {
 
         setIsDeleting(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/gallery?id=${id}`, { method: 'DELETE' });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/gallery?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
                 fetchGallery(); // refresh
@@ -483,7 +483,7 @@ export default function AdminPage() {
         setAddMemberStatus("");
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const payload = {
                 subCommitteeId: selectedSubCommittee,
                 nameEn: memberNameEn,
@@ -496,7 +496,7 @@ export default function AdminPage() {
                 payload.roleEn = 'Jt. Head';
                 payload.roleMr = 'सह-प्रमुख';
             }
-            const res = await fetch(`${API_URL}/sub-committee`, {
+            const res = await fetch(`${API_URL}/api/sub-committee`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -536,7 +536,7 @@ export default function AdminPage() {
         if (!subEditNameEn || !subEditNameMr) return;
         setIsSubmittingSubEdit(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const payload = {
                 subCommitteeId: subEditCommitteeId,
                 memberId: subEditMemberId,
@@ -553,7 +553,7 @@ export default function AdminPage() {
                 payload.roleEn = '';
                 payload.roleMr = '';
             }
-            const res = await fetch(`${API_URL}/sub-committee`, {
+            const res = await fetch(`${API_URL}/api/sub-committee`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -577,8 +577,8 @@ export default function AdminPage() {
         setAddSubStatus("Creating sub-committee...");
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/sub-committee`, {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/sub-committee`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -610,8 +610,8 @@ export default function AdminPage() {
 
         setIsDeletingMember(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/sub-committee?subCommitteeId=${subCommitteeId}&memberId=${memberId}`, { method: 'DELETE' });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/sub-committee?subCommitteeId=${subCommitteeId}&memberId=${memberId}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
                 fetchSubCommittees(); // refresh
@@ -628,8 +628,8 @@ export default function AdminPage() {
     const handleDeleteSubCommittee = async (subCommitteeId) => {
         if (!confirm("Are you sure you want to delete this entire sub-committee and all its members?")) return;
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/sub-committee?subCommitteeId=${subCommitteeId}`, { method: 'DELETE' });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/sub-committee?subCommitteeId=${subCommitteeId}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
                 fetchSubCommittees();
@@ -658,7 +658,7 @@ export default function AdminPage() {
                 payloadData.img = coreListImg;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const formData = new FormData();
             formData.append('group', coreListTarget);
             formData.append('action', 'add-member');
@@ -667,7 +667,7 @@ export default function AdminPage() {
                 formData.append('memberImg', coreListImgFile);
             }
 
-            const res = await fetch(`${API_URL}/core-committee`, {
+            const res = await fetch(`${API_URL}/api/core-committee`, {
                 method: "POST",
                 body: formData
             });
@@ -695,8 +695,8 @@ export default function AdminPage() {
         if (!confirm("Are you sure you want to remove this member?")) return;
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/core-committee?group=${group}&id=${memberId}`, { method: 'DELETE' });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/core-committee?group=${group}&id=${memberId}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
                 fetchCoreCommittee(); // refresh
@@ -743,7 +743,7 @@ export default function AdminPage() {
                 }
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const formData = new FormData();
             formData.append('group', editingMemberGroup);
             formData.append('action', 'edit-member');
@@ -752,7 +752,7 @@ export default function AdminPage() {
                 formData.append('memberImg', editImgFile);
             }
 
-            const res = await fetch(`${API_URL}/core-committee`, {
+            const res = await fetch(`${API_URL}/api/core-committee`, {
                 method: "POST",
                 body: formData
             });
@@ -795,7 +795,7 @@ export default function AdminPage() {
                 formattedTimeMr = dateObj.toLocaleTimeString('mr-IN', { hour: '2-digit', minute: '2-digit' });
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
             const formData = new FormData();
             if (editingEventId) formData.append('id', editingEventId);
@@ -814,7 +814,7 @@ export default function AdminPage() {
             formData.append('type', eventType);
             if (eventPoster) formData.append('poster', eventPoster);
 
-            const res = await fetch(`${API_URL}/events`, {
+            const res = await fetch(`${API_URL}/api/events`, {
                 method: "POST",
                 body: formData
             });
@@ -866,8 +866,8 @@ export default function AdminPage() {
         if (!confirm("Are you sure you want to delete this event?")) return;
         setIsDeletingEvent(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-            const res = await fetch(`${API_URL}/events?id=${id}`, { method: 'DELETE' });
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/events?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
                 fetchEvents();

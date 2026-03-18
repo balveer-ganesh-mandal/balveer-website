@@ -12,13 +12,13 @@ export default function Home() {
   const [isLive, setIsLive] = useState(false);
   const [events, setEvents] = useState([]);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
   const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
   useEffect(() => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
-    fetch(`${API_URL}/live-status`)
+    fetch(`${API_URL}/api/live-status`)
       .then(res => res.json())
       .then(data => {
         if (data && typeof data.isLive === 'boolean') {
@@ -27,7 +27,7 @@ export default function Home() {
       })
       .catch(err => console.error("Failed to fetch live status:", err));
 
-    fetch(`${API_URL}/events`)
+    fetch(`${API_URL}/api/events`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

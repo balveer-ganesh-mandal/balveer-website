@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     const router = useRouter();
 
     // The backend API URL. Make sure this matches your deployed Render URL in production!
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     useEffect(() => {
         // Check for token in localStorage on initial load
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await fetch(`${API_URL}/auth/login`, {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
     const signup = async (userData) => {
         try {
-            const response = await fetch(`${API_URL}/auth/signup`, {
+            const response = await fetch(`${API_URL}/api/auth/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
 
     const authenticateWithBackend = async (idToken) => {
         try {
-            const response = await fetch(`${API_URL}/auth/firebase`, {
+            const response = await fetch(`${API_URL}/api/auth/firebase`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idToken })
