@@ -9,7 +9,7 @@ import { ArrowLeft, Image as ImageIcon } from "lucide-react";
 export default function GalleryPage() {
     const { lang } = useLanguage();
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
     const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
     const content = {
@@ -38,7 +38,7 @@ export default function GalleryPage() {
     useEffect(() => {
         const fetchGallery = async () => {
             try {
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
                 const response = await fetch(`${API_URL}/gallery`);
                 if (response.ok) {
                     const data = await response.json();

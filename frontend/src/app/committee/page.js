@@ -14,7 +14,7 @@ export default function CommitteePage() {
     const [coreCommittee, setCoreCommittee] = useState(null);
     const [isLoadingCore, setIsLoadingCore] = useState(true);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
     const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
     // Get member image: use actual photo if uploaded, otherwise generate avatar from their real name
@@ -39,10 +39,10 @@ export default function CommitteePage() {
     };
 
     useEffect(() => {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
         // Fetch Sub Committees
-        fetch(`${API_URL}/api/sub-committee`)
+        fetch(`${API_URL}/sub-committee`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
@@ -56,7 +56,7 @@ export default function CommitteePage() {
             });
 
         // Fetch Core Committee
-        fetch(`${API_URL}/api/core-committee`)
+        fetch(`${API_URL}/core-committee`)
             .then(res => res.json())
             .then(data => {
                 if (data && data.president) {
