@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     const router = useRouter();
 
     // The backend API URL. Make sure this matches your deployed Render URL in production!
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     useEffect(() => {
         // Check for token in localStorage on initial load

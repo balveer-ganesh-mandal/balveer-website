@@ -219,7 +219,7 @@ const translations = {
 export default function AdminPage() {
     const { lang, setLang } = useLanguage();
     const t = (key) => translations[lang]?.[key] || translations.en[key] || key;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
     const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
     const [isLive, setIsLive] = useState(false);
@@ -317,7 +317,7 @@ export default function AdminPage() {
     // Fetch initial status
     useEffect(() => {
         if (!isAuthenticated) return;
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
         fetch(`${API_URL}/live-status`)
             .then(res => res.json())
@@ -335,7 +335,7 @@ export default function AdminPage() {
 
     const fetchGallery = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/gallery`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
@@ -348,7 +348,7 @@ export default function AdminPage() {
 
     const fetchSubCommittees = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/sub-committee`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
@@ -366,7 +366,7 @@ export default function AdminPage() {
 
     const fetchCoreCommittee = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/core-committee`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (data && data.president) {
@@ -379,7 +379,7 @@ export default function AdminPage() {
 
     const fetchEvents = async () => {
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/events`, { cache: "no-store", next: { revalidate: 0 } });
             const data = await res.json();
             if (Array.isArray(data)) {
@@ -404,7 +404,7 @@ export default function AdminPage() {
     const toggleLiveStatus = async () => {
         setIsLoading(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const newStatus = !isLive;
             const res = await fetch(`${API_URL}/live-status`, {
                 method: "POST",
@@ -434,7 +434,7 @@ export default function AdminPage() {
         formData.append("altMr", uploadAltMr);
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/gallery`, {
                 method: "POST",
                 body: formData
@@ -461,7 +461,7 @@ export default function AdminPage() {
 
         setIsDeleting(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/gallery?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
@@ -483,7 +483,7 @@ export default function AdminPage() {
         setAddMemberStatus("");
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const payload = {
                 subCommitteeId: selectedSubCommittee,
                 nameEn: memberNameEn,
@@ -536,7 +536,7 @@ export default function AdminPage() {
         if (!subEditNameEn || !subEditNameMr) return;
         setIsSubmittingSubEdit(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const payload = {
                 subCommitteeId: subEditCommitteeId,
                 memberId: subEditMemberId,
@@ -577,7 +577,7 @@ export default function AdminPage() {
         setAddSubStatus("Creating sub-committee...");
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/sub-committee`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -610,7 +610,7 @@ export default function AdminPage() {
 
         setIsDeletingMember(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/sub-committee?subCommitteeId=${subCommitteeId}&memberId=${memberId}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
@@ -628,7 +628,7 @@ export default function AdminPage() {
     const handleDeleteSubCommittee = async (subCommitteeId) => {
         if (!confirm("Are you sure you want to delete this entire sub-committee and all its members?")) return;
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/sub-committee?subCommitteeId=${subCommitteeId}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
@@ -658,7 +658,7 @@ export default function AdminPage() {
                 payloadData.img = coreListImg;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const formData = new FormData();
             formData.append('group', coreListTarget);
             formData.append('action', 'add-member');
@@ -695,7 +695,7 @@ export default function AdminPage() {
         if (!confirm("Are you sure you want to remove this member?")) return;
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/core-committee?group=${group}&id=${memberId}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
@@ -743,7 +743,7 @@ export default function AdminPage() {
                 }
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const formData = new FormData();
             formData.append('group', editingMemberGroup);
             formData.append('action', 'edit-member');
@@ -795,7 +795,7 @@ export default function AdminPage() {
                 formattedTimeMr = dateObj.toLocaleTimeString('mr-IN', { hour: '2-digit', minute: '2-digit' });
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
             const formData = new FormData();
             if (editingEventId) formData.append('id', editingEventId);
@@ -866,7 +866,7 @@ export default function AdminPage() {
         if (!confirm("Are you sure you want to delete this event?")) return;
         setIsDeletingEvent(true);
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const res = await fetch(`${API_URL}/events?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {

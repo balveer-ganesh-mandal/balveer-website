@@ -12,11 +12,11 @@ export default function Home() {
   const [isLive, setIsLive] = useState(false);
   const [events, setEvents] = useState([]);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
   const getImageUrl = (path) => path?.startsWith('/uploads') ? `${API_URL}${path}` : path;
 
   useEffect(() => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     fetch(`${API_URL}/live-status`)
       .then(res => res.json())
