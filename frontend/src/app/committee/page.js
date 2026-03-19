@@ -324,7 +324,7 @@ export default function CommitteePage() {
                                                                     )}
                                                                 </div>
                                                                 <h3 className={`font-bold text-[#4a0808] mb-2 leading-snug break-words ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
-                                                                    {withShri(member.name[lang])}
+                                                                    {member.name[lang]}
                                                                 </h3>
                                                                 <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-semibold rounded-full w-full">
                                                                     {member.role?.[lang] || group.role[lang]}
