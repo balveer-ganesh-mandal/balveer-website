@@ -71,14 +71,7 @@ export default function CommitteePage() {
     }, []);
 
 
-    // Prepare combined past members list dynamically from coreCommittee
-    const combinedPastMembers = coreCommittee ? [
-        ...(coreCommittee.pastPresident?.map(m => ({ ...m, defaultRole: { en: "Former President", mr: "माजी अध्यक्ष" } })) || []),
-        ...(coreCommittee.pastVicePresident?.map(m => ({ ...m, defaultRole: { en: "Former Vice President", mr: "माजी उपाध्यक्ष" } })) || []),
-        ...(coreCommittee.pastSecretary?.map(m => ({ ...m, defaultRole: { en: "Former Secretary", mr: "माजी सचिव" } })) || []),
-        ...(coreCommittee.pastTreasurer?.map(m => ({ ...m, defaultRole: { en: "Former Treasurer", mr: "माजी खजिनदार" } })) || []),
-        ...(coreCommittee.pastMembers?.map(m => ({ ...m, defaultRole: { en: "Former Member", mr: "माजी सदस्य" } })) || [])
-    ] : [];
+
 
     const content = {
         en: {
@@ -294,7 +287,7 @@ export default function CommitteePage() {
                             </section>
                         )}
                         {/* Past Position Holders List */}
-                        {combinedPastMembers.length > 0 && (
+                        {(coreCommittee.pastPresident?.length > 0 || coreCommittee.pastVicePresident?.length > 0 || coreCommittee.pastSecretary?.length > 0 || coreCommittee.pastTreasurer?.length > 0 || coreCommittee.pastMembers?.length > 0) && (
                             <section className="relative z-10 pt-16 pb-8 border-t border-red-900/10">
                                 <div className="max-w-5xl mx-auto">
                                     <div className="text-center mb-12 flex items-center justify-center gap-4">
@@ -305,24 +298,43 @@ export default function CommitteePage() {
                                         <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#8b0000]/30 hidden md:block" />
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
-                                        {combinedPastMembers.map((member, i) => (
-                                            <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: Math.min(i * 0.1, 0.5) }} className="bg-white p-6 rounded-xl shadow-md border border-[#fceabb]/40 hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col items-center text-center group">
-                                                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-[#fef5f5] to-[#fceabb] rounded-full flex items-center justify-center mb-4 shadow-sm border-2 border-white group-hover:scale-105 transition-transform overflow-hidden">
-                                                    {member.img ? (
-                                                        <img src={getMemberImg(member)} alt="Past Member" className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <Users size={32} className="text-[#8b0000]" />
-                                                    )}
+                                    <div className="space-y-16">
+                                        {[
+                                            { key: "pastPresident", role: { en: "Former President", mr: "माजी अध्यक्ष" } },
+                                            { key: "pastVicePresident", role: { en: "Former Vice President", mr: "माजी उपाध्यक्ष" } },
+                                            { key: "pastSecretary", role: { en: "Former Secretary", mr: "माजी सचिव" } },
+                                            { key: "pastTreasurer", role: { en: "Former Treasurer", mr: "माजी खजिनदार" } },
+                                            { key: "pastMembers", role: { en: "Former Member", mr: "माजी सदस्य" } }
+                                        ].map(group => {
+                                            const members = coreCommittee[group.key] || [];
+                                            if (members.length === 0) return null;
+                                            return (
+                                                <div key={group.key} className="flex flex-col items-center">
+                                                    <h3 className={`font-bold text-[#8b0000] mb-8 pb-2 inline-flex items-center gap-2 border-b-2 border-[#d4af37]/50 ${lang === 'mr' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}`}>
+                                                        <Star size={18} className="text-[#d4af37]" /> {group.role[lang]} <Star size={18} className="text-[#d4af37]" />
+                                                    </h3>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 w-full place-items-center">
+                                                        {members.map((member, i) => (
+                                                            <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: Math.min(i * 0.1, 0.5) }} className="bg-white p-6 rounded-xl shadow-md border border-[#fceabb]/40 hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col items-center text-center group w-full max-w-sm">
+                                                                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-[#fef5f5] to-[#fceabb] rounded-full flex items-center justify-center mb-4 shadow-sm border-2 border-white group-hover:scale-105 transition-transform overflow-hidden">
+                                                                    {member.img ? (
+                                                                        <img src={getMemberImg(member)} alt={group.role.en} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <Users size={32} className="text-[#8b0000]" />
+                                                                    )}
+                                                                </div>
+                                                                <h3 className={`font-bold text-[#4a0808] mb-2 leading-snug break-words ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
+                                                                    {withShri(member.name[lang])}
+                                                                </h3>
+                                                                <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-semibold rounded-full w-full">
+                                                                    {member.role?.[lang] || group.role[lang]}
+                                                                </span>
+                                                            </motion.div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                <h3 className={`font-bold text-[#4a0808] mb-2 leading-snug break-words ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
-                                                    {withShri(member.name[lang])}
-                                                </h3>
-                                                <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-semibold rounded-full w-full">
-                                                    {member.role?.[lang] || member.defaultRole?.[lang] || (lang === 'en' ? 'Former Member' : 'माजी सदस्य')}
-                                                </span>
-                                            </motion.div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </section>
