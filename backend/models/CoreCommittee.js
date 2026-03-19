@@ -24,7 +24,12 @@ const coreCommitteeSchema = new mongoose.Schema({
     coVicePresident: [memberSchema],
     coreLeaders: [memberSchema],
     advisors: [memberSchema],
-    members: [memberSchema]
+    members: [memberSchema],
+    pastPresident: [memberSchema],
+    pastVicePresident: [memberSchema],
+    pastSecretary: [memberSchema],
+    pastTreasurer: [memberSchema],
+    pastMembers: [memberSchema]
 }, { timestamps: true });
 
 module.exports = mongoose.model('CoreCommittee', coreCommitteeSchema);

@@ -11,8 +11,26 @@ const getOrCreateDoc = async () => {
             coVicePresident: [],
             coreLeaders: [],
             advisors: [],
-            members: []
+            members: [],
+            pastPresident: [],
+            pastVicePresident: [],
+            pastSecretary: [],
+            pastTreasurer: [],
+            pastMembers: []
         });
+    } else {
+        // Initialize new arrays for legacy documents
+        const groups = ['president', 'vicePresident', 'coVicePresident', 'coreLeaders', 'advisors', 'members', 'pastPresident', 'pastVicePresident', 'pastSecretary', 'pastTreasurer', 'pastMembers'];
+        let modified = false;
+        groups.forEach(g => {
+            if (!doc[g]) {
+                doc[g] = [];
+                modified = true;
+            }
+        });
+        if (modified) {
+            await doc.save();
+        }
     }
     return doc;
 };
@@ -20,7 +38,7 @@ const getOrCreateDoc = async () => {
 // Helper: Format response to match frontend expectations (subdoc _id -> id)
 const formatResponse = (doc) => {
     const obj = doc.toObject();
-    const groups = ['president', 'vicePresident', 'coVicePresident', 'coreLeaders', 'advisors', 'members'];
+    const groups = ['president', 'vicePresident', 'coVicePresident', 'coreLeaders', 'advisors', 'members', 'pastPresident', 'pastVicePresident', 'pastSecretary', 'pastTreasurer', 'pastMembers'];
     groups.forEach(group => {
         if (Array.isArray(obj[group])) {
             obj[group] = obj[group].map(m => {
@@ -66,7 +84,7 @@ exports.updateCoreCommitteeData = async (req, res) => {
 
         if (action === "add-member") {
             const newEntry = { name: { en: data.nameEn, mr: data.nameMr } };
-            const requiresImgGroups = ["coreLeaders", "president", "vicePresident", "coVicePresident"];
+            const requiresImgGroups = ["coreLeaders", "president", "vicePresident", "coVicePresident", "pastPresident", "pastVicePresident", "pastSecretary", "pastTreasurer"];
 
             if (requiresImgGroups.includes(group)) {
                 newEntry.img = data.img || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nameEn)}&background=8b0000&color=fceabb&size=150`;
@@ -100,7 +118,7 @@ exports.updateCoreCommitteeData = async (req, res) => {
             if (!member) return res.status(404).json({ success: false, error: 'Member not found' });
 
             member.name = { en: data.nameEn, mr: data.nameMr };
-            const requiresImgGroups = ["coreLeaders", "president", "vicePresident", "coVicePresident"];
+            const requiresImgGroups = ["coreLeaders", "president", "vicePresident", "coVicePresident", "pastPresident", "pastVicePresident", "pastSecretary", "pastTreasurer"];
             if (requiresImgGroups.includes(group)) {
                 if (data.roleEn && data.roleMr) member.role = { en: data.roleEn, mr: data.roleMr };
                 if (data.img) member.img = data.img;

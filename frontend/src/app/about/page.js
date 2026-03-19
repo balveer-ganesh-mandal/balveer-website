@@ -50,6 +50,16 @@ const content = {
     ],
     section5Text2: "The story of Balveer Ganesh Mandal is not just the story of a festival committee — it is the story of a group of high school friends whose devotion built a legacy that has endured for over a century. It is the story of a community, bound together by faith, love, and an unwavering commitment to celebrating Lord Ganesh with peace, purity, and pride.",
 
+    // Inspirations
+    inspirationsTitle: "Our Inspirations",
+    inspirationsSubtitle: "Honoring the pillars of our Mandal whose dedication and leadership shaped our history",
+    inspirations: [
+      { name: "Shri. Bhaskar Ramdas Rokde", role: "Former President" },
+      { name: "Shri. Subhash Ramrao Joshi", role: "Former Vice President" },
+      { name: "Shri. Sopan Patil", role: "Key Contributor" },
+      { name: "Shri. Mahadev Januji Dawale", role: "Key Contributor" }
+    ],
+
     // Timeline
     timelineTitle: "Key Milestones",
     milestones: [
@@ -76,7 +86,7 @@ const content = {
     section2Title: "श्री. आजने, अमरावती यांची कलाकुसर",
     section2Text1: "बालवीर गणेश मंडळाचे सुरुवातीचे एक प्रमुख वैशिष्ट्य म्हणजे वार्षिक उत्सवासाठी सर्वोत्तम गणेश मूर्ती आणण्याची बांधिलकी. मंडळाने अमरावतीचे प्रसिद्ध शिल्पकार श्री. आजाने यांच्याकडून मूर्ती बनवून घेण्याची एक जपलेली परंपरा स्थापन केली.",
     section2Text2: "श्री. आजने हे त्यांच्या अप्रतिम हस्तकलेसाठी आणि बारीक तपशिलांसाठी प्रसिद्ध होते. त्यांच्या मूर्ती संपूर्ण भागात ओळखल्या जात — आणि त्यांना त्यांच्या कलेचा इतका अभिमान होता की प्रत्येक मूर्तीवर त्यांची विशिष्ट स्वाक्षरी \"आजने, अमरावती\" असायची — गुणवत्ता आणि भक्तीचे प्रतीक जे भक्त लगेच ओळखत.",
-    section2Text3: "वर्षानुवर्षे, या सुंदर कोरलेल्या मूर्ती मंडळाच्या उत्सवाचे मध्यवर्ती आकर्षण बनल्या, दूरदूरवरून भक्तांना आकर्षित करत. मंडळ आणि श्री. आजने यांच्यातील या नात्याने मलकापूरमधील गणेशोत्सवाचा कलात्मक दर्जा उंचावला.",
+    section2Text3: "वर्षानुवर्षे, या सुंदर मूर्ती मंडळाच्या उत्सवाचे मध्यवर्ती आकर्षण बनल्या, दूरदूरवरून भक्तांना आकर्षित करत. मंडळ आणि श्री. आजने यांच्यातील या नात्याने मलकापूरमधील गणेशोत्सवाचा कलात्मक दर्जा उंचावला.",
     section2Caption: "आमच्या मंडळाची भव्य उत्सव परंपरा",
 
     // Section 3
@@ -102,6 +112,16 @@ const content = {
       "समुदाय बंध — मंडळाचा शतकी प्रवास हा एकतेच्या, मैत्रीच्या आणि सामायिक श्रद्धेच्या सामर्थ्याचा पुरावा आहे"
     ],
     section5Text2: "बालवीर गणेश मंडळाची कथा ही केवळ एका उत्सव समितीची कथा नाही — ती शालेय मित्रांच्या एका गटाची कथा आहे ज्यांच्या भक्तीने शतकभर टिकणारा वारसा निर्माण केला. ती एका समुदायाची कथा आहे, जो श्रद्धा, प्रेम आणि शांतता, पवित्रता आणि अभिमानाने श्री गणेशाचा उत्सव साजरा करण्याच्या अटूट बांधिलकीने एकत्र बांधलेला आहे.",
+
+    // Inspirations
+    inspirationsTitle: "आमचे प्रेरणास्थान",
+    inspirationsSubtitle: "मंडळाचे वादळ पेलणारे आधारस्तंभ — ज्यांच्या समर्पण आणि अथक परिश्रमांनी आमचा इतिहास घडवला",
+    inspirations: [
+      { name: "श्री. भास्कर रामदास रोकडे", role: "माजी अध्यक्ष" },
+      { name: "श्री. सुभाष रामराव जोशी", role: "माजी उपाध्यक्ष" },
+      { name: "श्री. सोपानराव पाटील", role: "महत्त्वपूर्ण योगदानकर्ते" },
+      { name: "श्री. महादेव डवले", role: "महत्त्वपूर्ण योगदानकर्ते" }
+    ],
 
     // Timeline
     timelineTitle: "महत्त्वाचे टप्पे",
@@ -294,7 +314,48 @@ export default function About() {
         </div>
       </section>
 
-      {/* Section 5 - Our Uniqueness */}
+      {/* Section 5 - Our Inspirations */}
+      <section className="py-24 px-6 bg-[#fef5f5] relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(212,175,55,0.05)_0%,rgba(255,255,255,0)_70%)] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(185,28,28,0.03)_0%,rgba(255,255,255,0)_70%)] pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-2 bg-red-50 rounded-full text-[#8b0000]"><Users size={24} /></div>
+              <h2 className="text-3xl md:text-5xl font-bold font-serif text-[#4a0808]">{t.inspirationsTitle}</h2>
+            </div>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mt-4 leading-relaxed">{t.inspirationsSubtitle}</p>
+            <div className="h-1 w-24 bg-gradient-to-r from-transparent via-[#be1111] to-transparent rounded-full mx-auto mt-6" />
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {t.inspirations.map((person, i) => (
+              <motion.div
+                key={i}
+                className="bg-white rounded-2xl shadow-xl border border-[#fceabb]/40 p-8 flex flex-col items-center text-center hover:-translate-y-2 transition-transform duration-300 group relative overflow-hidden"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className="w-24 h-24 bg-gradient-to-br from-[#fef5f5] to-[#fceabb] rounded-full flex items-center justify-center mb-6 shadow-md border-4 border-white group-hover:scale-110 transition-transform">
+                  <Users size={32} className="text-[#8b0000]" />
+                </div>
+                <h3 className="text-xl font-bold font-serif text-[#4a0808] mb-3 leading-snug">{person.name}</h3>
+                <span className="inline-block px-5 py-2 bg-gradient-to-r from-red-50 to-orange-50 text-[#be1111] text-sm font-semibold rounded-full w-full border border-red-100/50 shadow-sm">
+                  {person.role}
+                </span>
+
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-[#d4af37] to-[#be1111] transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 6 - Our Uniqueness */}
       <section className="py-20 px-6 bg-gradient-to-br from-[#4a0808] via-[#8b0000] to-[#4a0808] text-white">
         <div className="max-w-4xl mx-auto">
           <motion.div className="text-center mb-10" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>

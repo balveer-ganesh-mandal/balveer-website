@@ -71,6 +71,15 @@ export default function CommitteePage() {
     }, []);
 
 
+    // Prepare combined past members list dynamically from coreCommittee
+    const combinedPastMembers = coreCommittee ? [
+        ...(coreCommittee.pastPresident?.map(m => ({ ...m, defaultRole: { en: "Former President", mr: "माजी अध्यक्ष" } })) || []),
+        ...(coreCommittee.pastVicePresident?.map(m => ({ ...m, defaultRole: { en: "Former Vice President", mr: "माजी उपाध्यक्ष" } })) || []),
+        ...(coreCommittee.pastSecretary?.map(m => ({ ...m, defaultRole: { en: "Former Secretary", mr: "माजी सचिव" } })) || []),
+        ...(coreCommittee.pastTreasurer?.map(m => ({ ...m, defaultRole: { en: "Former Treasurer", mr: "माजी खजिनदार" } })) || []),
+        ...(coreCommittee.pastMembers?.map(m => ({ ...m, defaultRole: { en: "Former Member", mr: "माजी सदस्य" } })) || [])
+    ] : [];
+
     const content = {
         en: {
             title: "Our Respected Committee",
@@ -83,6 +92,7 @@ export default function CommitteePage() {
             advisoryTitle: "Advisory Board",
             membersTitle: "Working Members",
             subCommitteeTitle: "Sub Committees",
+            pastMembersTitle: "Past Position Holders",
         },
         mr: {
             title: "आमची आदरणीय समिती",
@@ -95,6 +105,7 @@ export default function CommitteePage() {
             advisoryTitle: "सल्लागार मंडळ",
             membersTitle: "कार्यकारी सदस्य",
             subCommitteeTitle: "उपसमित्या",
+            pastMembersTitle: "माजी पदाधिकारी",
         }
     };
 
@@ -277,6 +288,40 @@ export default function CommitteePage() {
                                             <div key={i} className={`py-3 px-2 rounded hover:bg-red-50 hover:text-[#8b0000] transition-colors border-b border-gray-100 last:border-0 font-medium cursor-default truncate ${lang === 'mr' ? 'text-lg' : ''}`}>
                                                 {withShri(member.name[lang])}
                                             </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+                        {/* Past Position Holders List */}
+                        {combinedPastMembers.length > 0 && (
+                            <section className="relative z-10 pt-16 pb-8 border-t border-red-900/10">
+                                <div className="max-w-5xl mx-auto">
+                                    <div className="text-center mb-12 flex items-center justify-center gap-4">
+                                        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#8b0000]/30 hidden md:block" />
+                                        <h2 className="text-2xl md:text-3xl font-bold font-serif text-[#8b0000] px-4 flex items-center gap-3">
+                                            <Star size={24} className="text-[#d4af37]" /> {t.pastMembersTitle}
+                                        </h2>
+                                        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#8b0000]/30 hidden md:block" />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+                                        {combinedPastMembers.map((member, i) => (
+                                            <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: Math.min(i * 0.1, 0.5) }} className="bg-white p-6 rounded-xl shadow-md border border-[#fceabb]/40 hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col items-center text-center group">
+                                                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-[#fef5f5] to-[#fceabb] rounded-full flex items-center justify-center mb-4 shadow-sm border-2 border-white group-hover:scale-105 transition-transform overflow-hidden">
+                                                    {member.img ? (
+                                                        <img src={getMemberImg(member)} alt="Past Member" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Users size={32} className="text-[#8b0000]" />
+                                                    )}
+                                                </div>
+                                                <h3 className={`font-bold text-[#4a0808] mb-2 leading-snug break-words ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
+                                                    {withShri(member.name[lang])}
+                                                </h3>
+                                                <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-semibold rounded-full w-full">
+                                                    {member.role?.[lang] || member.defaultRole?.[lang] || (lang === 'en' ? 'Former Member' : 'माजी सदस्य')}
+                                                </span>
+                                            </motion.div>
                                         ))}
                                     </div>
                                 </div>

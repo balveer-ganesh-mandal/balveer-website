@@ -100,6 +100,15 @@ const translations = {
         coreLeaders: "Core Leaders",
         advisoryBoard: "Advisory Board",
         workingMembers: "Working Members",
+        // Past Committee
+        pastCommMgmt: "Past Committee Management",
+        pastCommDesc: "Update the legacy members of the Mandal.",
+        addPastMember: "Add Past Member",
+        pastPresident: "Past President",
+        pastVicePresident: "Past Vice President",
+        pastSecretary: "Past Secretary",
+        pastTreasurer: "Past Treasurer",
+        pastMembersList: "Past Members",
         // Edit Modal
         editLeader: "Edit Leader",
         editMember: "Edit Member",
@@ -204,6 +213,15 @@ const translations = {
         coreLeaders: "मुख्य नेते",
         advisoryBoard: "सल्लागार मंडळ",
         workingMembers: "कार्यकारी सदस्य",
+        // Past Committee
+        pastCommMgmt: "माजी समिती व्यवस्थापन",
+        pastCommDesc: "मंडळाच्या माजी सदस्यांची माहिती अपडेट करा.",
+        addPastMember: "माजी सदस्य जोडा",
+        pastPresident: "माजी अध्यक्ष",
+        pastVicePresident: "माजी उपाध्यक्ष",
+        pastSecretary: "माजी सचिव",
+        pastTreasurer: "माजी खजिनदार",
+        pastMembersList: "माजी सदस्य",
         // Edit Modal
         editLeader: "नेता संपादित करा",
         editMember: "सदस्य संपादित करा",
@@ -649,7 +667,7 @@ export default function AdminPage() {
 
         try {
             const payloadData = { nameEn: coreListNameEn, nameMr: coreListNameMr };
-            if (coreListTarget === "coreLeaders") {
+            if (["coreLeaders", "pastPresident", "pastVicePresident", "pastSecretary", "pastTreasurer"].includes(coreListTarget)) {
                 payloadData.roleEn = coreListRoleEn;
                 payloadData.roleMr = coreListRoleMr;
             }
@@ -714,7 +732,7 @@ export default function AdminPage() {
         setEditingMemberId(member.id);
         setEditNameEn(member.name.en);
         setEditNameMr(member.name.mr);
-        if (['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(group)) {
+        if (['coreLeaders', 'president', 'vicePresident', 'coVicePresident', 'pastPresident', 'pastVicePresident', 'pastSecretary', 'pastTreasurer'].includes(group)) {
             setEditRoleEn(member.role?.en || "");
             setEditRoleMr(member.role?.mr || "");
             setEditImg(member.img || "");
@@ -735,7 +753,7 @@ export default function AdminPage() {
 
         try {
             const payloadData = { id: editingMemberId, nameEn: editNameEn, nameMr: editNameMr };
-            if (['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(editingMemberGroup)) {
+            if (['coreLeaders', 'president', 'vicePresident', 'coVicePresident', 'pastPresident', 'pastVicePresident', 'pastSecretary', 'pastTreasurer'].includes(editingMemberGroup)) {
                 payloadData.roleEn = editRoleEn;
                 payloadData.roleMr = editRoleMr;
                 if (editImgMode === 'url' && editImg) {
@@ -969,9 +987,12 @@ export default function AdminPage() {
                 </div>
 
                 {/* Tab Navigation Menu */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-3">
                     <button
-                        onClick={() => setActiveTab("core-committee")}
+                        onClick={() => {
+                            setActiveTab("core-committee");
+                            setCoreListTarget("president");
+                        }}
                         className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "core-committee" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
                             }`}
                     >
@@ -1001,6 +1022,17 @@ export default function AdminPage() {
                     >
                         <Calendar size={24} className={activeTab === "events" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
                         <span className="font-bold">{t('upcomingEvents')}</span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            setActiveTab("past-committee");
+                            setCoreListTarget("pastPresident");
+                        }}
+                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "past-committee" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
+                            }`}
+                    >
+                        <Star size={24} className={activeTab === "past-committee" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
+                        <span className="font-bold">Past Committee</span>
                     </button>
                 </div>
 
@@ -1665,6 +1697,139 @@ export default function AdminPage() {
                         </div>
                     )
                 }
+
+                {/* Past Committee Management */}
+                {
+                    activeTab === "past-committee" && (
+                        <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="p-4 rounded-full bg-orange-100 text-orange-600">
+                                    <Star size={32} />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800">{t('pastCommMgmt')}</h2>
+                                    <p className="text-gray-500 text-sm mt-1 max-w-md">
+                                        {t('pastCommDesc')}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Add Past Member Form */}
+                            <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                                <h3 className="font-semibold text-[#8b0000] mb-4 flex items-center gap-2"><Users size={18} /> {t('addPastMember')}</h3>
+                                <form onSubmit={handleAddCoreMember} className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('selectGroup')}</label>
+                                            <select
+                                                value={coreListTarget}
+                                                onChange={e => setCoreListTarget(e.target.value)}
+                                                className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors"
+                                            >
+                                                <option value="pastPresident">{t('pastPresident')}</option>
+                                                <option value="pastVicePresident">{t('pastVicePresident')}</option>
+                                                <option value="pastSecretary">{t('pastSecretary')}</option>
+                                                <option value="pastTreasurer">{t('pastTreasurer')}</option>
+                                                <option value="pastMembers">{t('pastMembersList')}</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameEn')}</label>
+                                            <input type="text" required value={coreListNameEn} onChange={e => setCoreListNameEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. John Doe" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('memberNameMr')}</label>
+                                            <input type="text" required value={coreListNameMr} onChange={e => setCoreListNameMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. जॉन डो" />
+                                        </div>
+                                    </div>
+
+                                    {['pastPresident', 'pastVicePresident', 'pastSecretary', 'pastTreasurer'].includes(coreListTarget) && (
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                            <div className="col-span-1 md:col-span-3 lg:col-span-2">
+                                                <label className="block text-sm font-semibold text-[#8b0000] mb-2">{lang === 'mr' ? 'फोटो (ऐच्छिक)' : 'Photo (Optional)'}</label>
+                                                <div className="flex gap-2 mb-2">
+                                                    <button type="button" onClick={() => setCoreListImgMode('upload')} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${coreListImgMode === 'upload' ? 'bg-[#8b0000] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                                        📁 {lang === 'mr' ? 'डिव्हाइस वरून अपलोड' : 'Upload from Device'}
+                                                    </button>
+                                                    <button type="button" onClick={() => setCoreListImgMode('url')} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${coreListImgMode === 'url' ? 'bg-[#8b0000] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                                        🔗 {lang === 'mr' ? 'URL पेस्ट करा' : 'Paste URL'}
+                                                    </button>
+                                                </div>
+                                                {coreListImgMode === 'upload' ? (
+                                                    <div>
+                                                        <input type="file" accept="image/*" ref={coreListImgRef} onChange={e => setCoreListImgFile(e.target.files[0] || null)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] transition-colors text-sm" />
+                                                        {coreListImgFile && <p className="text-xs text-green-600 mt-1">✓ {coreListImgFile.name}</p>}
+                                                    </div>
+                                                ) : (
+                                                    <input type="url" value={coreListImg} onChange={e => setCoreListImg(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] placeholder-red-300 rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="https://..." />
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button type="submit" disabled={isAddingCoreMember} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                        {isAddingCoreMember ? t('adding') : t('addPastMember')}
+                                    </button>
+                                    {addCoreMemberStatus && <p className={`text-sm font-medium mt-2 ${addCoreMemberStatus.includes("Error") || addCoreMemberStatus.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{addCoreMemberStatus}</p>}
+                                </form>
+                            </div>
+
+                            {/* Lists */}
+                            {coreCommittee && (
+                                <div className="space-y-8">
+                                    {[
+                                        { key: 'pastPresident', title: t('pastPresident') },
+                                        { key: 'pastVicePresident', title: t('pastVicePresident') },
+                                        { key: 'pastSecretary', title: t('pastSecretary') },
+                                        { key: 'pastTreasurer', title: t('pastTreasurer') }
+                                    ].map(group => (
+                                        <div key={group.key}>
+                                            <h3 className="font-semibold text-[#8b0000] mb-3">{group.title}</h3>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                                {coreCommittee[group.key]?.map(member => (
+                                                    <div key={member.id} className="border border-gray-200 rounded p-4 flex justify-between items-center group relative hover:border-red-200">
+                                                        <div>
+                                                            <p className="font-medium text-gray-800 text-sm">{member.name.en}</p>
+                                                            <p className="text-xs text-gray-500">{member.name.mr}</p>
+                                                        </div>
+                                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button onClick={() => openEditModal(group.key, member)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded">
+                                                                <Edit size={16} />
+                                                            </button>
+                                                            <button onClick={() => handleDeleteCoreMember(group.key, member.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded">
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Members List */}
+                                    <div>
+                                        <h3 className="font-semibold text-[#8b0000] mb-3">{t('pastMembersList')}</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                            {coreCommittee.pastMembers?.map(member => (
+                                                <div key={member.id} className="bg-gray-50 border border-gray-100 rounded px-3 py-2 flex justify-between items-center group">
+                                                    <span className="text-sm font-medium text-gray-700 truncate mr-2" title={member.name.en}>{member.name.en}</span>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => openEditModal('pastMembers', member)} className="text-blue-400 hover:text-blue-600 transition-colors">
+                                                            <Edit size={14} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteCoreMember('pastMembers', member.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )
+                }
             </main >
 
             {/* Edit Modal Checkout logic */}
@@ -1693,7 +1858,7 @@ export default function AdminPage() {
                                         </div>
                                     </div>
 
-                                    {['coreLeaders', 'president', 'vicePresident', 'coVicePresident'].includes(editingMemberGroup) && (
+                                    {['coreLeaders', 'president', 'vicePresident', 'coVicePresident', 'pastPresident', 'pastVicePresident', 'pastSecretary', 'pastTreasurer'].includes(editingMemberGroup) && (
                                         <>
                                             {editingMemberGroup === 'coreLeaders' && (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
