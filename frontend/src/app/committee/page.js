@@ -298,7 +298,7 @@ export default function CommitteePage() {
                                         <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#8b0000]/30 hidden md:block" />
                                     </div>
 
-                                    <div className="space-y-16">
+                                    <div className="flex flex-wrap justify-center items-start gap-8 lg:gap-12">
                                         {[
                                             { key: "pastPresident", role: { en: "Former President", mr: "माजी अध्यक्ष" } },
                                             { key: "pastVicePresident", role: { en: "Former Vice President", mr: "माजी उपाध्यक्ष" } },
@@ -309,21 +309,21 @@ export default function CommitteePage() {
                                             const members = coreCommittee[group.key] || [];
                                             if (members.length === 0) return null;
                                             return (
-                                                <div key={group.key} className="flex flex-col items-center">
-                                                    <h3 className={`font-bold text-[#8b0000] mb-8 pb-2 inline-flex items-center gap-2 border-b-2 border-[#d4af37]/50 ${lang === 'mr' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}`}>
+                                                <div key={group.key} className="flex flex-col items-center w-full sm:w-80 max-w-sm">
+                                                    <h3 className={`font-bold text-[#8b0000] mb-6 pb-2 inline-flex items-center gap-2 border-b-2 border-[#d4af37]/50 ${lang === 'mr' ? 'text-xl' : 'text-lg'}`}>
                                                         <Star size={18} className="text-[#d4af37]" /> {group.role[lang]} <Star size={18} className="text-[#d4af37]" />
                                                     </h3>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 w-full place-items-center">
+                                                    <div className="flex flex-col gap-6 w-full px-2">
                                                         {members.map((member, i) => (
-                                                            <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: Math.min(i * 0.1, 0.5) }} className="bg-white p-6 rounded-xl shadow-md border border-[#fceabb]/40 hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col items-center text-center group w-full max-w-sm">
-                                                                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-[#fef5f5] to-[#fceabb] rounded-full flex items-center justify-center mb-4 shadow-sm border-2 border-white group-hover:scale-105 transition-transform overflow-hidden">
+                                                            <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: Math.min(i * 0.1, 0.5) }} className="bg-white p-5 rounded-xl shadow border border-[#fceabb]/40 hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center group w-full">
+                                                                <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[#fef5f5] to-[#fceabb] rounded-full flex items-center justify-center mb-4 shadow-sm border-2 border-white group-hover:scale-105 transition-transform overflow-hidden">
                                                                     {member.img ? (
                                                                         <img src={getMemberImg(member)} alt={group.role.en} className="w-full h-full object-cover" />
                                                                     ) : (
-                                                                        <Users size={32} className="text-[#8b0000]" />
+                                                                        <Users size={28} className="text-[#8b0000]" />
                                                                     )}
                                                                 </div>
-                                                                <h3 className={`font-bold text-[#4a0808] mb-2 leading-snug break-words ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
+                                                                <h3 className={`font-bold text-[#4a0808] mb-1 leading-snug break-words ${lang === 'mr' ? 'text-lg' : 'text-base'}`}>
                                                                     {member.name[lang]}
                                                                 </h3>
                                                                 <span className="inline-block px-3 py-1 bg-red-50 text-[#be1111] text-xs font-semibold rounded-full w-full">
