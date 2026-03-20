@@ -56,8 +56,8 @@ const content = {
     inspirations: [
       { name: "Late Shri. Nimbadas Janardan Pimparkar" },
       { name: "Late Shri. Bhaskar Ramdas Rokde" },
-      { name: "Late Shri. Subhash Ramrao Joshi" },
       { name: "Late Shri. Sopanrao Patil" },
+      { name: "Late Shri. Subhash Ramrao Joshi" },
       { name: "Late Shri. Mahadevrao Dawale" }
     ],
 
@@ -120,8 +120,8 @@ const content = {
     inspirations: [
       { name: "कै. श्री. निंबादास जनार्दन पिंपरकर" },
       { name: "कै. श्री. भास्कर रामदास रोकडे" },
-      { name: "कै. श्री. सुभाष रामराव जोशी" },
       { name: "कै. श्री. सोपानराव पाटील" },
+      { name: "कै. श्री. सुभाष रामराव जोशी" },
       { name: "कै. श्री. महादेवराव डवले" }
     ],
 
