@@ -97,7 +97,7 @@ export default function Home() {
       {/* Top Banner Area (Secondary strip below Navbar) */}
       <div className="w-full bg-[#9b1515] text-[#fceabb] py-2 px-4 text-center text-xs md:text-sm shadow-inner relative overflow-hidden z-[90]">
         <span className="relative z-10 font-medium tracking-wide inline-block w-full break-words">
-          Balveer Ganesh Mandal (Chandicha Pawan Ganpati) | Established : 1924
+          {lang === 'en' ? 'Established : 1924' : 'स्थापना : १९२४'}
         </span>
       </div>
 
