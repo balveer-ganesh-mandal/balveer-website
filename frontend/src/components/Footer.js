@@ -60,7 +60,7 @@ export default function Footer() {
             <div className="space-y-6 text-white/70 text-sm">
               {/* Reference Contact Page */}
               <Link href="/contact" className="hover:text-[#fceabb] transition-colors inline-block transform hover:translate-x-1 duration-200 font-medium">
-                {lang === 'en' ? 'Contact Us Page' : 'संपर्क पृष्ठ'}
+                {lang === 'en' ? 'Contact Us' : 'संपर्क साधा'}
               </Link>
               
               {/* Email */}
