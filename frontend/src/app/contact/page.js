@@ -24,11 +24,11 @@ export default function Contact() {
       title: "संपर्क साधा",
       subtitle: "आम्हाला तुमच्याकडून ऐकायला आवडेल. कोणत्याही चौकशी, देणगी वा स्वयंसेवक संधीसाठी आमच्याशी संपर्क साधा.",
       addressTitle: "आमचे कार्यालय",
-      addressDesc: "बालवीर गणेश मंडळ (चांदिचा पावन गणपती), काळीपुरा, मलकापूर, महाराष्ट्र - ४४३१०१",
+      addressDesc: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती), काळीपुरा, मलकापूर, महाराष्ट्र - ४४३१०१",
       phoneTitle: "फोन",
       phoneDesc: "+९१ XXXXX XXXXX",
       emailTitle: "ईमेल",
-      emailDesc: "[EMAIL_ADDRESS]",
+      emailDesc: "chandichapaawanganpati@gmail.com",
       timeTitle: "भेटण्याची वेळ",
       timeDesc: "दररोज: सकाळी ९:०० ते सायंकाळी ७:००",
     }
