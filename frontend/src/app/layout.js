@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { usePathname } from "next/navigation";
 
 const yatra = Yatra_One({
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
               <div className={isAdminRoute ? "" : "pt-[65px] md:pt-[81px]"}>
                 {children}
               </div>
+              {!isAdminRoute && <Footer />}
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
