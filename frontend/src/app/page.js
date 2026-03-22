@@ -48,9 +48,9 @@ export default function Home() {
       historyText3:
         "After facing challenges, the youth revived the Mandal in 2022 in association with the respected committee. Our Mandal is unique in celebrating the 10-day festival with peace, discipline, silence, and harmony — a tradition our founders envisioned over a century ago.",
       readMore: "Read Full History",
-      visarjanTitle: "2025",
+      visarjanTitle: "The Grand Festival",
       visarjanText:
-        "Enter your Ganeshotsav description or devotional text here. Highlight the grandeur and emotional connection of the event. Nunc id cursus metus aliquam eleifend mi in nulla posuere.",
+        "Balveer Ganesh Mandal is not just a festival committee; it is the unwavering faith of Malkapur. The true essence of our Ganeshotsav lies in our highly disciplined, peaceful, and devotion-filled celebrations. Devotees gather in huge numbers with profound enthusiasm to witness the mesmerizing 3-foot pure silver idol of our beloved Bappa. Our immersion procession (Visarjan Miravnuk), marked by absolute discipline and a sea of devotees, stands as a living testament to our century-old legacy.",
       winnerBanner: "Enter Special Banner Text Here",
       eventsTitle: "Upcoming Events",
       eventsSubtitle: "Join us in our upcoming cultural and social initiatives",
@@ -74,9 +74,9 @@ export default function Home() {
       historyText3:
         "आव्हानांना तोंड दिल्यानंतर, २०२२ मध्ये तरुणाईने ज्येष्ठ समितीच्या सहकार्याने मंडळाला पुनरुज्जीवित केले. आमचे मंडळ शांतता, शिस्त, मौन आणि सुसंवादाने १० दिवसीय उत्सव साजरा करण्याच्या अनोख्या परंपरेसाठी ओळखले जाते — एक परंपरा जी आमच्या संस्थापकांनी शतकापूर्वी कल्पिली होती.",
       readMore: "संपूर्ण इतिहास वाचा",
-      visarjanTitle: "२०२५",
+      visarjanTitle: "आमचा भव्य गणेशोत्सव",
       visarjanText:
-        "येथे तुमच्या गणेशोत्सवाची भव्यता आणि त्यामागील भावनेबद्दल थोडक्यात वर्णन लिहा. भाविकांचा उत्साह आणि सोहळ्याचे विलोभनीय स्वरूप येथे मांडता येईल.",
+        "बालवीर गणेश मंडळ हे केवळ एक उत्सव मंडळ नसून ती मलकापूरकरांची एक अढळ श्रद्धा आहे. आमच्या गणेशोत्सवाची खरी ओळख म्हणजे अत्यंत शिस्तबद्ध, शांततामय आणि भक्तिमय वातावरणात संपन्न होणारा सोहळा. ३ फुटी भव्य चांदीच्या गणपतीचे विलोभनीय रूप पाहण्यासाठी आणि बाप्पाचा आशीर्वाद घेण्यासाठी भाविक मोठ्या संख्येने आणि उत्साहाने गर्दी करतात. विसर्जन मिरवणुकीतील शिस्त आणि भाविकांचा अथांग सागर हे आमच्या शतकोत्तर परंपरेचे जिवंत उदाहरण आहे.",
       winnerBanner: "येथे तुमचा विशेष संदेश लिहा",
       eventsTitle: "आगामी उपक्रम",
       eventsSubtitle: "आमच्या आगामी सांस्कृतिक आणि सामाजिक उपक्रमांमध्ये सहभागी व्हा",
