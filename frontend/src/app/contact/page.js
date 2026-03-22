@@ -12,25 +12,25 @@ export default function Contact() {
       title: "Contact Us",
       subtitle: "We'd love to hear from you. Reach out to us for any queries, donations, or volunteer opportunities.",
       addressTitle: "Our Office",
-      addressDesc: "Mandal Karyalay, Kalipura, Malkapur, Maharashtra 443101",
+      addressDesc: "Balveer Ganesh Mandal (Chandicha Pawan Ganpati), Kalipura, Malkapur, Maharashtra - 443101",
       phoneTitle: "Phone",
-      phoneDesc: "+91 98765 43210",
+      phoneDesc: "+91 XXXXX XXXXX",
       emailTitle: "Email",
       emailDesc: "chandichapaawanganpati@gmail.com",
       timeTitle: "Visiting Hours",
-      timeDesc: "Everyday: 9:00 AM - 9:00 PM",
+      timeDesc: "Everyday: 10:00 AM - 8:00 PM",
     },
     mr: {
       title: "संपर्क साधा",
       subtitle: "आम्हाला तुमच्याकडून ऐकायला आवडेल. कोणत्याही चौकशी, देणगी वा स्वयंसेवक संधीसाठी आमच्याशी संपर्क साधा.",
       addressTitle: "आमचे कार्यालय",
-      addressDesc: "मंडळ कार्यालय, कालीपुरा, मलकापूर, महाराष्ट्र ४४३१०१",
+      addressDesc: "बालवीर गणेश मंडळ (चांदिचा पावन गणपती), काळीपुरा, मलकापूर, महाराष्ट्र - ४४३१०१",
       phoneTitle: "फोन",
-      phoneDesc: "+९१ ९८७६५ ४३२१०",
+      phoneDesc: "+९१ XXXXX XXXXX",
       emailTitle: "ईमेल",
-      emailDesc: "chandichapaawanganpati@gmail.com",
+      emailDesc: "[EMAIL_ADDRESS]",
       timeTitle: "भेटण्याची वेळ",
-      timeDesc: "दररोज: सकाळी ९:०० ते रात्री ९:००",
+      timeDesc: "दररोज: सकाळी ९:०० ते सायंकाळी ७:००",
     }
   };
 
@@ -41,7 +41,7 @@ export default function Contact() {
       {/* Header Banner */}
       <div className="bg-[#4a0808] text-white py-16 text-center border-b-4 border-[#d4af37] relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arches.png')]" />
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -59,9 +59,9 @@ export default function Contact() {
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-6 mt-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
+
           {/* Address Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -77,7 +77,7 @@ export default function Contact() {
           </motion.div>
 
           {/* Phone Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -93,7 +93,7 @@ export default function Contact() {
           </motion.div>
 
           {/* Email Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
@@ -109,7 +109,7 @@ export default function Contact() {
           </motion.div>
 
           {/* Time Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
