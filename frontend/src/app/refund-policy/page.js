@@ -43,7 +43,7 @@ export default function RefundPolicy() {
     mr: {
       title: "परतावा धोरण",
       lastUpdated: "शेवटचे अपडेट: ऑगस्ट २०२५",
-      intro: "बालवीर गणेश मंडळ ही एक नोंदणीकृत ना-नफा संस्था आहे. आम्ही तुमच्या ऐच्छिक देणग्यांची खूप कदर करतो.",
+      intro: "बालवीर गणेश मंडळ ही एक ना-नफा संस्था आहे. आपल्या ऐच्छिक देणग्या आमच्यासाठी मोलाच्या असून, त्याबद्दल आम्ही मनःपूर्वक आभारी आहोत.",
       sections: [
         {
           heading: "१. सामान्य धोरण",
@@ -81,7 +81,7 @@ export default function RefundPolicy() {
       {/* Header Banner */}
       <div className="bg-[#4a0808] text-white py-16 text-center border-b-4 border-[#d4af37] relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arches.png')]" />
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -98,7 +98,7 @@ export default function RefundPolicy() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 mt-16">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -126,9 +126,9 @@ export default function RefundPolicy() {
           ))}
 
           <div className="mt-12 pt-8 border-t border-gray-100 text-center">
-             <Link href="/contact" className="inline-block px-8 py-3 bg-[#be1111] text-white rounded-full font-bold shadow-md hover:shadow-lg hover:bg-[#8b0000] transition-colors">
-                {lang === 'en' ? 'Contact Support' : 'संपर्क साधा'}
-             </Link>
+            <Link href="/contact" className="inline-block px-8 py-3 bg-[#be1111] text-white rounded-full font-bold shadow-md hover:shadow-lg hover:bg-[#8b0000] transition-colors">
+              {lang === 'en' ? 'Contact Support' : 'संपर्क साधा'}
+            </Link>
           </div>
         </motion.div>
       </div>
