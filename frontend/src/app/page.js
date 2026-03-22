@@ -283,16 +283,17 @@ export default function Home() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl bg-black group hover:scale-[1.03] hover:shadow-[0_20px_50px_rgba(185,28,28,0.3)] transition-all duration-500 ease-in-out cursor-pointer"
+            className="relative w-full max-w-[400px] mx-auto rounded-2xl overflow-hidden shadow-2xl bg-white group hover:scale-[1.03] hover:shadow-[0_20px_50px_rgba(185,28,28,0.3)] transition-all duration-500 ease-in-out"
           >
-            {/* Embedded YouTube Video */}
+            {/* Embedded Instagram Reel/Post */}
             <iframe
-              className="absolute inset-0 w-full h-full object-cover"
-              src="https://www.youtube.com/embed/OXuwtLD6Y4k"
-              title="Visarjan Ceremony Documentary"
+              className="w-full bg-white"
+              height="550"
+              src="https://www.instagram.com/p/DOoYH_2knKd/embed"
+              title="Visarjan Ceremony Instagram"
               frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
+              scrolling="no"
+              allowtransparency="true"
               allowFullScreen>
             </iframe>
           </motion.div>
