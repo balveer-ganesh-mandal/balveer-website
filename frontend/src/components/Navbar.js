@@ -116,18 +116,20 @@ export default function Navbar() {
             {/* Language Toggle in Navbar */}
             <div 
               onClick={() => setLang(lang === "en" ? "mr" : "en")}
-              className="relative w-[72px] h-8 bg-black/20 backdrop-blur-sm rounded-full flex items-center cursor-pointer hover:bg-black/30 transition-colors shadow-inner border border-white/10"
+              className="relative w-20 h-8 bg-black/20 backdrop-blur-sm rounded-full flex items-center p-1 cursor-pointer hover:bg-black/30 transition-colors shadow-inner border border-white/10"
               title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
             >
-              <div className="absolute inset-0 flex w-full justify-between items-center px-3 text-[10px] font-bold tracking-wider pointer-events-none z-20">
-                <span className={`transition-colors duration-300 ${lang === "en" ? "text-[#be1111]" : "text-white"}`}>EN</span>
-                <span className={`transition-colors duration-300 ${lang === "mr" ? "text-[#be1111]" : "text-white"}`}>MR</span>
-              </div>
               <motion.div
-                className="absolute w-6 h-6 bg-white rounded-full shadow-md z-10"
-                animate={{ left: lang === "en" ? "4px" : "44px" }}
+                className="absolute bg-white rounded-full h-6 w-9 shadow-md z-10"
+                animate={{ left: lang === "en" ? "4px" : "40px" }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
+              <div className={`relative z-20 w-1/2 text-center text-[10px] font-bold transition-colors duration-300 tracking-wider pointer-events-none ${lang === "en" ? "text-[#be1111]" : "text-white"}`}>
+                EN
+              </div>
+              <div className={`relative z-20 w-1/2 text-center text-[10px] font-bold transition-colors duration-300 tracking-wider pointer-events-none ${lang === "mr" ? "text-[#be1111]" : "text-white"}`}>
+                MR
+              </div>
             </div>
 
             {/* User Auth Section */}
@@ -242,18 +244,20 @@ export default function Navbar() {
                     setLang(lang === "en" ? "mr" : "en");
                     closeMenu();
                   }}
-                  className="relative w-24 h-10 bg-black/20 backdrop-blur-sm rounded-full flex items-center cursor-pointer hover:bg-black/30 transition-colors shadow-inner mx-auto border border-white/10"
+                  className="relative w-24 h-10 bg-black/20 backdrop-blur-sm rounded-full flex items-center p-1 cursor-pointer hover:bg-black/30 transition-colors shadow-inner mx-auto border border-white/10"
                   title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
                 >
-                  <div className="absolute inset-0 flex w-full justify-between items-center px-4 text-xs font-bold tracking-wider pointer-events-none z-20">
-                    <span className={`transition-colors duration-300 ${lang === "en" ? "text-[#be1111]" : "text-white"}`}>EN</span>
-                    <span className={`transition-colors duration-300 ${lang === "mr" ? "text-[#be1111]" : "text-white"}`}>MR</span>
-                  </div>
                   <motion.div
-                    className="absolute w-8 h-8 bg-white rounded-full shadow-md z-10"
-                    animate={{ left: lang === "en" ? "4px" : "60px" }}
+                    className="absolute bg-white rounded-full h-8 w-11 shadow-md z-10"
+                    animate={{ left: lang === "en" ? "4px" : "48px" }}
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
+                  <div className={`relative z-20 w-1/2 text-center text-xs font-bold transition-colors duration-300 tracking-wider pointer-events-none ${lang === "en" ? "text-[#be1111]" : "text-white"}`}>
+                    EN
+                  </div>
+                  <div className={`relative z-20 w-1/2 text-center text-xs font-bold transition-colors duration-300 tracking-wider pointer-events-none ${lang === "mr" ? "text-[#be1111]" : "text-white"}`}>
+                    MR
+                  </div>
                 </div>
               </div>
             </div>
