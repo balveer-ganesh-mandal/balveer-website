@@ -114,23 +114,23 @@ export default function Navbar() {
 
           <div className="flex items-center border-l border-red-700/50 pl-6 ml-2 gap-4">
             {/* Language Toggle in Navbar */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <div 
               onClick={() => setLang(lang === "en" ? "mr" : "en")}
-              className="bg-white/20 px-3 py-1.5 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center gap-2 text-xs font-bold"
+              className="relative w-[72px] h-8 bg-white/20 rounded-full flex items-center p-1 cursor-pointer hover:bg-white/30 transition-colors shadow-inner"
               title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
             >
-              <Globe size={16} />
-              <motion.span
-                key={lang}
-                initial={{ opacity: 0, rotateX: 90 }}
-                animate={{ opacity: 1, rotateX: 0 }}
-                transition={{ duration: 0.3 }}
+              <div className="absolute inset-0 flex w-full justify-between items-center px-2.5 text-[10px] font-bold text-white/70 tracking-wider pointer-events-none">
+                <span>EN</span>
+                <span>MR</span>
+              </div>
+              <motion.div
+                className="absolute w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center text-[#be1111] font-bold text-[10px] z-10"
+                animate={{ left: lang === "en" ? "4px" : "44px" }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
-                {lang === "en" ? "EN" : "MR"}
-              </motion.span>
-            </motion.button>
+                {lang === "en" ? "MR" : "EN"}
+              </motion.div>
+            </div>
 
             {/* User Auth Section */}
             {isAuthenticated ? (
@@ -239,26 +239,26 @@ export default function Navbar() {
 
               {/* Mobile Language Toggle */}
               <div className="pt-2 flex justify-center pb-4">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <div 
                   onClick={() => {
                     setLang(lang === "en" ? "mr" : "en");
                     closeMenu();
                   }}
-                  className="bg-white/20 px-6 py-3 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center gap-2 font-bold"
+                  className="relative w-24 h-10 bg-white/20 rounded-full flex items-center p-1 cursor-pointer hover:bg-white/30 transition-colors shadow-inner mx-auto"
                   title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
                 >
-                  <Globe size={20} />
-                  <motion.span
-                    key={lang}
-                    initial={{ opacity: 0, rotateX: 90 }}
-                    animate={{ opacity: 1, rotateX: 0 }}
-                    transition={{ duration: 0.3 }}
+                  <div className="absolute inset-0 flex w-full justify-between items-center px-3.5 text-xs font-bold text-white/70 tracking-wider pointer-events-none">
+                    <span>EN</span>
+                    <span>MR</span>
+                  </div>
+                  <motion.div
+                    className="absolute w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-[#be1111] font-bold text-xs z-10"
+                    animate={{ left: lang === "en" ? "4px" : "60px" }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   >
-                    {lang === "en" ? "EN" : "MR"}
-                  </motion.span>
-                </motion.button>
+                    {lang === "en" ? "MR" : "EN"}
+                  </motion.div>
+                </div>
               </div>
             </div>
           </motion.div>
