@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Menu, X, User } from "lucide-react";
+import { ChevronDown, Menu, X, User, Globe } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
@@ -116,9 +116,10 @@ export default function Navbar() {
             {/* Language Toggle in Navbar */}
             <button
               onClick={() => setLang(lang === "en" ? "mr" : "en")}
-              className="bg-white text-[#be1111] hover:bg-[#fceabb] px-4 py-1.5 rounded-full font-bold shadow-md transition-all w-20 text-center text-xs"
+              className="bg-white/20 p-2 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center"
+              title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
             >
-              {lang === "en" ? "मराठी" : "English"}
+              <Globe size={18} />
             </button>
 
             {/* User Auth Section */}
@@ -233,9 +234,10 @@ export default function Navbar() {
                     setLang(lang === "en" ? "mr" : "en");
                     closeMenu();
                   }}
-                  className="bg-white text-[#be1111] hover:bg-[#fceabb] px-8 py-2.5 rounded-full font-bold shadow-md transition-all text-center w-full max-w-[200px]"
+                  className="bg-white/20 p-3 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center"
+                  title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
                 >
-                  {lang === "en" ? "मराठी मध्ये वाचा" : "Read in English"}
+                  <Globe size={24} />
                 </button>
               </div>
             </div>
