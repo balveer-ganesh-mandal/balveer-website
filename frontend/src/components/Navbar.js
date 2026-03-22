@@ -56,7 +56,7 @@ export default function Navbar() {
           </div>
           <div className="flex flex-col">
             {/* Show short title on mobile, full title on sm and above */}
-            <span className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl font-bold text-[#fceabb] tracking-wider drop-shadow-md font-serif whitespace-normal sm:whitespace-nowrap max-w-[200px] sm:max-w-none leading-tight sm:leading-normal">
+            <span className={`text-[#fceabb] tracking-wider drop-shadow-md whitespace-normal sm:whitespace-nowrap max-w-[200px] sm:max-w-none leading-tight sm:leading-normal ${lang === 'en' ? 'font-sans font-extrabold text-sm sm:text-base md:text-lg lg:text-xl xl:text-lg' : 'font-serif font-bold text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl'}`}>
               <span className="sm:hidden block">{t.shortTitle}</span>
               <span className="hidden sm:block">{t.title}</span>
             </span>
@@ -114,13 +114,23 @@ export default function Navbar() {
 
           <div className="flex items-center border-l border-red-700/50 pl-6 ml-2 gap-4">
             {/* Language Toggle in Navbar */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setLang(lang === "en" ? "mr" : "en")}
-              className="bg-white/20 p-2 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center"
+              className="bg-white/20 px-3 py-1.5 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center gap-2 text-xs font-bold"
               title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
             >
-              <Globe size={18} />
-            </button>
+              <Globe size={16} />
+              <motion.span
+                key={lang}
+                initial={{ opacity: 0, rotateX: 90 }}
+                animate={{ opacity: 1, rotateX: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {lang === "en" ? "EN" : "MR"}
+              </motion.span>
+            </motion.button>
 
             {/* User Auth Section */}
             {isAuthenticated ? (
@@ -229,16 +239,26 @@ export default function Navbar() {
 
               {/* Mobile Language Toggle */}
               <div className="pt-2 flex justify-center pb-4">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setLang(lang === "en" ? "mr" : "en");
                     closeMenu();
                   }}
-                  className="bg-white/20 p-3 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center"
+                  className="bg-white/20 px-6 py-3 rounded-full hover:bg-white/30 text-white transition-colors flex items-center justify-center gap-2 font-bold"
                   title={lang === "en" ? "Switch to Marathi" : "Switch to English"}
                 >
-                  <Globe size={24} />
-                </button>
+                  <Globe size={20} />
+                  <motion.span
+                    key={lang}
+                    initial={{ opacity: 0, rotateX: 90 }}
+                    animate={{ opacity: 1, rotateX: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {lang === "en" ? "EN" : "MR"}
+                  </motion.span>
+                </motion.button>
               </div>
             </div>
           </motion.div>
