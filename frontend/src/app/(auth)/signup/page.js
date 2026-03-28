@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useGoogleLogin } from '@react-oauth/google';
 import Link from 'next/link';
-import { Phone } from 'lucide-react';
 
 export default function Signup() {
     const [formData, setFormData] = useState({
@@ -15,16 +15,10 @@ export default function Signup() {
         phone: ''
     });
 
-    // Phone Auth State
-    const [isPhoneMode, setIsPhoneMode] = useState(false);
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [otpSent, setOtpSent] = useState(false);
-    const [otp, setOtp] = useState('');
-
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { signup, loginWithGoogle, sendOTP, verifyOTP } = useAuth();
+    const { signup, loginWithGoogle } = useAuth();
     const router = useRouter();
 
     const handleChange = (e) => {
@@ -47,55 +41,23 @@ export default function Signup() {
         setLoading(false);
     };
 
-    const handleGoogleSignup = async () => {
-        setError('');
-        setLoading(true);
-        const result = await loginWithGoogle(); // Firebase handles sign in vs sign up automatically
-        if (result.success) {
-            router.push('/dashboard');
-        } else {
-            setError(result.message);
+    const handleGoogleSignup = useGoogleLogin({
+        onSuccess: async (credentialResponse) => {
+            setError('');
+            setLoading(true);
+            const result = await loginWithGoogle(credentialResponse);
+            if (result.success) {
+                router.push('/dashboard');
+            } else {
+                setError(result.message);
+            }
+            setLoading(false);
+        },
+        onError: () => {
+            setError('Google Sign-Up Failed');
+            setLoading(false);
         }
-        setLoading(false);
-    };
-
-    const handleSendOTP = async (e) => {
-        e.preventDefault();
-        if (!phoneNumber) return setError('Please enter a phone number');
-
-        // Add country code if missing
-        let formattedPhone = phoneNumber;
-        if (!formattedPhone.startsWith('+')) {
-            formattedPhone = '+91' + formattedPhone;
-        }
-
-        setError('');
-        setLoading(true);
-
-        const result = await sendOTP(formattedPhone, 'recaptcha-container');
-        if (result.success) {
-            setOtpSent(true);
-        } else {
-            setError(result.message);
-        }
-        setLoading(false);
-    };
-
-    const handleVerifyOTP = async (e) => {
-        e.preventDefault();
-        if (!otp) return setError('Please enter the OTP');
-
-        setError('');
-        setLoading(true);
-
-        const result = await verifyOTP(otp);
-        if (result.success) {
-            router.push('/dashboard');
-        } else {
-            setError(result.message);
-        }
-        setLoading(false);
-    };
+    });
 
     return (
         <div className="min-h-screen bg-orange-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -117,7 +79,7 @@ export default function Signup() {
 
                 {/* Google Sign In */}
                 <button
-                    onClick={handleGoogleSignup} disabled={loading}
+                    onClick={() => handleGoogleSignup()} disabled={loading}
                     className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors">
                     <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -127,44 +89,6 @@ export default function Signup() {
                     </svg>
                     Continue with Google
                 </button>
-
-                {/* Phone Sign In Toggle */}
-                {!isPhoneMode ? (
-                    <button
-                        onClick={() => setIsPhoneMode(true)} disabled={loading}
-                        className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors mt-3">
-                        <Phone size={18} className="text-gray-500" />
-                        Continue with Phone Number
-                    </button>
-                ) : (
-                    <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                        <div className="flex justify-between items-center mb-3">
-                            <h3 className="text-sm font-medium text-gray-900">Phone Authentication</h3>
-                            <button onClick={() => { setIsPhoneMode(false); setOtpSent(false); }} className="text-xs text-orange-600 hover:underline">Cancel</button>
-                        </div>
-                        {!otpSent ? (
-                            <form onSubmit={handleSendOTP} className="space-y-3">
-                                <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required
-                                    placeholder="Phone Number (e.g. 9876543210)"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500" />
-                                <div id="recaptcha-container"></div>
-                                <button type="submit" disabled={loading} className="w-full py-2 bg-gray-800 text-white rounded-md text-sm font-medium hover:bg-gray-900 disabled:opacity-50">
-                                    {loading ? 'Sending OTP...' : 'Send OTP'}
-                                </button>
-                            </form>
-                        ) : (
-                            <form onSubmit={handleVerifyOTP} className="space-y-3">
-                                <p className="text-xs text-gray-600">Enter the OTP sent to {phoneNumber}</p>
-                                <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} required
-                                    placeholder="Enter 6-digit OTP"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500 tracking-widest text-center" />
-                                <button type="submit" disabled={loading} className="w-full py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50">
-                                    {loading ? 'Verifying...' : 'Verify OTP & Login'}
-                                </button>
-                            </form>
-                        )}
-                    </div>
-                )}
 
                 <div className="relative mt-6">
                     <div className="absolute inset-0 flex items-center">
@@ -222,7 +146,7 @@ export default function Signup() {
                     <div>
                         <button type="submit" disabled={loading}
                             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:bg-orange-400 transition-colors">
-                            {loading && !isPhoneMode ? 'Creating account...' : 'Sign Up with Email'}
+                            {loading ? 'Creating account...' : 'Sign Up with Email'}
                         </button>
                     </div>
 

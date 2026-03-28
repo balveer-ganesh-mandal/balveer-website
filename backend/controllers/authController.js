@@ -1,14 +1,7 @@
 const Devotee = require('../models/Devotee');
 const jwt = require('jsonwebtoken');
-const admin = require('firebase-admin');
-
-// Initialize Firebase Admin dynamically to avoid needing a service account JSON.
-// It will only be used for verifying ID tokens, which does not require DB permissions.
-if (!admin.apps.length) {
-    admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID || 'balveer-ganesh-mandal-e4eca',
-    });
-}
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -138,47 +131,37 @@ exports.getProfile = async (req, res) => {
     }
 };
 
-// @desc    Authenticate with Firebase (Google/Phone)
-// @route   POST /api/auth/firebase
+// @desc    Authenticate with Google Identity Services
+// @route   POST /api/auth/google
 // @access  Public
-exports.firebaseAuth = async (req, res) => {
+exports.googleAuth = async (req, res) => {
     try {
         const { idToken } = req.body;
 
         if (!idToken) {
-            return res.status(400).json({ success: false, message: 'No ID token provided' });
+            return res.status(400).json({ success: false, message: 'No true ID token provided' });
         }
 
-        // Verify the Firebase ID token
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-        const { uid, email, phone_number, name } = decodedToken;
+        // Verify the Google ID token natively without Firebase
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        
+        const payload = ticket.getPayload();
+        // The payload contains the user's profile info
+        // Example: { sub: '1234567890', email: '...', given_name: '...', family_name: '...' }
+        const { sub, email, given_name, family_name, name } = payload;
 
-        let devotee;
-
-        // Try to find user by email (Google) or phone (Phone Auth)
-        if (email) {
-            devotee = await Devotee.findOne({ email });
-        } else if (phone_number) {
-            devotee = await Devotee.findOne({ phone: phone_number });
-        }
+        let devotee = await Devotee.findOne({ email });
 
         // If user doesn't exist, create them
         if (!devotee) {
-            let firstName = 'Devotee';
-            let lastName = '';
-
-            if (name) {
-                const nameParts = name.split(' ');
-                firstName = nameParts[0];
-                lastName = nameParts.slice(1).join(' ');
-            }
-
             devotee = await Devotee.create({
-                firstName,
-                lastName,
-                email: email || undefined,
-                phone: phone_number || undefined,
-                password: uid, // Use Firebase UID as a secure randomly generated password essentially
+                firstName: given_name || name.split(' ')[0] || 'Devotee',
+                lastName: family_name || (name && name.includes(' ') ? name.slice(name.indexOf(' ') + 1) : ''),
+                email: email,
+                password: sub, // Use Google 'sub' (Unique User ID) as the secure password bypass
             });
         }
 
@@ -199,7 +182,7 @@ exports.firebaseAuth = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Firebase Auth Error:', error);
-        res.status(401).json({ success: false, message: 'Invalid or expired Firebase token' });
+        console.error('Google Auth Error:', error);
+        res.status(401).json({ success: false, message: 'Invalid or expired Google token' });
     }
 };

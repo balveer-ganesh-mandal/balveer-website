@@ -3,6 +3,7 @@
 import { Yatra_One, Mukta } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -35,15 +36,17 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning className={`${yatra.variable} ${mukta.variable}`}>
       <body className="font-sans antialiased bg-[#fffdfc] text-gray-800 transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <AuthProvider>
-            <LanguageProvider>
-              {!isAdminRoute && <Navbar />}
-              <div className={isAdminRoute ? "" : "pt-[65px] md:pt-[81px]"}>
-                {children}
-              </div>
-              {!isAdminRoute && <Footer />}
-            </LanguageProvider>
-          </AuthProvider>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'dummy_client_id_during_build'}>
+            <AuthProvider>
+              <LanguageProvider>
+                {!isAdminRoute && <Navbar />}
+                <div className={isAdminRoute ? "" : "pt-[65px] md:pt-[81px]"}>
+                  {children}
+                </div>
+                {!isAdminRoute && <Footer />}
+              </LanguageProvider>
+            </AuthProvider>
+          </GoogleOAuthProvider>
         </ThemeProvider>
       </body>
     </html>

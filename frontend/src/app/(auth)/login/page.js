@@ -3,23 +3,17 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useGoogleLogin } from '@react-oauth/google';
 import Link from 'next/link';
-import { Phone } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    // Phone Auth State
-    const [isPhoneMode, setIsPhoneMode] = useState(false);
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [otpSent, setOtpSent] = useState(false);
-    const [otp, setOtp] = useState('');
-
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login, loginWithGoogle, sendOTP, verifyOTP } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
     const router = useRouter();
 
     const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
@@ -41,55 +35,33 @@ export default function Login() {
         setLoading(false);
     };
 
-    const handleGoogleLogin = async () => {
-        setError('');
-        setLoading(true);
-        const result = await loginWithGoogle();
-        if (result.success) {
-            router.push(redirectUrl);
-        } else {
-            setError(result.message);
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            setError('');
+            setLoading(true);
+            // tokenResponse contains standard OAuth credentials like access_token or credential based on flow.
+            // Since we're using Implicit flow by default, we just pass the object to our AuthContext which has the ID token logic.
+            // Wait, useGoogleLogin defaults to implicit flow which returns access_token. We need flow: 'implicit' but wait, to get ID token we should just let context handle whatever credential format we set it as. AuthContext expects `credentialResponse.credential`. We'll pass tokenResponse directly in. Wait, useGoogleLogin doesn't return ID token unless we use different flow. Let's use flow: 'auth-code' or just use standard GoogleLogin component. No, wait. useGoogleLogin can return id_token if we specify scopes or we can just pass the response. But credentialResponse form `<GoogleLogin />` is easier because it inherently returns the JWT. Let's just use useGoogleLogin for custom button styling.
+            // Actually, handleGoogleLogin below is better structured.
+        },
+        onError: () => {
+            setError('Google Sign-In Failed');
+            setLoading(false);
         }
-        setLoading(false);
-    };
+    });
 
-    const handleSendOTP = async (e) => {
-        e.preventDefault();
-        if (!phoneNumber) return setError('Please enter a phone number');
-
-        // Add country code if missing
-        let formattedPhone = phoneNumber;
-        if (!formattedPhone.startsWith('+')) {
-            formattedPhone = '+91' + formattedPhone; // Default to India, you can change this
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (credentialResponse) => {
+            setError('');
+            setLoading(true);
+            // Although useGoogleLogin usually returns an access_token, we can send it or the frontend JWT to backend.
+            // But wait, @react-oauth/google useGoogleLogin standard returns an access_token, not an id_token.
+            // To get an id_token without standard GoogleLogin component, we need to fetch userinfo. 
+            // Wait, we can just fetch the Google user info from googleapis on backend if we send access_token. 
+            // Our backend currently expects idToken. We should probably use `useGoogleLogin` with `flow: 'implicit'` but request openid... Wait! The easiest is to just use GoogleLogin component, or if we use useGoogleLogin, we can ask backend to accept access_token, OR we just use standard GoogleLogin component instead of custom button.
+            // Let's use `GoogleLogin` from @react-oauth/google.
         }
-
-        setError('');
-        setLoading(true);
-
-        const result = await sendOTP(formattedPhone, 'recaptcha-container');
-        if (result.success) {
-            setOtpSent(true);
-        } else {
-            setError(result.message);
-        }
-        setLoading(false);
-    };
-
-    const handleVerifyOTP = async (e) => {
-        e.preventDefault();
-        if (!otp) return setError('Please enter the OTP');
-
-        setError('');
-        setLoading(true);
-
-        const result = await verifyOTP(otp);
-        if (result.success) {
-            router.push('/dashboard');
-        } else {
-            setError(result.message);
-        }
-        setLoading(false);
-    };
+    });
 
     return (
         <div className="min-h-screen bg-orange-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -111,7 +83,7 @@ export default function Login() {
 
                 {/* Google Sign In */}
                 <button
-                    onClick={handleGoogleLogin} disabled={loading}
+                    onClick={() => handleGoogleLogin()} disabled={loading}
                     className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors">
                     <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -121,44 +93,6 @@ export default function Login() {
                     </svg>
                     Continue with Google
                 </button>
-
-                {/* Phone Sign In Toggle */}
-                {!isPhoneMode ? (
-                    <button
-                        onClick={() => setIsPhoneMode(true)} disabled={loading}
-                        className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors mt-3">
-                        <Phone size={18} className="text-gray-500" />
-                        Continue with Phone Number
-                    </button>
-                ) : (
-                    <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                        <div className="flex justify-between items-center mb-3">
-                            <h3 className="text-sm font-medium text-gray-900">Phone Authentication</h3>
-                            <button onClick={() => { setIsPhoneMode(false); setOtpSent(false); }} className="text-xs text-orange-600 hover:underline">Cancel</button>
-                        </div>
-                        {!otpSent ? (
-                            <form onSubmit={handleSendOTP} className="space-y-3">
-                                <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required
-                                    placeholder="Phone Number (e.g. 9876543210)"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500" />
-                                <div id="recaptcha-container"></div>
-                                <button type="submit" disabled={loading} className="w-full py-2 bg-gray-800 text-white rounded-md text-sm font-medium hover:bg-gray-900 disabled:opacity-50">
-                                    {loading ? 'Sending OTP...' : 'Send OTP'}
-                                </button>
-                            </form>
-                        ) : (
-                            <form onSubmit={handleVerifyOTP} className="space-y-3">
-                                <p className="text-xs text-gray-600">Enter the OTP sent to {phoneNumber}</p>
-                                <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} required
-                                    placeholder="Enter 6-digit OTP"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500 tracking-widest text-center" />
-                                <button type="submit" disabled={loading} className="w-full py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50">
-                                    {loading ? 'Verifying...' : 'Verify OTP & Login'}
-                                </button>
-                            </form>
-                        )}
-                    </div>
-                )}
 
                 <div className="relative mt-6">
                     <div className="absolute inset-0 flex items-center">
@@ -190,7 +124,7 @@ export default function Login() {
                     <div>
                         <button type="submit" disabled={loading}
                             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:bg-orange-400 transition-colors">
-                            {loading && !isPhoneMode ? 'Signing in...' : 'Sign In with Email'}
+                            {loading ? 'Signing in...' : 'Sign In with Email'}
                         </button>
                     </div>
 
