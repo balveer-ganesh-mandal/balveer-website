@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 import { motion } from "framer-motion";
 import { Heart, HandHelping, HeartHandshake, Accessibility, Activity } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
@@ -7,6 +9,16 @@ import Link from "next/link";
 
 export default function SocialWork() {
   const { lang } = useLanguage();
+  const [inventory, setInventory] = useState([]);
+
+  useEffect(() => {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+      fetch(`${API_URL}/api/inventory`, { cache: "no-store" })
+          .then(res => res.json())
+          .then(data => {
+              if (Array.isArray(data)) setInventory(data);
+          }).catch(err => console.error(err));
+  }, []);
 
   const content = {
     en: {
@@ -137,67 +149,56 @@ export default function SocialWork() {
             </h2>
             <div className="grid md:grid-cols-2 gap-8 mb-16">
             
-            {/* Wheelchairs */}
-            <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="bg-gradient-to-br from-[#be1111] to-[#8b0000] rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
-            >
-                {/* Background pattern */}
-                <div className="absolute top-0 right-0 opacity-10 blur-xl group-hover:opacity-20 transition-opacity duration-700 -translate-y-1/2 translate-x-1/4">
-                    <Accessibility className="w-96 h-96 text-[#fceabb]" />
-                </div>
-                
-                <div className="relative z-10 flex flex-col h-full justify-between min-h-[260px]">
-                <div>
-                    <div className="bg-white/10 w-16 h-16 rounded-2xl flex items-center justify-center backdrop-blur-md mb-6 shadow-inner border border-white/20">
-                        <Accessibility className="w-8 h-8 text-[#fceabb]" />
-                    </div>
-                    <h3 className="text-3xl font-bold mb-3 tracking-wide">{t.wheelchairTitle}</h3>
-                    <p className="text-red-100 text-lg max-w-[85%] leading-snug">{t.wheelchairDesc}</p>
-                </div>
-                <div className="flex items-end justify-between mt-8">
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-7xl font-black tracking-tighter shadow-sm text-transparent bg-clip-text bg-gradient-to-b from-white to-[#fceabb]">2</span>
-                        <span className="text-xl font-medium text-red-200">{t.units}</span>
-                    </div>
-                    <span className="bg-[#fceabb] text-[#8b0000] px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-black/20 uppercase tracking-wider">{t.availableNow}</span>
-                </div>
-                </div>
-            </motion.div>
+            {/* Dynamic Inventory */}
+            {inventory.length > 0 ? (
+                inventory.map((item, index) => (
+                    <motion.div
+                        key={item._id || index}
+                        initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className={`bg-gradient-to-br ${index % 2 === 0 ? 'from-[#be1111] to-[#8b0000]' : 'from-[#9b1515] to-[#5a0000]'} rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 flex flex-col`}
+                    >
+                        {/* Background pattern */}
+                        <div className="absolute top-0 right-0 opacity-10 blur-xl group-hover:opacity-20 transition-opacity duration-700 -translate-y-1/2 translate-x-1/4">
+                            <Activity className="w-96 h-96 text-[#fceabb]" />
+                        </div>
 
-            {/* Walkers */}
-            <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="bg-gradient-to-br from-[#9b1515] to-[#5a0000] rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300"
-            >
-                {/* Background pattern */}
-                <div className="absolute top-0 right-0 opacity-10 blur-xl group-hover:opacity-20 transition-opacity duration-700 -translate-y-1/2 translate-x-1/4">
-                    <Activity className="w-96 h-96 text-[#fceabb]" />
+                        <div className="relative z-10 flex flex-col h-full justify-between min-h-[300px]">
+                            <div>
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="text-3xl font-bold tracking-wide">{lang === 'mr' ? item.titleMr : item.titleEn}</h3>
+                                    <div className="bg-white/10 w-12 h-12 rounded-xl flex items-center justify-center backdrop-blur-md shadow-inner border border-white/20">
+                                        <Activity className="w-6 h-6 text-[#fceabb]" />
+                                    </div>
+                                </div>
+                                <p className="text-red-100 text-lg max-w-[90%] leading-snug mb-6">{lang === 'mr' ? item.descriptionMr : item.descriptionEn}</p>
+                                
+                                {item.imageUrl && (
+                                    <div className="w-full h-48 rounded-2xl overflow-hidden shadow-inner border border-white/20 mb-6 bg-white/5 flex items-center justify-center relative group-hover:shadow-red-900/40 transition-shadow">
+                                        <img src={`http://localhost:5001${item.imageUrl}`} alt={item.titleEn} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex items-end justify-between mt-4">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-6xl font-black tracking-tighter shadow-sm text-transparent bg-clip-text bg-gradient-to-b from-white to-[#fceabb]">{item.availableUnits}</span>
+                                    <span className="text-xl font-medium text-red-200">{t.units}</span>
+                                </div>
+                                <span className={`px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-black/20 uppercase tracking-wider ${item.availableUnits > 0 ? 'bg-[#fceabb] text-[#8b0000]' : 'bg-red-200 border border-white/30 text-red-900 shadow-none'}`}>
+                                    {item.availableUnits > 0 ? t.availableNow : (lang === 'mr' ? 'सध्या उपलब्ध नाही' : 'Not Available')}
+                                </span>
+                            </div>
+                        </div>
+                    </motion.div>
+                ))
+            ) : (
+                <div className="col-span-full text-center py-12 bg-white rounded-2xl border border-red-100 shadow-sm">
+                    <p className="text-[#be1111] font-semibold text-lg">{lang === 'mr' ? 'सध्या उपकरणाची माहिती उपलब्ध नाही.' : 'No equipment details available at the moment.'}</p>
+                    <p className="text-gray-500 text-sm mt-2">{lang === 'mr' ? 'कृपया काही वेळाने पुन्हा तपासा.' : 'Please check back later.'}</p>
                 </div>
-
-                <div className="relative z-10 flex flex-col h-full justify-between min-h-[260px]">
-                <div>
-                    <div className="bg-white/10 w-16 h-16 rounded-2xl flex items-center justify-center backdrop-blur-md mb-6 shadow-inner border border-white/20">
-                        <Activity className="w-8 h-8 text-[#fceabb]" />
-                    </div>
-                    <h3 className="text-3xl font-bold mb-3 tracking-wide">{t.walkerTitle}</h3>
-                    <p className="text-red-100 text-lg max-w-[85%] leading-snug">{t.walkerDesc}</p>
-                </div>
-                <div className="flex items-end justify-between mt-8">
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-7xl font-black tracking-tighter shadow-sm text-transparent bg-clip-text bg-gradient-to-b from-white to-[#fceabb]">3</span>
-                        <span className="text-xl font-medium text-red-200">{t.units}</span>
-                    </div>
-                    <span className="bg-[#fceabb] text-[#8b0000] px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-black/20 uppercase tracking-wider">{t.availableNow}</span>
-                </div>
-                </div>
-            </motion.div>
+            )}
             </div>
         </div>
 

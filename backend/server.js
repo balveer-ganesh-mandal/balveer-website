@@ -43,6 +43,7 @@ const eventsRoutes = require('./routes/eventsRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const subCommitteeRoutes = require('./routes/subCommitteeRoutes');
 const liveStatusRoutes = require('./routes/liveStatusRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -52,6 +53,7 @@ app.use('/api/events', eventsRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/sub-committee', subCommitteeRoutes);
 app.use('/api/live-status', liveStatusRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 // Root Route
 app.get('/', (req, res) => {

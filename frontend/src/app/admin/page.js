@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin } from "lucide-react";
+import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin, HeartHandshake } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const translations = {
@@ -109,6 +109,21 @@ const translations = {
         pastSecretary: "Past Secretary",
         pastTreasurer: "Past Treasurer",
         pastMembersList: "Past Members",
+        // Inventory
+        inventoryMgmt: "Social Work Inventory",
+        inventoryDesc: "Manage available medical equipment and stock logic.",
+        equipmentTitleEn: "Equipment Name (English)",
+        equipmentTitleMr: "Equipment Name (Marathi)",
+        equipDescEn: "Description (English)",
+        equipDescMr: "Description (Marathi)",
+        totalUnits: "Total Units",
+        availableUnits: "Available Units",
+        equipmentType: "Equipment ID Tag",
+        equipPhoto: "Equipment Photo",
+        currentEquip: "Current Equipment Inventory",
+        addEquipment: "Add Equipment",
+        updateEquipment: "Update Equipment",
+        noEquipment: "No equipment added yet.",
         // Edit Modal
         editLeader: "Edit Leader",
         editMember: "Edit Member",
@@ -222,6 +237,21 @@ const translations = {
         pastSecretary: "माजी सचिव",
         pastTreasurer: "माजी खजिनदार",
         pastMembersList: "माजी सदस्य",
+        // Inventory
+        inventoryMgmt: "सामाजिक उपक्रम इन्व्हेंटरी",
+        inventoryDesc: "उपलब्ध वैद्यकीय उपकरणे व्यवस्थापित करा.",
+        equipmentTitleEn: "उपकरणाचे नाव (इंग्रजी)",
+        equipmentTitleMr: "उपकरणाचे नाव (मराठी)",
+        equipDescEn: "वर्णन (इंग्रजी)",
+        equipDescMr: "वर्णन (मराठी)",
+        totalUnits: "एकूण साधने",
+        availableUnits: "उपलब्ध साधने",
+        equipmentType: "उपकरण ID टॅग",
+        equipPhoto: "उपकरणाचा फोटो",
+        currentEquip: "सध्याची उपकरणे इन्व्हेंटरी",
+        addEquipment: "उपकरण जोडा",
+        updateEquipment: "उपकरण अपडेट करा",
+        noEquipment: "अद्याप कोणतीही उपकरणे जोडलेली नाहीत.",
         // Edit Modal
         editLeader: "नेता संपादित करा",
         editMember: "सदस्य संपादित करा",
@@ -332,6 +362,22 @@ export default function AdminPage() {
     const [eventStatusMsg, setEventStatusMsg] = useState("");
     const [isDeletingEvent, setIsDeletingEvent] = useState(false);
 
+    // Inventory States
+    const [inventoryItems, setInventoryItems] = useState([]);
+    const [editingInvId, setEditingInvId] = useState(null);
+    const [invType, setInvType] = useState("wheelchair");
+    const [invTitleEn, setInvTitleEn] = useState("");
+    const [invTitleMr, setInvTitleMr] = useState("");
+    const [invDescEn, setInvDescEn] = useState("");
+    const [invDescMr, setInvDescMr] = useState("");
+    const [invTotalUnits, setInvTotalUnits] = useState(0);
+    const [invAvailableUnits, setInvAvailableUnits] = useState(0);
+    const [invPhoto, setInvPhoto] = useState(null);
+    const invPhotoRef = useRef(null);
+    const [isSubmittingInv, setIsSubmittingInv] = useState(false);
+    const [invStatusMsg, setInvStatusMsg] = useState("");
+    const [isDeletingInv, setIsDeletingInv] = useState(false);
+
     // Fetch initial status
     useEffect(() => {
         if (!isAuthenticated) return;
@@ -349,6 +395,7 @@ export default function AdminPage() {
         fetchSubCommittees();
         fetchCoreCommittee();
         fetchEvents();
+        fetchInventory();
     }, [isAuthenticated]);
 
     const fetchGallery = async () => {
@@ -406,6 +453,101 @@ export default function AdminPage() {
         } catch (err) {
             console.error("Failed to fetch events", err);
         }
+    };
+
+    const fetchInventory = async () => {
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/inventory`, { cache: "no-store", next: { revalidate: 0 } });
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setInventoryItems(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch inventory", err);
+        }
+    };
+
+    const handleAddInventory = async (e) => {
+        e.preventDefault();
+        if (!invTitleEn || !invTitleMr) return;
+        setIsSubmittingInv(true);
+        setInvStatusMsg("");
+
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const formData = new FormData();
+            if (editingInvId) formData.append('id', editingInvId);
+            formData.append('itemType', invType);
+            formData.append('titleEn', invTitleEn);
+            formData.append('titleMr', invTitleMr);
+            formData.append('descriptionEn', invDescEn);
+            formData.append('descriptionMr', invDescMr);
+            formData.append('totalUnits', invTotalUnits);
+            formData.append('availableUnits', invAvailableUnits);
+            if (invPhoto) formData.append('image', invPhoto);
+
+            const res = await fetch(`${API_URL}/api/inventory`, {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setInvStatusMsg(editingInvId ? "Equipment updated successfully!" : "Equipment added successfully!");
+                resetInvForm();
+                fetchInventory();
+            } else {
+                setInvStatusMsg("Error: " + (data.error || "Failed to save equipment"));
+            }
+            setTimeout(() => setInvStatusMsg(""), 3000);
+        } catch (err) {
+            setInvStatusMsg("Failed to submit equipment");
+        } finally {
+            setIsSubmittingInv(false);
+        }
+    };
+
+    const resetInvForm = () => {
+        setEditingInvId(null);
+        setInvType("wheelchair");
+        setInvTitleEn(""); setInvTitleMr("");
+        setInvDescEn(""); setInvDescMr("");
+        setInvTotalUnits(0); setInvAvailableUnits(0);
+        setInvPhoto(null);
+        if (invPhotoRef.current) invPhotoRef.current.value = "";
+    };
+
+    const handleEditInvClick = (inv) => {
+        setEditingInvId(inv._id);
+        setInvType(inv.itemType || "wheelchair");
+        setInvTitleEn(inv.titleEn);
+        setInvTitleMr(inv.titleMr);
+        setInvDescEn(inv.descriptionEn || "");
+        setInvDescMr(inv.descriptionMr || "");
+        setInvTotalUnits(inv.totalUnits || 0);
+        setInvAvailableUnits(inv.availableUnits || 0);
+        setInvPhoto(null);
+        if (invPhotoRef.current) invPhotoRef.current.value = "";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteInv = async (id) => {
+        if (!confirm("Are you sure you want to delete this equipment?")) return;
+        setIsDeletingInv(true);
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/inventory/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchInventory();
+            } else {
+                alert("Failed to delete equipment: " + data.error);
+            }
+        } catch (error) {
+            alert("Delete failed due to an error.");
+        }
+        setIsDeletingInv(false);
     };
 
     const handleLogin = (e) => {
@@ -1033,6 +1175,14 @@ export default function AdminPage() {
                     >
                         <Star size={24} className={activeTab === "past-committee" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
                         <span className="font-bold">Past Committee</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("inventory")}
+                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "inventory" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
+                            }`}
+                    >
+                        <HeartHandshake size={24} className={activeTab === "inventory" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
+                        <span className="font-bold">Social Work</span>
                     </button>
                 </div>
 
@@ -1830,7 +1980,136 @@ export default function AdminPage() {
                         </div>
                     )
                 }
-            </main >
+                {/* Inventory Management */}
+                {
+                    activeTab === "inventory" && (
+                        <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="p-4 rounded-full bg-rose-100 text-rose-600">
+                                    <HeartHandshake size={32} />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800">{t('inventoryMgmt')}</h2>
+                                    <p className="text-gray-500 text-sm mt-1 max-w-md">
+                                        {t('inventoryDesc')}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Add/Edit Inventory Form */}
+                            <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-semibold text-[#8b0000]">{editingInvId ? t('updateEquipment') : t('addEquipment')}</h3>
+                                    {editingInvId && (
+                                        <button onClick={resetInvForm} className="text-sm font-medium text-gray-500 hover:text-gray-800 flex items-center gap-1">
+                                            <X size={16} /> {t('cancel')}
+                                        </button>
+                                    )}
+                                </div>
+                                <form onSubmit={handleAddInventory} className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipmentType')}</label>
+                                            <input type="text" required value={invType} onChange={e => setInvType(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. wheelchair, walker" />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipmentTitleEn')}</label>
+                                            <input type="text" required value={invTitleEn} onChange={e => setInvTitleEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. Wheelchair" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipmentTitleMr')}</label>
+                                            <input type="text" required value={invTitleMr} onChange={e => setInvTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. व्हीलचेअर" />
+                                        </div>
+
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipDescEn')}</label>
+                                            <textarea rows={2} required value={invDescEn} onChange={e => setInvDescEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="Short description..."></textarea>
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipDescMr')}</label>
+                                            <textarea rows={2} required value={invDescMr} onChange={e => setInvDescMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="थोडक्यात माहिती..."></textarea>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('totalUnits')}</label>
+                                            <input type="number" required value={invTotalUnits} onChange={e => setInvTotalUnits(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('availableUnits')}</label>
+                                            <input type="number" required value={invAvailableUnits} onChange={e => setInvAvailableUnits(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
+                                        </div>
+
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipPhoto')}</label>
+                                            <input ref={invPhotoRef} type="file" accept="image/*" onChange={e => setInvPhoto(e.target.files[0])} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#8b0000] file:text-white hover:file:bg-[#6b0808]" />
+                                            {editingInvId && inventoryItems.find(i => i._id === editingInvId)?.imageUrl && !invPhoto && (
+                                                <p className="text-xs text-green-600 mt-1">✓ Current photo will be kept unless you upload a new one.</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <button type="submit" disabled={isSubmittingInv} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
+                                        {isSubmittingInv ? t('saving') : (editingInvId ? t('updateEquipment') : t('addEquipment'))}
+                                    </button>
+                                    {invStatusMsg && <p className={`text-sm font-medium mt-2 ${invStatusMsg.includes("Error") || invStatusMsg.includes("Failed") ? 'text-red-600' : 'text-green-600'}`}>{invStatusMsg}</p>}
+                                </form>
+                            </div>
+
+                            {/* Inventory List */}
+                            <div>
+                                <h3 className="font-semibold text-[#8b0000] mb-4">{t('currentEquip')}</h3>
+                                {inventoryItems && inventoryItems.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {inventoryItems.map((inv) => (
+                                            <div key={inv._id} className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:flex-row justify-between md:items-center p-4">
+                                                <div className="flex-1 mb-4 md:mb-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="bg-rose-50 text-rose-800 text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded border border-rose-100">{inv.itemType}</span>
+                                                        <h4 className="font-bold text-[#4a0808]">{inv.titleEn}</h4>
+                                                    </div>
+                                                    <p className="text-sm font-medium text-gray-600 mb-2">{inv.titleMr}</p>
+                                                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-gray-700 bg-gray-50 p-2 rounded inline-flex border border-gray-200">
+                                                        <span>Total: {inv.totalUnits}</span>
+                                                        <span className={inv.availableUnits > 0 ? 'text-green-600' : 'text-red-600'}>Available: {inv.availableUnits}</span>
+                                                    </div>
+                                                    {inv.imageUrl && (
+                                                        <div className="mt-2">
+                                                            <img src={`http://localhost:5001${inv.imageUrl}`} alt={inv.titleEn} className="w-24 h-24 object-cover rounded border border-gray-200 shadow-sm" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col gap-2 self-start md:self-auto min-w-[120px]">
+                                                    <button
+                                                        onClick={() => handleEditInvClick(inv)}
+                                                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded transition-colors border border-blue-100 flex items-center justify-center w-full"
+                                                        title="Edit"
+                                                    >
+                                                        <Edit size={16} className="mr-2" />
+                                                        <span className="text-sm font-semibold">{t('edit')}</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteInv(inv._id)}
+                                                        disabled={isDeletingInv}
+                                                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors disabled:opacity-50 border border-red-100 flex items-center justify-center w-full"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={16} className="mr-2" />
+                                                        <span className="text-sm font-semibold">{t('delete')}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 border border-gray-200">
+                                        {t('noEquipment')}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                }
+            </main>
 
             {/* Edit Modal Checkout logic */}
             {
