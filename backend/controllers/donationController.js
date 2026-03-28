@@ -8,14 +8,11 @@ const path = require('path');
 // @access  Private
 exports.createDonation = async (req, res) => {
     try {
-        const { amount, currency, paymentMethod, notes, receiptName, address } = req.body;
+        const { amount, currency, paymentMethod, notes, receiptName, address, transactionId } = req.body;
 
-        if (!amount || !paymentMethod || !receiptName || !address) {
-            return res.status(400).json({ success: false, message: 'Amount, payment method, name, and address are required' });
+        if (!amount || !paymentMethod || !receiptName || !address || !transactionId) {
+            return res.status(400).json({ success: false, message: 'Amount, payment method, name, address, and transaction reference are required' });
         }
-
-        // Mock a transaction ID for now since we aren't using a real payment gateway yet
-        const transactionId = `TXN_${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 
         const donation = await Donation.create({
             devotee: req.user.id,
@@ -26,7 +23,7 @@ exports.createDonation = async (req, res) => {
             receiptName: receiptName || '',
             address: address || '',
             notes,
-            status: 'completed' // Assuming immediate success for mock
+            status: 'pending'
         });
 
         res.status(201).json({
@@ -283,5 +280,51 @@ exports.downloadReceipt = async (req, res) => {
         if (!res.headersSent) {
             res.status(500).json({ success: false, message: 'Server Error generating receipt' });
         }
+    }
+};
+
+// @desc    Get ALL donations (admin)
+// @route   GET /api/donations/all
+// @access  Admin
+exports.getAllDonations = async (req, res) => {
+    try {
+        const donations = await Donation.find()
+            .populate('devotee', 'firstName lastName email')
+            .sort({ date: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: donations.length,
+            data: donations
+        });
+    } catch (error) {
+        console.error('Get All Donations Error:', error);
+        res.status(500).json({ success: false, message: 'Server Error fetching donations' });
+    }
+};
+
+// @desc    Upload receipt for a donation (admin)
+// @route   PUT /api/donations/:id/upload-receipt
+// @access  Admin
+exports.uploadReceipt = async (req, res) => {
+    try {
+        const donation = await Donation.findById(req.params.id);
+
+        if (!donation) {
+            return res.status(404).json({ success: false, message: 'Donation not found' });
+        }
+
+        // Mark receipt as generated and set status to completed
+        donation.receiptGenerated = true;
+        donation.status = 'completed';
+        await donation.save();
+
+        res.status(200).json({
+            success: true,
+            data: donation
+        });
+    } catch (error) {
+        console.error('Upload Receipt Error:', error);
+        res.status(500).json({ success: false, message: 'Server Error uploading receipt' });
     }
 };

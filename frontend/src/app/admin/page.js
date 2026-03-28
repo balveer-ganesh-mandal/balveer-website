@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin, HeartHandshake, HandHelping } from "lucide-react";
+import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin, HeartHandshake, HandHelping, Banknote } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const translations = {
@@ -378,6 +378,14 @@ export default function AdminPage() {
     const [bookings, setBookings] = useState([]);
     const [isProcessingReturn, setIsProcessingReturn] = useState(false);
 
+    // Donations
+    const [donations, setDonations] = useState([]);
+    const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+    const [donationStatusMsg, setDonationStatusMsg] = useState("");
+    const donationReceiptRef = useRef(null);
+    const [receiptFile, setReceiptFile] = useState(null);
+    const [uploadingReceiptId, setUploadingReceiptId] = useState(null);
+
     // Fetch initial status
     useEffect(() => {
         if (!isAuthenticated) return;
@@ -397,6 +405,7 @@ export default function AdminPage() {
         fetchEvents();
         fetchInventory();
         fetchBookings();
+        fetchDonations();
     }, [isAuthenticated]);
 
     const fetchGallery = async () => {
@@ -479,6 +488,26 @@ export default function AdminPage() {
             }
         } catch (err) {
             console.error("Failed to fetch bookings", err);
+        }
+    };
+
+    const fetchDonations = async () => {
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const authToken = localStorage.getItem('token');
+            if (!authToken) return;
+            const res = await fetch(`${API_URL}/api/donations/all`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                },
+                cache: "no-store" 
+            });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.data)) {
+                setDonations(data.data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch donations", err);
         }
     };
 
@@ -573,6 +602,32 @@ export default function AdminPage() {
             alert("Error communicating with server.");
         }
         setIsProcessingReturn(false);
+    };
+
+    const handleGenerateReceipt = async (donationId) => {
+        if (!confirm("Are you sure you want to mark this donation's receipt as generated?")) return;
+        setUploadingReceiptId(donationId);
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const authToken = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/api/donations/${donationId}/upload-receipt`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setDonationStatusMsg("Receipt successfully generated!");
+                fetchDonations();
+            } else {
+                alert("Failed to generate receipt: " + (data.message || data.error));
+            }
+            setTimeout(() => setDonationStatusMsg(""), 3000);
+        } catch (error) {
+            alert("Failed to update receipt status.");
+        }
+        setUploadingReceiptId(null);
     };
 
     const handleLogin = (e) => {
@@ -1208,6 +1263,14 @@ export default function AdminPage() {
                     >
                         <HeartHandshake size={24} className={activeTab === "inventory" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
                         <span className="font-bold">Social Work</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("donations")}
+                        className={`p-4 rounded-xl border text-left flex items-center gap-3 transition-all ${activeTab === "donations" ? 'bg-[#8b0000] border-[#8b0000] text-white shadow-md' : 'bg-white border-red-100 text-[#4a0808] hover:border-red-300 hover:shadow-sm'
+                            }`}
+                    >
+                        <Banknote size={24} className={activeTab === "donations" ? 'text-[#fceabb]' : 'text-[#8b0000]'} />
+                        <span className="font-bold">Donations</span>
                     </button>
                 </div>
 
@@ -2163,6 +2226,89 @@ export default function AdminPage() {
                         </div>
                     )
                 }
+
+                {/* Donations Management */}
+                {
+                    activeTab === "donations" && (
+                        <div className="bg-white rounded-xl shadow-lg border border-red-100 p-6 md:p-8 mt-8">
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="p-4 rounded-full bg-green-100 text-green-700">
+                                    <Banknote size={32} />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800">Donations Management</h2>
+                                    <p className="text-gray-500 text-sm mt-1 max-w-md">
+                                        Verify manual donations, review payment references, and generate PDF receipts.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {donationStatusMsg && (
+                                <div className="bg-green-50 text-green-700 p-3 rounded mb-4 font-semibold text-center border border-green-200">
+                                    {donationStatusMsg}
+                                </div>
+                            )}
+
+                            <div>
+                                <h3 className="font-bold text-[#8b0000] text-lg mb-4">All Donations</h3>
+                                {donations.length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full text-left bg-white rounded-lg border border-gray-200 text-sm">
+                                            <thead>
+                                                <tr className="bg-gray-100 text-[#4a0808] font-bold border-b border-gray-200">
+                                                    <th className="py-3 px-4">Date</th>
+                                                    <th className="py-3 px-4">Donor Name</th>
+                                                    <th className="py-3 px-4">Amount</th>
+                                                    <th className="py-3 px-4">Txn Ref</th>
+                                                    <th className="py-3 px-4">Status</th>
+                                                    <th className="py-3 px-4 text-right">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {donations.map(donation => (
+                                                    <tr key={donation._id} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="py-3 px-4">{new Date(donation.date).toLocaleDateString()}</td>
+                                                        <td className="py-3 px-4 font-medium text-gray-900">{donation.receiptName}</td>
+                                                        <td className="py-3 px-4 font-bold text-[#8b0000]">
+                                                            {donation.currency === 'INR' ? '₹' : donation.currency} {donation.amount}
+                                                        </td>
+                                                        <td className="py-3 px-4 font-mono text-xs text-gray-600">{donation.transactionId}</td>
+                                                        <td className="py-3 px-4">
+                                                            {donation.status === 'completed' || donation.receiptGenerated ? (
+                                                                <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">Verified</span>
+                                                            ) : (
+                                                                <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded">Pending</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-right">
+                                                            {(!donation.receiptGenerated || donation.status === 'pending') && (
+                                                                <button
+                                                                    onClick={() => handleGenerateReceipt(donation._id)}
+                                                                    disabled={uploadingReceiptId === donation._id}
+                                                                    className="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold shadow hover:bg-green-700 transition"
+                                                                >
+                                                                    {uploadingReceiptId === donation._id ? 'Generating...' : 'Generate Receipt'}
+                                                                </button>
+                                                            )}
+                                                            {donation.receiptGenerated && (
+                                                                <span className="text-gray-400 text-xs italic">Receipt Available</span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 border border-gray-200">
+                                        No donations received yet.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                }
+
             </main>
 
             {/* Edit Modal Checkout logic */}

@@ -19,7 +19,7 @@ const donationSchema = new mongoose.Schema({
     paymentMethod: {
         type: String,
         required: [true, 'Payment method is required'],
-        enum: ['Credit Card', 'Debit Card', 'UPI', 'Net Banking', 'Cash', 'Mock']
+        enum: ['UPI', 'Bank Transfer']
     },
     transactionId: {
         type: String,
@@ -36,6 +36,10 @@ const donationSchema = new mongoose.Schema({
         default: false
     },
     receiptName: {
+        type: String,
+        trim: true
+    },
+    receiptUrl: {
         type: String,
         trim: true
     },
