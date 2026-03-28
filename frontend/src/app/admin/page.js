@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin, HeartHandshake } from "lucide-react";
+import { ArrowLeft, Radio, ShieldCheck, Image as ImageIcon, Trash2, Users, Star, Crown, Edit, X, Calendar, Clock, MapPin, HeartHandshake, HandHelping } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const translations = {
@@ -362,21 +362,21 @@ export default function AdminPage() {
     const [eventStatusMsg, setEventStatusMsg] = useState("");
     const [isDeletingEvent, setIsDeletingEvent] = useState(false);
 
-    // Inventory States
+    // Inventory & Booking States
     const [inventoryItems, setInventoryItems] = useState([]);
     const [editingInvId, setEditingInvId] = useState(null);
     const [invType, setInvType] = useState("wheelchair");
     const [invTitleEn, setInvTitleEn] = useState("");
     const [invTitleMr, setInvTitleMr] = useState("");
-    const [invDescEn, setInvDescEn] = useState("");
-    const [invDescMr, setInvDescMr] = useState("");
     const [invTotalUnits, setInvTotalUnits] = useState(0);
     const [invAvailableUnits, setInvAvailableUnits] = useState(0);
-    const [invPhoto, setInvPhoto] = useState(null);
-    const invPhotoRef = useRef(null);
     const [isSubmittingInv, setIsSubmittingInv] = useState(false);
     const [invStatusMsg, setInvStatusMsg] = useState("");
     const [isDeletingInv, setIsDeletingInv] = useState(false);
+    
+    // Bookings
+    const [bookings, setBookings] = useState([]);
+    const [isProcessingReturn, setIsProcessingReturn] = useState(false);
 
     // Fetch initial status
     useEffect(() => {
@@ -396,6 +396,7 @@ export default function AdminPage() {
         fetchCoreCommittee();
         fetchEvents();
         fetchInventory();
+        fetchBookings();
     }, [isAuthenticated]);
 
     const fetchGallery = async () => {
@@ -468,6 +469,19 @@ export default function AdminPage() {
         }
     };
 
+    const fetchBookings = async () => {
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/inventory/bookings`, { cache: "no-store", next: { revalidate: 0 } });
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setBookings(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch bookings", err);
+        }
+    };
+
     const handleAddInventory = async (e) => {
         e.preventDefault();
         if (!invTitleEn || !invTitleMr) return;
@@ -476,20 +490,19 @@ export default function AdminPage() {
 
         try {
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-            const formData = new FormData();
-            if (editingInvId) formData.append('id', editingInvId);
-            formData.append('itemType', invType);
-            formData.append('titleEn', invTitleEn);
-            formData.append('titleMr', invTitleMr);
-            formData.append('descriptionEn', invDescEn);
-            formData.append('descriptionMr', invDescMr);
-            formData.append('totalUnits', invTotalUnits);
-            formData.append('availableUnits', invAvailableUnits);
-            if (invPhoto) formData.append('image', invPhoto);
+            const payload = {
+                id: editingInvId,
+                itemType: invType,
+                titleEn: invTitleEn,
+                titleMr: invTitleMr,
+                totalUnits: invTotalUnits,
+                availableUnits: invAvailableUnits
+            };
 
             const res = await fetch(`${API_URL}/api/inventory`, {
                 method: "POST",
-                body: formData
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
             });
 
             const data = await res.json();
@@ -512,10 +525,7 @@ export default function AdminPage() {
         setEditingInvId(null);
         setInvType("wheelchair");
         setInvTitleEn(""); setInvTitleMr("");
-        setInvDescEn(""); setInvDescMr("");
         setInvTotalUnits(0); setInvAvailableUnits(0);
-        setInvPhoto(null);
-        if (invPhotoRef.current) invPhotoRef.current.value = "";
     };
 
     const handleEditInvClick = (inv) => {
@@ -523,12 +533,8 @@ export default function AdminPage() {
         setInvType(inv.itemType || "wheelchair");
         setInvTitleEn(inv.titleEn);
         setInvTitleMr(inv.titleMr);
-        setInvDescEn(inv.descriptionEn || "");
-        setInvDescMr(inv.descriptionMr || "");
         setInvTotalUnits(inv.totalUnits || 0);
         setInvAvailableUnits(inv.availableUnits || 0);
-        setInvPhoto(null);
-        if (invPhotoRef.current) invPhotoRef.current.value = "";
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -548,6 +554,25 @@ export default function AdminPage() {
             alert("Delete failed due to an error.");
         }
         setIsDeletingInv(false);
+    };
+
+    const handleReturnEquipment = async (bookingId) => {
+        if (!confirm("Confirm marking this equipment as returned?")) return;
+        setIsProcessingReturn(true);
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${API_URL}/api/inventory/return/${bookingId}`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                fetchBookings();
+                fetchInventory();
+            } else {
+                alert("Failed to return: " + data.error);
+            }
+        } catch (err) {
+            alert("Error communicating with server.");
+        }
+        setIsProcessingReturn(false);
     };
 
     const handleLogin = (e) => {
@@ -2022,15 +2047,6 @@ export default function AdminPage() {
                                             <input type="text" required value={invTitleMr} onChange={e => setInvTitleMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="e.g. व्हीलचेअर" />
                                         </div>
 
-                                        <div className="md:col-span-2">
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipDescEn')}</label>
-                                            <textarea rows={2} required value={invDescEn} onChange={e => setInvDescEn(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="Short description..."></textarea>
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipDescMr')}</label>
-                                            <textarea rows={2} required value={invDescMr} onChange={e => setInvDescMr(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" placeholder="थोडक्यात माहिती..."></textarea>
-                                        </div>
-
                                         <div>
                                             <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('totalUnits')}</label>
                                             <input type="number" required value={invTotalUnits} onChange={e => setInvTotalUnits(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
@@ -2038,14 +2054,6 @@ export default function AdminPage() {
                                         <div>
                                             <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('availableUnits')}</label>
                                             <input type="number" required value={invAvailableUnits} onChange={e => setInvAvailableUnits(e.target.value)} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors" />
-                                        </div>
-
-                                        <div className="md:col-span-2">
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1">{t('equipPhoto')}</label>
-                                            <input ref={invPhotoRef} type="file" accept="image/*" onChange={e => setInvPhoto(e.target.files[0])} className="w-full px-4 py-2 bg-white border border-red-200 text-[#4a0808] rounded focus:ring-2 focus:ring-[#8b0000] focus:bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#8b0000] file:text-white hover:file:bg-[#6b0808]" />
-                                            {editingInvId && inventoryItems.find(i => i._id === editingInvId)?.imageUrl && !invPhoto && (
-                                                <p className="text-xs text-green-600 mt-1">✓ Current photo will be kept unless you upload a new one.</p>
-                                            )}
                                         </div>
                                     </div>
                                     <button type="submit" disabled={isSubmittingInv} className="bg-[#8b0000] text-white px-6 py-2 rounded font-bold hover:bg-[#6b0808] transition-colors disabled:opacity-50">
@@ -2072,11 +2080,6 @@ export default function AdminPage() {
                                                         <span>Total: {inv.totalUnits}</span>
                                                         <span className={inv.availableUnits > 0 ? 'text-green-600' : 'text-red-600'}>Available: {inv.availableUnits}</span>
                                                     </div>
-                                                    {inv.imageUrl && (
-                                                        <div className="mt-2">
-                                                            <img src={`http://localhost:5001${inv.imageUrl}`} alt={inv.titleEn} className="w-24 h-24 object-cover rounded border border-gray-200 shadow-sm" />
-                                                        </div>
-                                                    )}
                                                 </div>
                                                 <div className="flex flex-col gap-2 self-start md:self-auto min-w-[120px]">
                                                     <button
@@ -2103,6 +2106,53 @@ export default function AdminPage() {
                                 ) : (
                                     <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 border border-gray-200">
                                         {t('noEquipment')}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Active Bookings List */}
+                            <div className="mt-12 pt-8 border-t border-gray-200">
+                                <h3 className="font-semibold text-[#8b0000] mb-4">Current Active Bookings</h3>
+                                {bookings && bookings.length > 0 ? (
+                                    <div className="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
+                                        <table className="w-full text-left text-sm whitespace-nowrap">
+                                            <thead className="bg-[#fceabb] text-[#8b0000] border-b border-gray-200">
+                                                <tr>
+                                                    <th className="py-3 px-4 font-semibold text-center">Equipment</th>
+                                                    <th className="py-3 px-4 font-semibold">User Name</th>
+                                                    <th className="py-3 px-4 font-semibold">Phone</th>
+                                                    <th className="py-3 px-4 font-semibold">Date Booked</th>
+                                                    <th className="py-3 px-4 font-semibold text-right">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 text-gray-700 bg-white">
+                                                {bookings.map(booking => (
+                                                    <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="py-3 px-4 text-center">
+                                                            <span className="inline-block bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold px-2 py-1 rounded-sm shadow-sm uppercase">
+                                                                {booking.equipmentId?.itemType || 'N/A'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 font-medium text-gray-900">{booking.userName}</td>
+                                                        <td className="py-3 px-4">{booking.userPhone}</td>
+                                                        <td className="py-3 px-4">{new Date(booking.createdAt).toLocaleDateString()}</td>
+                                                        <td className="py-3 px-4 text-right">
+                                                            <button
+                                                                onClick={() => handleReturnEquipment(booking._id)}
+                                                                disabled={isProcessingReturn}
+                                                                className="bg-[#8b0000] text-white px-4 py-1.5 rounded text-xs font-bold shadow-sm shadow-[#8b0000]/30 hover:bg-[#6b0808] transition-colors disabled:opacity-50 inline-flex items-center"
+                                                            >
+                                                                <HandHelping size={14} className="mr-1.5" /> Mark Returned
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-500 border border-gray-200">
+                                        No active bookings right now.
                                     </div>
                                 )}
                             </div>

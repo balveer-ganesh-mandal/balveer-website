@@ -4,21 +4,13 @@ const inventorySchema = new mongoose.Schema({
     itemType: {
         type: String,
         required: true,
-        trim: true
+        trim: true // e.g., 'wheelchair', 'walker'
     },
     titleEn: {
         type: String,
         required: true
     },
     titleMr: {
-        type: String,
-        required: true
-    },
-    descriptionEn: {
-        type: String,
-        required: true
-    },
-    descriptionMr: {
         type: String,
         required: true
     },
@@ -31,10 +23,6 @@ const inventorySchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0
-    },
-    imageUrl: {
-        type: String,
-        required: true
     }
 }, { timestamps: true });
 
