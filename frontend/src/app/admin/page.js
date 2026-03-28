@@ -2281,7 +2281,7 @@ export default function AdminPage() {
                                                             )}
                                                         </td>
                                                         <td className="py-3 px-4 text-right">
-                                                            {(!donation.receiptGenerated || donation.status === 'pending') && (
+                                                            {donation.status === 'pending' && !donation.receiptGenerated && (
                                                                 <button
                                                                     onClick={() => handleGenerateReceipt(donation._id)}
                                                                     disabled={uploadingReceiptId === donation._id}
@@ -2290,7 +2290,7 @@ export default function AdminPage() {
                                                                     {uploadingReceiptId === donation._id ? 'Generating...' : 'Generate Receipt'}
                                                                 </button>
                                                             )}
-                                                            {donation.receiptGenerated && (
+                                                            {(donation.status === 'completed' || donation.receiptGenerated) && (
                                                                 <span className="text-gray-400 text-xs italic">Receipt Available</span>
                                                             )}
                                                         </td>

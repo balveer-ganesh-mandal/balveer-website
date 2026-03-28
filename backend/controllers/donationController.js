@@ -65,13 +65,17 @@ exports.downloadReceipt = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Donation not found' });
         }
 
+        // Handle missing devotee gracefully (mock test users or deleted users)
+        const devoteeId = donation.devotee ? donation.devotee._id.toString() : null;
+
         // Make sure user owns the donation (or is admin)
-        if (donation.devotee._id.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (devoteeId && devoteeId !== req.user.id && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, message: 'Not authorized to view this receipt' });
         }
 
         const doc = new PDFDocument({ margin: 50, size: 'A4' });
-        const filename = `Receipt_${donation.transactionId}.pdf`;
+        const safeTransactionId = donation.transactionId || `LEGACY_${donation._id.toString().substring(0, 6).toUpperCase()}`;
+        const filename = `Receipt_${safeTransactionId}.pdf`;
 
         res.setHeader('Content-disposition', 'attachment; filename="' + filename + '"');
         res.setHeader('Content-type', 'application/pdf');
@@ -158,7 +162,7 @@ exports.downloadReceipt = async (req, res) => {
         doc.fillColor('#666666').fontSize(10);
         doc.text('Receipt No:', marginLeft, y);
         doc.fillColor('#333333').fontSize(11);
-        doc.text(donation.transactionId, marginLeft + 120, y);
+        doc.text(safeTransactionId, marginLeft + 120, y);
 
         y += 20;
         const dateStr = new Date(donation.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -179,7 +183,12 @@ exports.downloadReceipt = async (req, res) => {
         doc.fillColor('#999999').fontSize(9);
         doc.text('RECEIVED WITH THANKS FROM', marginLeft + 15, y + 10);
 
-        const displayName = donation.receiptName || `${donation.devotee.firstName} ${donation.devotee.lastName}`;
+        let baseName = 'Anonymous Donor';
+        if (donation.devotee) {
+            baseName = `${donation.devotee.firstName} ${donation.devotee.lastName}`;
+        }
+        const displayName = donation.receiptName || baseName;
+        
         doc.fillColor('#4a0808').fontSize(14);
         doc.font('Helvetica-Bold').text(displayName, marginLeft + 15, y + 25);
         doc.font('Helvetica');
@@ -190,7 +199,7 @@ exports.downloadReceipt = async (req, res) => {
             doc.text('Address: ' + donation.address, marginLeft + 15, infoY, { width: contentWidth - 30 });
             infoY += 15;
         }
-        if (donation.devotee.email) {
+        if (donation.devotee && donation.devotee.email) {
             doc.fillColor('#555555').fontSize(10);
             doc.text('Email: ' + donation.devotee.email, marginLeft + 15, infoY);
         }
@@ -212,7 +221,7 @@ exports.downloadReceipt = async (req, res) => {
         doc.fillColor('#666666').fontSize(10);
         doc.text('Payment Method:', marginLeft, y);
         doc.fillColor('#333333').fontSize(11);
-        doc.text(donation.paymentMethod, marginLeft + 120, y);
+        doc.text(donation.paymentMethod || 'Online Payment', marginLeft + 120, y);
 
         y += 20;
         doc.fillColor('#666666').fontSize(10);

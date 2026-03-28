@@ -102,7 +102,8 @@ export default function Dashboard() {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `Receipt_${transactionId}.pdf`;
+                const safeTxName = transactionId || 'Donation';
+                a.download = `Receipt_${safeTxName}.pdf`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
@@ -131,7 +132,7 @@ export default function Dashboard() {
     };
 
     const getReceiptAction = (donation) => {
-        if (donation.receiptGenerated && donation.status === 'completed') {
+        if (donation.status === 'completed' || donation.receiptGenerated) {
             return (
                 <button
                     onClick={() => handleDownloadReceipt(donation._id, donation.transactionId)}
