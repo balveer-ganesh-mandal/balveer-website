@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, HandHelping, HeartHandshake, Wheelchair, Accessibility } from "lucide-react";
+import { Heart, HandHelping, HeartHandshake, Accessibility, Activity } from "lucide-react";
 
 export default function SocialWork() {
   return (
@@ -89,13 +89,13 @@ export default function SocialWork() {
             >
                 {/* Background pattern */}
                 <div className="absolute top-0 right-0 opacity-10 blur-xl group-hover:opacity-20 transition-opacity duration-700 -translate-y-1/2 translate-x-1/4">
-                <Wheelchair className="w-96 h-96" />
+                <Accessibility className="w-96 h-96" />
                 </div>
                 
                 <div className="relative z-10 flex flex-col h-full justify-between min-h-[250px]">
                 <div>
                     <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center backdrop-blur-md mb-6 shadow-inner">
-                        <Wheelchair className="w-8 h-8 text-white" />
+                        <Accessibility className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-3xl font-bold mb-3 tracking-wide">Wheelchairs</h3>
                     <p className="text-orange-100 text-lg max-w-[80%] leading-snug">Comfortable and foldable manual wheelchairs available for community use to ease mobility challenges.</p>
@@ -120,13 +120,13 @@ export default function SocialWork() {
             >
                 {/* Background pattern */}
                 <div className="absolute top-0 right-0 opacity-10 blur-xl group-hover:opacity-20 transition-opacity duration-700 -translate-y-1/2 translate-x-1/4">
-                    <Accessibility className="w-96 h-96" />
+                    <Activity className="w-96 h-96" />
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full justify-between min-h-[250px]">
                 <div>
                     <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center backdrop-blur-md mb-6 shadow-inner">
-                        <Accessibility className="w-8 h-8 text-white" />
+                        <Activity className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-3xl font-bold mb-3 tracking-wide">Medical Walkers</h3>
                     <p className="text-indigo-100 text-lg max-w-[80%] leading-snug">Lightweight, sturdy medical walkers providing essential support and balance for recovery or aging.</p>
