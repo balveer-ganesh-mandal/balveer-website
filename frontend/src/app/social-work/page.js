@@ -133,7 +133,7 @@ export default function SocialWork() {
             bookingDoneMsg: "We will contact you shortly. Thank you!",
             thanksTitle: "Special Thanks & Gratitude",
             thanksDesc: "This noble initiative is the result of generous hearts who stepped forward to make a tangible difference in society.",
-            thanksQuote: "We extend our deepest and most heartfelt gratitude to all the donors and unsung heroes who contributed to this cause. Because of your kindness, someone will move freely today; someone will rediscover their independence. Your contribution is a beacon of hope.",
+            thanksQuote: "We sincerely thank all the donors and unknown contributors who have supported this noble cause. Because of your generous help, someone today has regained the strength to walk again, and someone has reclaimed their lost freedom. Your contribution is not just help—it is a new ray of hope.",
             appreciation: "With heartfelt appreciation,",
             committee: "Balveer Ganesh Mandal Committee",
             ctaPrompt: "Would you like to contribute to this initiative?",
@@ -161,7 +161,7 @@ export default function SocialWork() {
             bookingDoneMsg: "आम्ही लवकरच तुमच्याशी संपर्क करू. धन्यवाद!",
             thanksTitle: "विशेष आभार आणि कृतज्ञता",
             thanksDesc: "समाजात सकारात्मक बदल घडवून आणण्यासाठी पुढे आलेल्या उदार अंतःकरणांचा हा उदात्त उपक्रम परिणाम आहे.",
-            thanksQuote: "या कार्यासाठी योगदान देणार्‍या सर्व देणगीदारांचे आणि अज्ञात नायकांचे आम्ही मनापासून आभार मानतो. तुमच्या दयाळूपणामुळे, आज कोणीतरी मुक्तपणे चालू शकेल; कोणीतरी त्यांचे स्वातंत्र्य पुन्हा मिळवेल. तुमचे योगदान ही आशेचा किरण आहे.",
+            thanksQuote: "या पुण्यकार्याला हातभार लावणाऱ्या सर्व देणगीदारांचे आणि अज्ञात योगदानकर्त्यांचे आम्ही मनःपूर्वक आभार मानतो. तुमच्या उदार सहकार्यामुळे आज कोणाच्या पावलांना पुन्हा चालण्याची ताकद मिळाली आहे, तर कोणाला हरवलेले स्वातंत्र्य परत मिळाले आहे. तुमचे योगदान हे केवळ मदत नसून, आशेचा एक नवा किरण आहे.",
             appreciation: "मनःपूर्वक आभारांसह,",
             committee: "बालवीर गणेश मंडळ समिती",
             ctaPrompt: "तुम्हाला या उपक्रमात हातभार लावायला आवडेल का?",
@@ -347,16 +347,16 @@ export default function SocialWork() {
 
                                             {/* Book Now — pushed to bottom */}
                                             <div className="mt-auto pt-4">
-                                            <button
-                                                onClick={() => available > 0 && setBookingModal(item)}
-                                                disabled={available <= 0}
-                                                className={`w-full py-3.5 rounded-xl font-bold text-lg tracking-wide transition-all duration-300 shadow-lg ${available > 0
-                                                    ? 'bg-gradient-to-r from-[#be1111] to-[#8b0000] text-white hover:shadow-red-900/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer'
-                                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                                                    }`}
-                                            >
-                                                {available > 0 ? t.bookNow : t.outOfStock}
-                                            </button>
+                                                <button
+                                                    onClick={() => available > 0 && setBookingModal(item)}
+                                                    disabled={available <= 0}
+                                                    className={`w-full py-3.5 rounded-xl font-bold text-lg tracking-wide transition-all duration-300 shadow-lg ${available > 0
+                                                        ? 'bg-gradient-to-r from-[#be1111] to-[#8b0000] text-white hover:shadow-red-900/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer'
+                                                        : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
+                                                        }`}
+                                                >
+                                                    {available > 0 ? t.bookNow : t.outOfStock}
+                                                </button>
                                             </div>
                                         </div>
                                     </motion.div>
