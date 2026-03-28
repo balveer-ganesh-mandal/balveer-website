@@ -60,6 +60,36 @@ app.get('/', (req, res) => {
     res.json({ message: 'Ganpati Mandal Backend API is running' });
 });
 
+// Auto-seed inventory if empty
+const Inventory = require('./models/Inventory');
+const seedInventory = async () => {
+    try {
+        const count = await Inventory.countDocuments();
+        if (count === 0) {
+            await Inventory.insertMany([
+                {
+                    itemType: 'wheelchair',
+                    titleEn: 'Wheelchair',
+                    titleMr: 'व्हीलचेअर्स',
+                    totalUnits: 2,
+                    availableUnits: 2
+                },
+                {
+                    itemType: 'walker',
+                    titleEn: 'Medical Walker',
+                    titleMr: 'मेडिकल वॉकर',
+                    totalUnits: 3,
+                    availableUnits: 3
+                }
+            ]);
+            console.log('✅ Inventory seeded: 2 Wheelchairs, 3 Walkers');
+        }
+    } catch (err) {
+        console.error('Inventory seed error:', err.message);
+    }
+};
+
 app.listen(PORT, () => {
     console.log(`Backend API running on http://localhost:${PORT}`);
+    seedInventory();
 });

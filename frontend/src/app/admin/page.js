@@ -2119,9 +2119,11 @@ export default function AdminPage() {
                                             <thead className="bg-[#fceabb] text-[#8b0000] border-b border-gray-200">
                                                 <tr>
                                                     <th className="py-3 px-4 font-semibold text-center">Equipment</th>
-                                                    <th className="py-3 px-4 font-semibold">User Name</th>
+                                                    <th className="py-3 px-4 font-semibold">Beneficiary</th>
+                                                    <th className="py-3 px-4 font-semibold">Collector</th>
                                                     <th className="py-3 px-4 font-semibold">Phone</th>
-                                                    <th className="py-3 px-4 font-semibold">Date Booked</th>
+                                                    <th className="py-3 px-4 font-semibold">Address</th>
+                                                    <th className="py-3 px-4 font-semibold">Date</th>
                                                     <th className="py-3 px-4 font-semibold text-right">Action</th>
                                                 </tr>
                                             </thead>
@@ -2133,8 +2135,10 @@ export default function AdminPage() {
                                                                 {booking.equipmentId?.itemType || 'N/A'}
                                                             </span>
                                                         </td>
-                                                        <td className="py-3 px-4 font-medium text-gray-900">{booking.userName}</td>
+                                                        <td className="py-3 px-4 font-medium text-gray-900">{booking.beneficiaryName}</td>
+                                                        <td className="py-3 px-4 font-medium text-gray-700">{booking.collectorName}</td>
                                                         <td className="py-3 px-4">{booking.userPhone}</td>
+                                                        <td className="py-3 px-4 max-w-[200px] whitespace-normal text-xs text-gray-600">{booking.address}</td>
                                                         <td className="py-3 px-4">{new Date(booking.createdAt).toLocaleDateString()}</td>
                                                         <td className="py-3 px-4 text-right">
                                                             <button

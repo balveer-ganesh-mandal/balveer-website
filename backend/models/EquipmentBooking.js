@@ -6,12 +6,22 @@ const equipmentBookingSchema = new mongoose.Schema({
         ref: 'Inventory',
         required: true
     },
-    userName: {
+    beneficiaryName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    collectorName: {
         type: String,
         required: true,
         trim: true
     },
     userPhone: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    address: {
         type: String,
         required: true,
         trim: true

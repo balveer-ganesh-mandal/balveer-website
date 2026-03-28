@@ -77,7 +77,7 @@ exports.getBookings = async (req, res) => {
 // POST /api/inventory/book
 exports.bookEquipment = async (req, res) => {
     try {
-        const { equipmentId, userName, userPhone } = req.body;
+        const { equipmentId, beneficiaryName, collectorName, userPhone, address } = req.body;
         
         const item = await Inventory.findById(equipmentId);
         if (!item) return res.status(404).json({ success: false, error: 'Equipment not found' });
@@ -89,8 +89,10 @@ exports.bookEquipment = async (req, res) => {
         // Create booking
         const newBooking = new EquipmentBooking({
             equipmentId,
-            userName,
+            beneficiaryName,
+            collectorName,
             userPhone,
+            address,
             status: 'active'
         });
         await newBooking.save();

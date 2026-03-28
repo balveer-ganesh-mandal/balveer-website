@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, HandHelping, HeartHandshake, X, Phone, User, CheckCircle } from "lucide-react";
+import { Heart, HandHelping, HeartHandshake, X, Phone, User, CheckCircle, MapPin, UserCheck } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,8 +29,10 @@ export default function SocialWork() {
     const { lang } = useLanguage();
     const [inventory, setInventory] = useState([]);
     const [bookingModal, setBookingModal] = useState(null); // holds the item being booked
-    const [userName, setUserName] = useState("");
+    const [beneficiaryName, setBeneficiaryName] = useState("");
+    const [collectorName, setCollectorName] = useState("");
     const [userPhone, setUserPhone] = useState("");
+    const [userAddress, setUserAddress] = useState("");
     const [isBooking, setIsBooking] = useState(false);
     const [bookingSuccess, setBookingSuccess] = useState(false);
 
@@ -50,7 +52,7 @@ export default function SocialWork() {
 
     const handleBookSubmit = async (e) => {
         e.preventDefault();
-        if (!bookingModal || !userName.trim() || !userPhone.trim()) return;
+        if (!bookingModal || !beneficiaryName.trim() || !collectorName.trim() || !userPhone.trim() || !userAddress.trim()) return;
         setIsBooking(true);
 
         try {
@@ -59,19 +61,23 @@ export default function SocialWork() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     equipmentId: bookingModal._id,
-                    userName: userName.trim(),
+                    beneficiaryName: beneficiaryName.trim(),
+                    collectorName: collectorName.trim(),
                     userPhone: userPhone.trim(),
+                    address: userAddress.trim(),
                 })
             });
             const data = await res.json();
             if (data.success) {
                 setBookingSuccess(true);
-                fetchInventory(); // refresh counts
+                fetchInventory();
                 setTimeout(() => {
                     setBookingModal(null);
                     setBookingSuccess(false);
-                    setUserName("");
+                    setBeneficiaryName("");
+                    setCollectorName("");
                     setUserPhone("");
+                    setUserAddress("");
                 }, 2500);
             } else {
                 alert(data.error || "Booking failed. Please try again.");
@@ -97,8 +103,10 @@ export default function SocialWork() {
             outOfStock: "All Booked",
             bookNow: "Book Now",
             bookEquipment: "Book Equipment",
-            yourName: "Your Name",
+            beneficiary: "Person who needs the equipment",
+            collector: "Person who will collect it",
             yourPhone: "Phone Number",
+            yourAddress: "Address",
             confirmBooking: "Confirm Booking",
             bookingDone: "Booking Confirmed!",
             bookingDoneMsg: "We will contact you shortly. Thank you!",
@@ -123,8 +131,10 @@ export default function SocialWork() {
             outOfStock: "सर्व बुक झाले",
             bookNow: "बुक करा",
             bookEquipment: "साधन बुक करा",
-            yourName: "तुमचे नाव",
+            beneficiary: "ज्या व्यक्तीला साधनाची गरज आहे",
+            collector: "साधन घेण्यासाठी येणारी व्यक्ती",
             yourPhone: "फोन नंबर",
+            yourAddress: "पत्ता",
             confirmBooking: "बुकिंग कन्फर्म करा",
             bookingDone: "बुकिंग यशस्वी!",
             bookingDoneMsg: "आम्ही लवकरच तुमच्याशी संपर्क करू. धन्यवाद!",
@@ -404,18 +414,32 @@ export default function SocialWork() {
                                             {lang === 'mr' ? bookingModal.titleMr : bookingModal.titleEn}
                                         </p>
                                     </div>
-                                    <form onSubmit={handleBookSubmit} className="p-6 space-y-5">
+                                    <form onSubmit={handleBookSubmit} className="p-6 space-y-4">
                                         <div>
-                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1.5">{t.yourName}</label>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1.5">{t.beneficiary}</label>
                                             <div className="relative">
                                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                                 <input
                                                     type="text"
                                                     required
-                                                    value={userName}
-                                                    onChange={e => setUserName(e.target.value)}
+                                                    value={beneficiaryName}
+                                                    onChange={e => setBeneficiaryName(e.target.value)}
                                                     className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:ring-2 focus:ring-[#be1111] focus:border-transparent focus:bg-white transition-all outline-none"
-                                                    placeholder={lang === 'mr' ? 'तुमचे पूर्ण नाव' : 'Enter your full name'}
+                                                    placeholder={lang === 'mr' ? 'रुग्णाचे / गरजूचे नाव' : 'Name of the person in need'}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1.5">{t.collector}</label>
+                                            <div className="relative">
+                                                <UserCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    value={collectorName}
+                                                    onChange={e => setCollectorName(e.target.value)}
+                                                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:ring-2 focus:ring-[#be1111] focus:border-transparent focus:bg-white transition-all outline-none"
+                                                    placeholder={lang === 'mr' ? 'घेण्यासाठी येणाऱ्याचे नाव' : 'Name of person who will collect'}
                                                 />
                                             </div>
                                         </div>
@@ -429,7 +453,21 @@ export default function SocialWork() {
                                                     value={userPhone}
                                                     onChange={e => setUserPhone(e.target.value)}
                                                     className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:ring-2 focus:ring-[#be1111] focus:border-transparent focus:bg-white transition-all outline-none"
-                                                    placeholder={lang === 'mr' ? 'तुमचा मोबाईल नंबर' : 'Enter mobile number'}
+                                                    placeholder={lang === 'mr' ? 'मोबाईल नंबर' : 'Enter mobile number'}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-[#8b0000] mb-1.5">{t.yourAddress}</label>
+                                            <div className="relative">
+                                                <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                                <textarea
+                                                    required
+                                                    rows={2}
+                                                    value={userAddress}
+                                                    onChange={e => setUserAddress(e.target.value)}
+                                                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:ring-2 focus:ring-[#be1111] focus:border-transparent focus:bg-white transition-all outline-none resize-none"
+                                                    placeholder={lang === 'mr' ? 'पूर्ण पत्ता' : 'Enter full address'}
                                                 />
                                             </div>
                                         </div>
