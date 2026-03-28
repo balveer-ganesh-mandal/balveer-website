@@ -247,7 +247,7 @@ export default function SocialWork() {
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ duration: 0.5, delay: index * 0.15 }}
-                                        className="bg-white rounded-3xl shadow-xl shadow-red-900/10 overflow-hidden border border-[#fceabb]/50 group hover:shadow-2xl transition-shadow duration-300"
+                                        className="bg-white rounded-3xl shadow-xl shadow-red-900/10 overflow-hidden border border-[#fceabb]/50 group hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full"
                                     >
                                         {/* Image Section */}
                                         <div className="relative h-56 bg-gradient-to-br from-[#fceabb]/40 to-[#fff8f0] overflow-hidden">
@@ -263,7 +263,7 @@ export default function SocialWork() {
                                         </div>
 
                                         {/* Content */}
-                                        <div className="p-6 md:p-8">
+                                        <div className="p-6 md:p-8 flex flex-col flex-grow">
                                             <h3 className="text-2xl font-bold text-[#8b0000] mb-2">
                                                 {lang === 'mr' ? item.titleMr : item.titleEn}
                                             </h3>
@@ -306,7 +306,8 @@ export default function SocialWork() {
                                                 </div>
                                             </div>
 
-                                            {/* Book Now */}
+                                            {/* Book Now — pushed to bottom */}
+                                            <div className="mt-auto pt-4">
                                             <button
                                                 onClick={() => available > 0 && setBookingModal(item)}
                                                 disabled={available <= 0}
@@ -317,6 +318,7 @@ export default function SocialWork() {
                                             >
                                                 {available > 0 ? t.bookNow : t.outOfStock}
                                             </button>
+                                            </div>
                                         </div>
                                     </motion.div>
                                 );
