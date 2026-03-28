@@ -252,7 +252,7 @@ exports.downloadReceipt = async (req, res) => {
         const signatories = [
             { name: 'Swapnil D. Deshpande', title: 'President' },
             { name: 'Nilesh N. Pimparkar', title: 'Vice President' },
-            { name: 'Chinmay C. Deshpande', title: 'Treasurer' },
+            { name: 'Amey A. Joshi', title: 'Treasurer' },
         ];
 
         const sigWidth = contentWidth / 3;
