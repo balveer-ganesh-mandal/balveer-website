@@ -388,13 +388,45 @@ export default function SocialWork() {
                         <h2 className="text-3xl font-bold text-[#be1111] mb-4 drop-shadow-sm">{t.thanksTitle}</h2>
                         <p className="text-lg text-gray-700 max-w-2xl font-medium">{t.thanksDesc}</p>
                     </div>
-                    <div className="p-8 md:p-12 text-center bg-white relative">
-                        <div className="inline-block relative z-10">
+                    <div className="p-8 md:p-12 bg-white">
+                        <div className="inline-block relative z-10 w-full">
                             <p className="text-xl text-gray-800 leading-relaxed italic border-l-4 border-[#be1111] pl-6 text-left max-w-4xl mx-auto">
                                 &quot;{t.thanksQuote}&quot;
                             </p>
                         </div>
-                        <div className="mt-8 pt-6 border-t border-gray-100 max-w-lg mx-auto">
+
+                        {/* Contributors List */}
+                        <div className="mt-10 pt-8 border-t border-gray-100">
+                            <h3 className="text-center text-xl font-bold text-[#8b0000] mb-6">
+                                {lang === 'mr' ? '🙏 या उपक्रमातील योगदानकर्ते' : '🙏 Contributors to this Initiative'}
+                            </h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
+                                {/* REPLACE THESE WITH YOUR ACTUAL CONTRIBUTOR NAMES */}
+                                {[
+                                    "Contributor Name 1",
+                                    "Contributor Name 2",
+                                    "Contributor Name 3",
+                                    "Contributor Name 4",
+                                    "Contributor Name 5",
+                                    "Contributor Name 6",
+                                    "Contributor Name 7",
+                                    "Contributor Name 8",
+                                ].map((name, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.3, delay: i * 0.05 }}
+                                        className="bg-gradient-to-br from-[#fff8f0] to-[#fceabb]/30 border border-[#fceabb]/60 rounded-xl px-4 py-3 text-center group hover:shadow-md hover:border-[#be1111]/30 transition-all duration-300"
+                                    >
+                                        <span className="text-sm font-semibold text-[#8b0000] group-hover:text-[#be1111] transition-colors">{name}</span>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mt-8 pt-6 border-t border-gray-100 max-w-lg mx-auto text-center">
                             <p className="font-semibold text-gray-600">{t.appreciation}</p>
                             <p className="text-[#be1111] font-bold mt-1 text-lg">{t.committee}</p>
                         </div>
