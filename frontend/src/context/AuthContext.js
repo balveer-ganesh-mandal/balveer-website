@@ -78,12 +78,12 @@ export const AuthProvider = ({ children }) => {
 
     // --- GOOGLE OAUTH ---
 
-    const authenticateWithBackend = async (idToken) => {
+    const authenticateWithBackend = async (accessToken) => {
         try {
             const response = await fetch(`${API_URL}/api/auth/google`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken })
+                body: JSON.stringify({ accessToken })
             });
             const data = await response.json();
 
@@ -102,11 +102,11 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const loginWithGoogle = async (credentialResponse) => {
+    const loginWithGoogle = async (tokenResponse) => {
         try {
-            // @react-oauth/google returns the JWT directly in credentialResponse.credential
-            const idToken = credentialResponse.credential;
-            return await authenticateWithBackend(idToken);
+            // useGoogleLogin returns { access_token: '...' }
+            const accessToken = tokenResponse.access_token;
+            return await authenticateWithBackend(accessToken);
         } catch (error) {
             console.error("Google Auth Error:", error);
             return { success: false, message: error.message };

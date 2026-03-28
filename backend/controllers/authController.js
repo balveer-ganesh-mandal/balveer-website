@@ -136,36 +136,40 @@ exports.getProfile = async (req, res) => {
 // @access  Public
 exports.googleAuth = async (req, res) => {
     try {
-        const { idToken } = req.body;
+        const { accessToken } = req.body;
 
-        if (!idToken) {
-            return res.status(400).json({ success: false, message: 'No true ID token provided' });
+        if (!accessToken) {
+            return res.status(400).json({ success: false, message: 'No access token provided' });
         }
 
-        // Verify the Google ID token natively without Firebase
-        const ticket = await client.verifyIdToken({
-            idToken,
-            audience: process.env.GOOGLE_CLIENT_ID,
+        // Use the access_token to fetch user profile from Google's userinfo endpoint
+        const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${accessToken}` }
         });
-        
-        const payload = ticket.getPayload();
-        // The payload contains the user's profile info
-        // Example: { sub: '1234567890', email: '...', given_name: '...', family_name: '...' }
-        const { sub, email, given_name, family_name, name } = payload;
+
+        if (!googleRes.ok) {
+            return res.status(401).json({ success: false, message: 'Invalid Google access token' });
+        }
+
+        const profile = await googleRes.json();
+        const { sub, email, given_name, family_name, name } = profile;
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'No email found in Google profile' });
+        }
 
         let devotee = await Devotee.findOne({ email });
 
         // If user doesn't exist, create them
         if (!devotee) {
             devotee = await Devotee.create({
-                firstName: given_name || name.split(' ')[0] || 'Devotee',
+                firstName: given_name || (name ? name.split(' ')[0] : 'Devotee'),
                 lastName: family_name || (name && name.includes(' ') ? name.slice(name.indexOf(' ') + 1) : ''),
                 email: email,
-                password: sub, // Use Google 'sub' (Unique User ID) as the secure password bypass
+                password: sub,
             });
         }
 
-        // Generate our backend token to keep sessions consistent
         const token = generateToken(devotee._id);
 
         res.status(200).json({

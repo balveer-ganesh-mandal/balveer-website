@@ -35,31 +35,21 @@ export default function Login() {
         setLoading(false);
     };
 
-    const googleLogin = useGoogleLogin({
+    const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             setError('');
             setLoading(true);
-            // tokenResponse contains standard OAuth credentials like access_token or credential based on flow.
-            // Since we're using Implicit flow by default, we just pass the object to our AuthContext which has the ID token logic.
-            // Wait, useGoogleLogin defaults to implicit flow which returns access_token. We need flow: 'implicit' but wait, to get ID token we should just let context handle whatever credential format we set it as. AuthContext expects `credentialResponse.credential`. We'll pass tokenResponse directly in. Wait, useGoogleLogin doesn't return ID token unless we use different flow. Let's use flow: 'auth-code' or just use standard GoogleLogin component. No, wait. useGoogleLogin can return id_token if we specify scopes or we can just pass the response. But credentialResponse form `<GoogleLogin />` is easier because it inherently returns the JWT. Let's just use useGoogleLogin for custom button styling.
-            // Actually, handleGoogleLogin below is better structured.
+            const result = await loginWithGoogle(tokenResponse);
+            if (result.success) {
+                router.push(redirectUrl);
+            } else {
+                setError(result.message || 'Google Sign-In failed');
+            }
+            setLoading(false);
         },
         onError: () => {
             setError('Google Sign-In Failed');
             setLoading(false);
-        }
-    });
-
-    const handleGoogleLogin = useGoogleLogin({
-        onSuccess: async (credentialResponse) => {
-            setError('');
-            setLoading(true);
-            // Although useGoogleLogin usually returns an access_token, we can send it or the frontend JWT to backend.
-            // But wait, @react-oauth/google useGoogleLogin standard returns an access_token, not an id_token.
-            // To get an id_token without standard GoogleLogin component, we need to fetch userinfo. 
-            // Wait, we can just fetch the Google user info from googleapis on backend if we send access_token. 
-            // Our backend currently expects idToken. We should probably use `useGoogleLogin` with `flow: 'implicit'` but request openid... Wait! The easiest is to just use GoogleLogin component, or if we use useGoogleLogin, we can ask backend to accept access_token, OR we just use standard GoogleLogin component instead of custom button.
-            // Let's use `GoogleLogin` from @react-oauth/google.
         }
     });
 

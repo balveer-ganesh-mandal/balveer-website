@@ -42,14 +42,14 @@ export default function Signup() {
     };
 
     const handleGoogleSignup = useGoogleLogin({
-        onSuccess: async (credentialResponse) => {
+        onSuccess: async (tokenResponse) => {
             setError('');
             setLoading(true);
-            const result = await loginWithGoogle(credentialResponse);
+            const result = await loginWithGoogle(tokenResponse);
             if (result.success) {
                 router.push('/dashboard');
             } else {
-                setError(result.message);
+                setError(result.message || 'Google Sign-Up failed');
             }
             setLoading(false);
         },
