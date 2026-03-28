@@ -494,12 +494,7 @@ export default function AdminPage() {
     const fetchDonations = async () => {
         try {
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-            const authToken = localStorage.getItem('token');
-            if (!authToken) return;
             const res = await fetch(`${API_URL}/api/donations/all`, {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                },
                 cache: "no-store" 
             });
             const data = await res.json();
@@ -609,12 +604,8 @@ export default function AdminPage() {
         setUploadingReceiptId(donationId);
         try {
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-            const authToken = localStorage.getItem('token');
             const res = await fetch(`${API_URL}/api/donations/${donationId}/upload-receipt`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
+                method: 'PUT'
             });
             const data = await res.json();
             if (data.success) {
