@@ -34,7 +34,6 @@ const QUOTES = [
     { en: "True wealth is not measured in money, but in the lives we touch and the smiles we create.", mr: "खरी संपत्ती पैशाने मोजली जात नाही, तर आपण ज्यांच्या आयुष्याला स्पर्श करतो आणि जे हास्य आपण निर्माण करतो त्यात ती मोजली जाते.", author: "बालवीर गणेश मंडळ" },
     { en: "Serving the sick and the helpless is the highest form of worship.", mr: "आजारी आणि असहाय्यांची सेवा ही पूजेचे सर्वोच्च रूप आहे.", author: "स्वामी विवेकानंद" },
     { en: "Education and healthcare are the two wings on which society rises above poverty.", mr: "शिक्षण आणि आरोग्यसेवा हे दोन पंख आहेत ज्यांवर समाज गरिबीच्या वर उठतो.", author: "सावित्रीबाई फुले" },
-    { en: "When you lend a wheelchair to someone in need, you don't just give them mobility — you give them hope.", mr: "गरजू व्यक्तीला व्हीलचेअर दिल्यावर तुम्ही फक्त गतिशीलता देत नाही — तुम्ही त्यांना आशा देता.", author: "बालवीर गणेश मंडळ" },
     { en: "No act of kindness towards the suffering is ever too small.", mr: "दुःखी माणसांप्रती केलेली कोणतीही दयाळूपणाची कृती कधीही लहान नसते.", author: "संत ज्ञानेश्वर" },
     { en: "The strength of a community lies in caring for those who cannot care for themselves.", mr: "समाजाची ताकद ज्यांना स्वतःची काळजी घेता येत नाही त्यांची काळजी घेण्यात आहे.", author: "छत्रपती शाहू महाराज" },
 ];
