@@ -22,6 +22,7 @@ export default function Navbar() {
       info: "Mandal Info",
       committee: "Our Committee",
       initiatives: "Initiatives",
+      socialWork: "Social Work",
       broadcast: "Broadcast Media",
       more: "More",
       gallery: "Photo Gallery",
@@ -33,6 +34,7 @@ export default function Navbar() {
       info: "मंडळ माहिती",
       committee: "आमची समिती",
       initiatives: "उपक्रम",
+      socialWork: "सामाजिक कार्य",
       broadcast: "प्रसारमाध्यमे",
       more: "अधिक",
       gallery: "छायाचित्र गॅलरी",
@@ -79,9 +81,20 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-          <Link href="/#initiatives" className="flex items-center gap-1 hover:text-[#fceabb] transition-colors group">
-            {t.initiatives} <ChevronDown size={14} className="opacity-70 group-hover:translate-y-0.5 transition-transform" />
-          </Link>
+          {/* Dropdown for Initiatives */}
+          <div className="relative group">
+            <Link href="/#initiatives" className="flex items-center gap-1 hover:text-[#fceabb] transition-colors py-4">
+              {t.initiatives} <ChevronDown size={14} className="opacity-70 group-hover:rotate-180 transition-transform duration-300" />
+            </Link>
+
+            <div className="absolute top-full left-0 mt-0 w-48 bg-[#be1111] border border-red-700/50 shadow-xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100">
+              <div className="p-2 flex flex-col">
+                <Link href="/social-work" className="px-4 py-3 text-white hover:bg-[#8b0000] hover:text-[#fceabb] rounded transition-colors block border-b border-red-800/50 last:border-0 font-medium tracking-wider">
+                  {t.socialWork}
+                </Link>
+              </div>
+            </div>
+          </div>
 
           {/* Dropdown for Broadcast Media */}
           <div className="relative group">
@@ -198,10 +211,15 @@ export default function Navbar() {
                 </Link>
               </div>
 
-              {/* Initiatives */}
-              <Link href="/#initiatives" onClick={closeMenu} className="text-[#fceabb] font-bold pb-2 border-b border-red-800/50">
-                {t.initiatives}
-              </Link>
+              {/* Initiatives Section */}
+              <div className="flex flex-col gap-2">
+                <Link href="/#initiatives" onClick={closeMenu} className="text-[#fceabb] font-bold pb-2 border-b border-red-800/50">
+                  {t.initiatives}
+                </Link>
+                <Link href="/social-work" onClick={closeMenu} className="text-white hover:text-[#fceabb] pl-4 py-1 transition-colors">
+                  • {t.socialWork}
+                </Link>
+              </div>
 
               {/* Broadcast Media Section */}
               <div className="flex flex-col gap-2">
