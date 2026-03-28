@@ -25,18 +25,18 @@ const EQUIPMENT_DESC = {
     }
 };
 
-// Rotating inspirational quotes — Indian & Maharashtrian personalities
+// Rotating quotes — Healthcare, disability aid & social service by Indian personalities
 const QUOTES = [
-    { en: "Even if there be a sword in the hand of the enemy, serve the people with love and compassion.", mr: "शत्रूच्या हातात तलवार असली तरीही, प्रेम आणि करुणेने लोकांची सेवा करा.", author: "छत्रपती शिवाजी महाराज" },
-    { en: "When there is no one to help the poor, know that God himself comes to their aid.", mr: "जेव्हा गरिबांना मदत करण्यास कोणी नसतो, तेव्हा स्वतः देव त्यांच्या मदतीला येतो हे जाणा.", author: "संत तुकाराम" },
-    { en: "Arise, awake, and stop not till the goal is reached.", mr: "उठा, जागे व्हा आणि ध्येय गाठल्याशिवाय थांबू नका.", author: "स्वामी विवेकानंद" },
-    { en: "I measure the progress of a community by the degree of progress women have achieved.", mr: "स्त्रियांनी साधलेल्या प्रगतीवरून मी समाजाची प्रगती मोजतो.", author: "डॉ. बाबासाहेब आंबेडकर" },
-    { en: "Swaraj is my birthright and I shall have it.", mr: "स्वराज्य हा माझा जन्मसिद्ध हक्क आहे आणि तो मी मिळवणारच.", author: "लोकमान्य बाळ गंगाधर टिळक" },
-    { en: "If you educate a man, you educate an individual. If you educate a woman, you educate a family.", mr: "एका पुरुषाला शिक्षित केले तर एक व्यक्ती शिक्षित होतो. एका स्त्रीला शिक्षित केले तर संपूर्ण कुटुंब शिक्षित होते.", author: "सावित्रीबाई फुले" },
-    { en: "The essence of all religions is one. Only their approaches are different.", mr: "सर्व धर्मांचे सार एकच आहे. फक्त त्यांचे मार्ग वेगवेगळे आहेत.", author: "संत ज्ञानेश्वर" },
+    { en: "The true measure of any society can be found in how it treats its most vulnerable members.", mr: "कोणत्याही समाजाचे खरे मोजमाप त्याच्या सर्वात असुरक्षित सदस्यांशी कसे वागतो यावरून होते.", author: "डॉ. बाबासाहेब आंबेडकर" },
+    { en: "A helping hand to the disabled is worth more than a thousand prayers.", mr: "दिव्यांगांना दिलेला एक मदतीचा हात हजार प्रार्थनांपेक्षा मौल्यवान आहे.", author: "संत तुकाराम" },
+    { en: "To give someone the ability to walk again is to give them back their dignity and freedom.", mr: "एखाद्याला पुन्हा चालण्याची क्षमता देणे म्हणजे त्याचा सन्मान आणि स्वातंत्र्य परत देणे होय.", author: "विनोबा भावे" },
+    { en: "The duty of a ruler is to ensure that no subject suffers from illness or disability without aid.", mr: "राज्यकर्त्याचे कर्तव्य आहे की कोणताही प्रजाजन आजारपण किंवा अपंगत्वात मदतीशिवाय राहणार नाही.", author: "छत्रपती शिवाजी महाराज" },
     { en: "True wealth is not measured in money, but in the lives we touch and the smiles we create.", mr: "खरी संपत्ती पैशाने मोजली जात नाही, तर आपण ज्यांच्या आयुष्याला स्पर्श करतो आणि जे हास्य आपण निर्माण करतो त्यात ती मोजली जाते.", author: "बालवीर गणेश मंडळ" },
-    { en: "Service without expectation of reward is the highest form of devotion.", mr: "कोणत्याही फळाची अपेक्षा न ठेवता केलेली सेवा ही भक्तीचे सर्वोच्च रूप आहे.", author: "विनोबा भावे" },
-    { en: "The power of unity is greater than the might of kings.", mr: "एकीची शक्ती राजांच्या सामर्थ्यापेक्षा महान आहे.", author: "छत्रपती शाहू महाराज" },
+    { en: "Serving the sick and the helpless is the highest form of worship.", mr: "आजारी आणि असहाय्यांची सेवा ही पूजेचे सर्वोच्च रूप आहे.", author: "स्वामी विवेकानंद" },
+    { en: "Education and healthcare are the two wings on which society rises above poverty.", mr: "शिक्षण आणि आरोग्यसेवा हे दोन पंख आहेत ज्यांवर समाज गरिबीच्या वर उठतो.", author: "सावित्रीबाई फुले" },
+    { en: "When you lend a wheelchair to someone in need, you don't just give them mobility — you give them hope.", mr: "गरजू व्यक्तीला व्हीलचेअर दिल्यावर तुम्ही फक्त गतिशीलता देत नाही — तुम्ही त्यांना आशा देता.", author: "बालवीर गणेश मंडळ" },
+    { en: "No act of kindness towards the suffering is ever too small.", mr: "दुःखी माणसांप्रती केलेली कोणतीही दयाळूपणाची कृती कधीही लहान नसते.", author: "संत ज्ञानेश्वर" },
+    { en: "The strength of a community lies in caring for those who cannot care for themselves.", mr: "समाजाची ताकद ज्यांना स्वतःची काळजी घेता येत नाही त्यांची काळजी घेण्यात आहे.", author: "छत्रपती शाहू महाराज" },
 ];
 
 export default function SocialWork() {
