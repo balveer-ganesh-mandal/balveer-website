@@ -25,10 +25,25 @@ const EQUIPMENT_DESC = {
     }
 };
 
+// Rotating inspirational quotes — Indian & Maharashtrian personalities
+const QUOTES = [
+    { en: "Even if there be a sword in the hand of the enemy, serve the people with love and compassion.", mr: "शत्रूच्या हातात तलवार असली तरीही, प्रेम आणि करुणेने लोकांची सेवा करा.", author: "छत्रपती शिवाजी महाराज" },
+    { en: "When there is no one to help the poor, know that God himself comes to their aid.", mr: "जेव्हा गरिबांना मदत करण्यास कोणी नसतो, तेव्हा स्वतः देव त्यांच्या मदतीला येतो हे जाणा.", author: "संत तुकाराम" },
+    { en: "Arise, awake, and stop not till the goal is reached.", mr: "उठा, जागे व्हा आणि ध्येय गाठल्याशिवाय थांबू नका.", author: "स्वामी विवेकानंद" },
+    { en: "I measure the progress of a community by the degree of progress women have achieved.", mr: "स्त्रियांनी साधलेल्या प्रगतीवरून मी समाजाची प्रगती मोजतो.", author: "डॉ. बाबासाहेब आंबेडकर" },
+    { en: "Swaraj is my birthright and I shall have it.", mr: "स्वराज्य हा माझा जन्मसिद्ध हक्क आहे आणि तो मी मिळवणारच.", author: "लोकमान्य बाळ गंगाधर टिळक" },
+    { en: "If you educate a man, you educate an individual. If you educate a woman, you educate a family.", mr: "एका पुरुषाला शिक्षित केले तर एक व्यक्ती शिक्षित होतो. एका स्त्रीला शिक्षित केले तर संपूर्ण कुटुंब शिक्षित होते.", author: "सावित्रीबाई फुले" },
+    { en: "The essence of all religions is one. Only their approaches are different.", mr: "सर्व धर्मांचे सार एकच आहे. फक्त त्यांचे मार्ग वेगवेगळे आहेत.", author: "संत ज्ञानेश्वर" },
+    { en: "True wealth is not measured in money, but in the lives we touch and the smiles we create.", mr: "खरी संपत्ती पैशाने मोजली जात नाही, तर आपण ज्यांच्या आयुष्याला स्पर्श करतो आणि जे हास्य आपण निर्माण करतो त्यात ती मोजली जाते.", author: "बालवीर गणेश मंडळ" },
+    { en: "Service without expectation of reward is the highest form of devotion.", mr: "कोणत्याही फळाची अपेक्षा न ठेवता केलेली सेवा ही भक्तीचे सर्वोच्च रूप आहे.", author: "विनोबा भावे" },
+    { en: "The power of unity is greater than the might of kings.", mr: "एकीची शक्ती राजांच्या सामर्थ्यापेक्षा महान आहे.", author: "छत्रपती शाहू महाराज" },
+];
+
 export default function SocialWork() {
     const { lang } = useLanguage();
     const [inventory, setInventory] = useState([]);
-    const [bookingModal, setBookingModal] = useState(null); // holds the item being booked
+    const [quoteIndex, setQuoteIndex] = useState(0);
+    const [bookingModal, setBookingModal] = useState(null);
     const [beneficiaryName, setBeneficiaryName] = useState("");
     const [collectorName, setCollectorName] = useState("");
     const [userPhone, setUserPhone] = useState("");
@@ -40,6 +55,14 @@ export default function SocialWork() {
 
     useEffect(() => {
         fetchInventory();
+    }, []);
+
+    // Rotate quotes every 8 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setQuoteIndex(prev => (prev + 1) % QUOTES.length);
+        }, 8000);
+        return () => clearInterval(interval);
     }, []);
 
     const fetchInventory = () => {
@@ -93,7 +116,6 @@ export default function SocialWork() {
         en: {
             tag: "Community Service",
             pageTitle: "Social Work",
-            quote: "True wealth is not measured in money, but in the lives we touch and the smiles we create. Let's walk this path of compassion together, lifting those who need it most.",
             missionTitle: "Our Initiative",
             missionP1: "We believe that true devotion to Bappa is expressed through service to humanity. Recognizing the challenges faced by the elderly, injured, and differently-abled in our community, we have started a modest but meaningful movement to provide essential mobility aids completely free of charge.",
             missionP2: "If you or anyone you know requires a wheelchair or walker for temporary or long-term use, please reach out to us. This is our small step towards ensuring dignity, independence, and a better quality of life for all.",
@@ -180,18 +202,36 @@ export default function SocialWork() {
                         {t.pageTitle}
                     </motion.h1>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="relative max-w-4xl mx-auto"
-                    >
-                        <div className="absolute top-0 left-0 text-6xl text-[#be1111]/10 -translate-x-4 -translate-y-4 font-serif">"</div>
-                        <p className="text-2xl md:text-3xl text-red-950/80 italic font-medium leading-relaxed px-8">
-                            {t.quote}
-                        </p>
-                        <div className="absolute bottom-0 right-0 text-6xl text-[#be1111]/10 translate-x-4 translate-y-8 font-serif">"</div>
-                    </motion.div>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={quoteIndex}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.6 }}
+                            className="relative max-w-4xl mx-auto"
+                        >
+                            <div className="absolute top-0 left-0 text-6xl text-[#be1111]/10 -translate-x-4 -translate-y-4 font-serif">&ldquo;</div>
+                            <p className="text-2xl md:text-3xl text-red-950/80 italic font-medium leading-relaxed px-8">
+                                {lang === 'mr' ? QUOTES[quoteIndex].mr : QUOTES[quoteIndex].en}
+                            </p>
+                            <p className="mt-4 text-lg font-bold text-[#be1111]/70 tracking-wide">
+                                — {QUOTES[quoteIndex].author}
+                            </p>
+                            <div className="absolute bottom-0 right-0 text-6xl text-[#be1111]/10 translate-x-4 translate-y-8 font-serif">&rdquo;</div>
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Quote dot indicators */}
+                    <div className="flex justify-center gap-1.5 mt-10">
+                        {QUOTES.map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setQuoteIndex(i)}
+                                className={`h-2 rounded-full transition-all duration-300 ${i === quoteIndex ? 'bg-[#be1111] w-6' : 'bg-[#be1111]/20 w-2 hover:bg-[#be1111]/40'}`}
+                            />
+                        ))}
+                    </div>
                 </div>
 
                 {/* Description Section */}
