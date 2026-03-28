@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../utils/upload');
+const upload = require('../middlewares/upload');
 const { getInventory, addOrUpdateInventory, deleteInventory } = require('../controllers/inventoryController');
 
 // Define API routes
