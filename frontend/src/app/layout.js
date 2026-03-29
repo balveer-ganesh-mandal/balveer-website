@@ -16,26 +16,21 @@ const mukta = Mukta({
   display: 'swap',
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-  ? process.env.NEXT_PUBLIC_SITE_URL
-  : process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000';
-
 export const metadata = {
-  metadataBase: new URL(baseUrl),
+  metadataBase: new URL("https://www.balveerganeshmandal.online"),
   title: "Balveer Ganesh Mandal",
-  description: "Balveer Ganesh Mandal (Chandicha Pawan Ganpati) - Celebrating tradition and devotion.",
+  description: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती) - Balveer Ganesh Mandal, Malkapur. Est. 1924.",
   openGraph: {
-    title: "Balveer Ganesh Mandal",
-    description: "Balveer Ganesh Mandal (Chandicha Pawan Ganpati) - Celebrating tradition and devotion.",
-    url: "/",
+    title: "बालवीर गणेश मंडळ | Balveer Ganesh Mandal",
+    description: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती) - Celebrating tradition and devotion since 1924.",
+    url: "https://www.balveerganeshmandal.online",
     siteName: "Balveer Ganesh Mandal",
     images: [
       {
-        url: "/opengraph-image.png",
+        url: "/opengraph-image.jpg",
         width: 1200,
         height: 630,
+        type: "image/jpeg",
       },
     ],
     locale: "mr_IN",
@@ -43,9 +38,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Balveer Ganesh Mandal",
-    description: "Balveer Ganesh Mandal (Chandicha Pawan Ganpati) - Celebrating tradition and devotion.",
-    images: ["/twitter-image.png"],
+    title: "बालवीर गणेश मंडळ | Balveer Ganesh Mandal",
+    description: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती) - Celebrating tradition and devotion since 1924.",
+    images: ["/twitter-image.jpg"],
   },
 };
 
