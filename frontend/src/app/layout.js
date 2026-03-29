@@ -1,14 +1,6 @@
-"use client";
-
 import { Yatra_One, Mukta } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { LanguageProvider } from "@/context/LanguageContext";
-import { AuthProvider } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { usePathname } from "next/navigation";
+import ClientWrapper from "@/components/ClientWrapper";
 
 const yatra = Yatra_One({
   weight: '400',
@@ -24,30 +16,46 @@ const mukta = Mukta({
   display: 'swap',
 });
 
-// Note: Metadata cannot be exported from a Client Component. 
-// Standard SEO metadata should ideally be moved to `app/page.js` if necessary,
-// but for this build we'll let Next.js infer the defaults correctly.
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ? process.env.NEXT_PUBLIC_SITE_URL
+  : process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000';
+
+export const metadata = {
+  metadataBase: new URL(baseUrl),
+  title: "Balveer Ganesh Mandal",
+  description: "Balveer Ganesh Mandal (Chandicha Pawan Ganpati) - Celebrating tradition and devotion.",
+  openGraph: {
+    title: "Balveer Ganesh Mandal",
+    description: "Balveer Ganesh Mandal (Chandicha Pawan Ganpati) - Celebrating tradition and devotion.",
+    url: "/",
+    siteName: "Balveer Ganesh Mandal",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "mr_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Balveer Ganesh Mandal",
+    description: "Balveer Ganesh Mandal (Chandicha Pawan Ganpati) - Celebrating tradition and devotion.",
+    images: ["/twitter-image.png"],
+  },
+};
 
 export default function RootLayout({ children }) {
-  const pathname = usePathname();
-  const isAdminRoute = pathname?.startsWith("/admin");
-
   return (
     <html lang="en" suppressHydrationWarning className={`${yatra.variable} ${mukta.variable}`}>
       <body className="font-sans antialiased bg-[#fffdfc] text-gray-800 transition-colors duration-300">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'dummy_client_id_during_build'}>
-            <AuthProvider>
-              <LanguageProvider>
-                {!isAdminRoute && <Navbar />}
-                <div className={isAdminRoute ? "" : "pt-[65px] md:pt-[81px]"}>
-                  {children}
-                </div>
-                {!isAdminRoute && <Footer />}
-              </LanguageProvider>
-            </AuthProvider>
-          </GoogleOAuthProvider>
-        </ThemeProvider>
+        <ClientWrapper>
+          {children}
+        </ClientWrapper>
       </body>
     </html>
   );
