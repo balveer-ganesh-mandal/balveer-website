@@ -18,11 +18,31 @@ const mukta = Mukta({
 
 export const metadata = {
   metadataBase: new URL("https://www.balveerganeshmandal.online"),
-  title: "Balveer Ganesh Mandal",
-  description: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती) - Balveer Ganesh Mandal, Malkapur. Est. 1924.",
+  title: {
+    default: "Balveer Ganesh Mandal | Malkapur | बालवीर गणेश मंडळ",
+    template: "%s | Balveer Ganesh Mandal"
+  },
+  description: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती) - Balveer Ganesh Mandal, Malkapur. Celebrating tradition and devotion since 1924. One of the oldest and most revered Ganeshotsav Mandals in Malkapur.",
+  keywords: [
+    "Balveer Ganesh Mandal",
+    "Balveer Ganesh Mandal Malkapur",
+    "बालवीर गणेश मंडळ",
+    "बालवीर गणेश मंडळ मलकापूर",
+    "Chandicha Pavan Ganpati",
+    "Malkapur Ganeshotsav",
+    "Ganeshotsav Malkapur",
+    "Ganesh Chaturthi Malkapur",
+    "Oldest Ganesh Mandal Malkapur"
+  ],
+  authors: [{ name: "Balveer Ganesh Mandal" }],
+  creator: "Balveer Ganesh Mandal",
+  publisher: "Balveer Ganesh Mandal",
+  alternates: {
+    canonical: "https://www.balveerganeshmandal.online",
+  },
   openGraph: {
-    title: "बालवीर गणेश मंडळ | Balveer Ganesh Mandal",
-    description: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती) - Celebrating tradition and devotion since 1924.",
+    title: "बालवीर गणेश मंडळ | Balveer Ganesh Mandal, Malkapur",
+    description: "बालवीर गणेश मंडळ (चांदीचा पावन गणपती) - Celebrating tradition and devotion since 1924. Join us in our cultural and social work.",
     url: "https://www.balveerganeshmandal.online",
     siteName: "Balveer Ganesh Mandal",
     images: [
@@ -31,6 +51,7 @@ export const metadata = {
         width: 1200,
         height: 630,
         type: "image/jpeg",
+        alt: "Balveer Ganesh Mandal, Malkapur",
       },
     ],
     locale: "mr_IN",
